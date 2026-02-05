@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { User, LogOut } from 'lucide-react';
 import { Home, Session } from './pages';
 import { LoginPage } from './pages/LoginPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -22,8 +23,10 @@ function Header() {
         <span className="tagline">Code Repo Initialization & Scaffolding Platform</span>
         {isAuthenticated() && (
           <div className="user-menu">
+            <User size={18} />
             <span className="user-name">{user?.name || 'User'}</span>
             <button onClick={handleLogout} className="logout-btn">
+              <LogOut size={16} />
               Logout
             </button>
           </div>

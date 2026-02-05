@@ -1,5 +1,6 @@
 import { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Key, LogIn, AlertCircle, Loader2 } from 'lucide-react';
 import { login } from '../services/auth';
 import './LoginPage.css';
 
@@ -34,7 +35,10 @@ export function LoginPage() {
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
-            <label htmlFor="apiKey">API Key</label>
+            <label htmlFor="apiKey">
+              <Key size={16} />
+              API Key
+            </label>
             <input
               id="apiKey"
               type="password"
@@ -47,10 +51,25 @@ export function LoginPage() {
             />
           </div>
 
-          {error && <div className="error-message">{error}</div>}
+          {error && (
+            <div className="error-message">
+              <AlertCircle size={16} />
+              {error}
+            </div>
+          )}
 
           <button type="submit" disabled={isLoading || !apiKey}>
-            {isLoading ? 'Signing in...' : 'Sign In'}
+            {isLoading ? (
+              <>
+                <Loader2 size={18} className="spin" />
+                Signing in...
+              </>
+            ) : (
+              <>
+                <LogIn size={18} />
+                Sign In
+              </>
+            )}
           </button>
         </form>
 
