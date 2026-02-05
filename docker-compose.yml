@@ -1,19 +1,31 @@
-version: '3.8'
-
 services:
-  # CRISP API - .NET 8 backend
-  api:
+  # CRISP - .NET 8 API + React frontend (single container)
+  crisp:
     build:
       context: .
       dockerfile: src/CRISP.Api/Dockerfile
-    container_name: crisp-api
+    container_name: crisp
     ports:
       - "5000:5000"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5000
+      # Authentication
+      - Auth__Enabled=${AUTH_ENABLED:-true}
+      - Auth__Jwt__Secret=${JWT_SECRET}
+      - Auth__Jwt__Issuer=${JWT_ISSUER:-CRISP}
+      - Auth__Jwt__Audience=${JWT_AUDIENCE:-CRISP-Web}
+      - Auth__Jwt__ExpirationMinutes=${JWT_EXPIRATION:-60}
+      - Auth__ApiKeys__0__Id=default
+      - Auth__ApiKeys__0__Name=${API_KEY_NAME:-default}
+      - Auth__ApiKeys__0__Key=${API_KEY}
+      - Auth__ApiKeys__0__IsHashed=false
+      - Auth__ApiKeys__0__Roles__0=User
+      - Auth__ApiKeys__0__Roles__1=Admin
+      # Claude API
       - Claude__ApiKey=${CLAUDE_API_KEY}
       - Claude__Model=${CLAUDE_MODEL:-claude-sonnet-4-20250514}
+      # Source Control
       - Crisp__ScmPlatform=${SCM_PLATFORM:-GitHub}
       - Crisp__GitHub__Owner=${GITHUB_OWNER}
       - Crisp__GitHub__Token=${GITHUB_TOKEN}
@@ -31,35 +43,9 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 15s
     restart: unless-stopped
     networks:
-      - crisp-internal
-      - cloudflared-tunnel
-
-  # CRISP Web UI - React frontend with nginx
-  web:
-    build:
-      context: src/crisp-web
-      dockerfile: Dockerfile
-    container_name: crisp-web
-    ports:
-      - "3000:3000"
-    environment:
-      - BASIC_AUTH_USER=${BASIC_AUTH_USER:-demo}
-      - BASIC_AUTH_PASS=${BASIC_AUTH_PASS:-demo}
-    depends_on:
-      api:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 5s
-    restart: unless-stopped
-    networks:
-      - crisp-internal
       - cloudflared-tunnel
 
 volumes:
@@ -69,7 +55,5 @@ volumes:
     driver: local
 
 networks:
-  crisp-internal:
-    driver: bridge
   cloudflared-tunnel:
     external: true

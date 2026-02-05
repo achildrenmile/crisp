@@ -1,4 +1,5 @@
 import type { Session, ChatMessage, DeliveryCard } from '../types';
+import { getAuthHeaders, getStoredToken } from './auth';
 
 const API_BASE = '/api/chat';
 
@@ -10,8 +11,26 @@ export interface SendMessageResponse {
   timestamp: string;
 }
 
+// Helper to make authenticated requests
+async function authFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  const headers = {
+    ...getAuthHeaders(),
+    ...options.headers,
+  };
+
+  const response = await fetch(url, { ...options, headers });
+
+  // If unauthorized, redirect to login
+  if (response.status === 401) {
+    window.location.href = '/login';
+    throw new Error('Unauthorized');
+  }
+
+  return response;
+}
+
 export async function createSession(): Promise<Session> {
-  const response = await fetch(`${API_BASE}/sessions`, {
+  const response = await authFetch(`${API_BASE}/sessions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -36,7 +55,7 @@ export async function sendMessage(
   sessionId: string,
   content: string
 ): Promise<SendMessageResponse> {
-  const response = await fetch(`${API_BASE}/sessions/${sessionId}/messages`, {
+  const response = await authFetch(`${API_BASE}/sessions/${sessionId}/messages`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -52,7 +71,7 @@ export async function sendMessage(
 }
 
 export async function getMessages(sessionId: string): Promise<ChatMessage[]> {
-  const response = await fetch(`${API_BASE}/sessions/${sessionId}/messages`);
+  const response = await authFetch(`${API_BASE}/sessions/${sessionId}/messages`);
 
   if (!response.ok) {
     throw new Error(`Failed to get messages: ${response.statusText}`);
@@ -64,7 +83,7 @@ export async function getMessages(sessionId: string): Promise<ChatMessage[]> {
 export async function getSessionStatus(
   sessionId: string
 ): Promise<{ status: string }> {
-  const response = await fetch(`${API_BASE}/sessions/${sessionId}/status`);
+  const response = await authFetch(`${API_BASE}/sessions/${sessionId}/status`);
 
   if (!response.ok) {
     throw new Error(`Failed to get session status: ${response.statusText}`);
@@ -78,7 +97,7 @@ export async function approvePlan(
   approved: boolean,
   feedback?: string
 ): Promise<ChatMessage> {
-  const response = await fetch(`${API_BASE}/sessions/${sessionId}/approve`, {
+  const response = await authFetch(`${API_BASE}/sessions/${sessionId}/approve`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -96,7 +115,7 @@ export async function approvePlan(
 export async function getDeliveryResult(
   sessionId: string
 ): Promise<DeliveryCard | null> {
-  const response = await fetch(`${API_BASE}/sessions/${sessionId}/result`);
+  const response = await authFetch(`${API_BASE}/sessions/${sessionId}/result`);
 
   if (response.status === 404) {
     return null;
@@ -110,5 +129,10 @@ export async function getDeliveryResult(
 }
 
 export function createEventSource(sessionId: string): EventSource {
-  return new EventSource(`${API_BASE}/sessions/${sessionId}/events`);
+  // For SSE, we need to pass auth via query param since EventSource doesn't support headers
+  const token = getStoredToken();
+  const url = token
+    ? `${API_BASE}/sessions/${sessionId}/events?token=${encodeURIComponent(token)}`
+    : `${API_BASE}/sessions/${sessionId}/events`;
+  return new EventSource(url);
 }

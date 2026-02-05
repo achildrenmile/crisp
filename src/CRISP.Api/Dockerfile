@@ -1,8 +1,16 @@
 # CRISP API Dockerfile
-# Multi-stage build for .NET 8 API
+# Multi-stage build for .NET 8 API + React Frontend
 
-# Build stage
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+# Build stage for React frontend
+FROM node:20-alpine AS frontend-build
+WORKDIR /web
+COPY src/crisp-web/package*.json ./
+RUN npm ci
+COPY src/crisp-web/ ./
+RUN npm run build
+
+# Build stage for .NET API
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS api-build
 WORKDIR /src
 
 # Copy solution and project files first for better layer caching
@@ -39,13 +47,18 @@ RUN apt-get update && apt-get install -y git curl && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user for security
 RUN useradd -m -s /bin/bash crisp
-USER crisp
 
-# Copy published app
-COPY --from=build /app/publish .
+# Copy published API
+COPY --from=api-build /app/publish .
+
+# Copy frontend build to wwwroot
+COPY --from=frontend-build /web/dist ./wwwroot
 
 # Create directories for logs and workspaces
-RUN mkdir -p /home/crisp/logs /home/crisp/workspaces
+RUN mkdir -p /home/crisp/logs /home/crisp/workspaces && \
+    chown -R crisp:crisp /home/crisp /app/wwwroot
+
+USER crisp
 
 # Environment variables
 ENV ASPNETCORE_URLS=http://+:5000

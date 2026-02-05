@@ -1,4 +1,5 @@
 using System.Text.Json;
+using CRISP.Api.Auth;
 using CRISP.Api.Models;
 using CRISP.Api.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +14,8 @@ public static class ChatEndpoints
     public static void MapChatEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/chat")
-            .WithTags("Chat");
+            .WithTags("Chat")
+            .RequireAuthorization();
 
         // Create a new session
         group.MapPost("/sessions", CreateSession)
@@ -30,10 +32,11 @@ public static class ChatEndpoints
             .WithName("GetMessages")
             .WithDescription("Gets all messages in the session");
 
-        // Get SSE event stream
+        // Get SSE event stream (allows token via query param since EventSource doesn't support headers)
         group.MapGet("/sessions/{sessionId}/events", GetEvents)
             .WithName("GetEvents")
-            .WithDescription("Server-Sent Events stream for real-time updates");
+            .WithDescription("Server-Sent Events stream for real-time updates")
+            .AllowAnonymous(); // Auth handled manually via query param
 
         // Approve or reject plan
         group.MapPost("/sessions/{sessionId}/approve", ApprovePlan)
@@ -116,8 +119,27 @@ public static class ChatEndpoints
         string sessionId,
         HttpContext context,
         ISessionManager sessionManager,
+        IJwtTokenService jwtTokenService,
         CancellationToken cancellationToken)
     {
+        // Validate token from query param (EventSource doesn't support headers)
+        var token = context.Request.Query["token"].FirstOrDefault();
+        if (!string.IsNullOrEmpty(token))
+        {
+            var principal = jwtTokenService.ValidateToken(token);
+            if (principal == null)
+            {
+                context.Response.StatusCode = 401;
+                return;
+            }
+        }
+        else if (context.User.Identity?.IsAuthenticated != true)
+        {
+            // No token in query and not authenticated via header
+            context.Response.StatusCode = 401;
+            return;
+        }
+
         var session = sessionManager.GetSession(sessionId);
         if (session == null)
         {

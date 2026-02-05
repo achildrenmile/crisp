@@ -1,4 +1,6 @@
+using System.Text;
 using CRISP.Agent;
+using CRISP.Api.Auth;
 using CRISP.Api.Endpoints;
 using CRISP.Api.Services;
 using CRISP.Audit;
@@ -11,7 +13,10 @@ using CRISP.Mcp.GitHub;
 using CRISP.Mcp.PolicyEngine;
 using CRISP.Pipelines;
 using CRISP.Templates;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
 // Configure Serilog
@@ -36,6 +41,44 @@ try
         builder.Configuration.GetSection("Crisp"));
     builder.Services.Configure<ClaudeApiOptions>(
         builder.Configuration.GetSection("Claude"));
+    builder.Services.Configure<AuthConfiguration>(
+        builder.Configuration.GetSection("Auth"));
+
+    // Authentication services
+    var authConfig = builder.Configuration.GetSection("Auth").Get<AuthConfiguration>()
+        ?? new AuthConfiguration();
+
+    builder.Services.AddSingleton<IApiKeyValidator, ApiKeyValidator>();
+    builder.Services.AddSingleton<IJwtTokenService, JwtTokenService>();
+
+    // Configure authentication
+    if (authConfig.Enabled)
+    {
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(authConfig.Jwt.Secret)),
+                ValidateIssuer = true,
+                ValidIssuer = authConfig.Jwt.Issuer,
+                ValidateAudience = true,
+                ValidAudience = authConfig.Jwt.Audience,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.FromMinutes(1)
+            };
+        })
+        .AddScheme<ApiKeyAuthOptions, ApiKeyAuthHandler>(
+            ApiKeyAuthOptions.DefaultScheme, _ => { });
+
+        builder.Services.AddAuthorization();
+    }
 
     // Add HTTP client factory
     builder.Services.AddHttpClient("AzureDevOps");
@@ -109,6 +152,22 @@ try
     app.UseCors();
     app.UseSerilogRequestLogging();
 
+    // Authentication & Authorization (if enabled)
+    var authEnabled = app.Configuration.GetValue<bool>("Auth:Enabled", true);
+    if (authEnabled)
+    {
+        app.UseAuthentication();
+        app.UseAuthorization();
+    }
+
+    // Serve static files (React frontend)
+    var wwwrootPath = Path.Combine(app.Environment.ContentRootPath, "wwwroot");
+    if (Directory.Exists(wwwrootPath))
+    {
+        app.UseDefaultFiles();
+        app.UseStaticFiles();
+    }
+
     // Swagger UI
     app.UseSwagger();
     app.UseSwaggerUI(c =>
@@ -118,11 +177,20 @@ try
     });
 
     // Map endpoints
+    app.MapAuthEndpoints();
     app.MapChatEndpoints();
     app.MapHealthEndpoints();
 
-    // Root redirect to Swagger
-    app.MapGet("/", () => Results.Redirect("/swagger"));
+    // SPA fallback - serve index.html for non-API routes
+    if (Directory.Exists(wwwrootPath))
+    {
+        app.MapFallbackToFile("index.html");
+    }
+    else
+    {
+        // Root redirect to Swagger when no frontend
+        app.MapGet("/", () => Results.Redirect("/swagger"));
+    }
 
     Log.Information("CRISP API started. Open http://localhost:5000/swagger for API documentation.");
 
