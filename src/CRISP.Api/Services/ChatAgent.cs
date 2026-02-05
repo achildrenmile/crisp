@@ -242,10 +242,9 @@ public sealed class ChatAgent : IChatAgent
                        ```bash
                        git clone {result.CloneUrl}
                        ```
-                    2. Open in VS Code: [Click here]({result.VsCodeLink})
-                    3. Follow the README for setup instructions
+                    2. Follow the README for setup instructions
 
-                    Happy coding! 🎉
+                    Happy coding!
                     """;
 
                 var assistantMessage = session.AddAssistantMessage(successMessage);
