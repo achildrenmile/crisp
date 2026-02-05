@@ -242,7 +242,8 @@ public sealed class ChatAgent : IChatAgent
                        ```bash
                        git clone {result.CloneUrl}
                        ```
-                    2. Follow the README for setup instructions
+                    2. Or open directly in VS Code: [Open in VS Code]({result.VsCodeLink})
+                    3. Follow the README for setup instructions
 
                     Happy coding!
                     """;
