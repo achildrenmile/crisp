@@ -5,7 +5,7 @@
 FROM node:20-alpine AS frontend-build
 WORKDIR /web
 COPY src/crisp-web/package*.json ./
-RUN npm ci
+RUN npm install
 COPY src/crisp-web/ ./
 RUN npm run build
 
