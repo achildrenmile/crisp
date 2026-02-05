@@ -38,6 +38,7 @@ public sealed class PersistedDeliveryResult
     public string? PipelineUrl { get; set; }
     public string? BuildStatus { get; set; }
     public string VsCodeLink { get; set; } = string.Empty;
+    public string SummaryCard { get; set; } = string.Empty;
     public string? ErrorMessage { get; set; }
 }
 
@@ -93,6 +94,7 @@ public sealed class SessionPersistence
                 PipelineUrl = session.DeliveryResult.PipelineUrl,
                 BuildStatus = session.DeliveryResult.BuildStatus,
                 VsCodeLink = session.DeliveryResult.VsCodeLink,
+                SummaryCard = session.DeliveryResult.SummaryCard,
                 ErrorMessage = session.DeliveryResult.ErrorMessage
             };
         }
