@@ -1,0 +1,61 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Core Microsoft Extensions -->
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+
+    <!-- ASP.NET Core -->
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+
+    <!-- Logging -->
+    <PackageVersion Include="Serilog" Version="4.0.0" />
+    <PackageVersion Include="Serilog.Extensions.Hosting" Version="8.0.0" />
+    <PackageVersion Include="Serilog.Extensions.Logging" Version="8.0.0" />
+    <PackageVersion Include="Serilog.Sinks.Console" Version="5.0.1" />
+    <PackageVersion Include="Serilog.Sinks.File" Version="5.0.0" />
+    <PackageVersion Include="Serilog.Sinks.Seq" Version="8.0.0" />
+    <PackageVersion Include="Serilog.Settings.Configuration" Version="8.0.0" />
+
+    <!-- Git Operations -->
+    <PackageVersion Include="LibGit2Sharp" Version="0.30.0" />
+
+    <!-- YAML Handling -->
+    <PackageVersion Include="YamlDotNet" Version="15.1.4" />
+
+    <!-- Template Engine -->
+    <PackageVersion Include="Scriban" Version="5.10.0" />
+
+    <!-- HTTP Clients -->
+    <PackageVersion Include="Octokit" Version="13.0.1" />
+
+    <!-- JSON -->
+    <PackageVersion Include="System.Text.Json" Version="8.0.4" />
+
+    <!-- MCP SDK -->
+    <PackageVersion Include="ModelContextProtocol" Version="0.1.0-preview.9" />
+
+    <!-- Testing -->
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
+    <PackageVersion Include="xunit" Version="2.8.1" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.1" />
+    <PackageVersion Include="FluentAssertions" Version="6.12.0" />
+    <PackageVersion Include="NSubstitute" Version="5.1.0" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.2" />
+  </ItemGroup>
+</Project>

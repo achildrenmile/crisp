@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>CRISP.Git</RootNamespace>
+    <Description>Local Git operations using LibGit2Sharp for CRISP</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CRISP.Core\CRISP.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LibGit2Sharp" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+</Project>
