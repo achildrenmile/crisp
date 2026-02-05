@@ -25,12 +25,13 @@
 
     <!-- Logging -->
     <PackageVersion Include="Serilog" Version="4.0.0" />
+    <PackageVersion Include="Serilog.AspNetCore" Version="8.0.2" />
     <PackageVersion Include="Serilog.Extensions.Hosting" Version="8.0.0" />
     <PackageVersion Include="Serilog.Extensions.Logging" Version="8.0.0" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="5.0.1" />
     <PackageVersion Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageVersion Include="Serilog.Sinks.Seq" Version="8.0.0" />
-    <PackageVersion Include="Serilog.Settings.Configuration" Version="8.0.0" />
+    <PackageVersion Include="Serilog.Settings.Configuration" Version="8.0.2" />
 
     <!-- Git Operations -->
     <PackageVersion Include="LibGit2Sharp" Version="0.30.0" />
@@ -43,6 +44,12 @@
 
     <!-- HTTP Clients -->
     <PackageVersion Include="Octokit" Version="13.0.1" />
+
+    <!-- Anthropic Claude API -->
+    <PackageVersion Include="Anthropic.SDK" Version="3.2.0" />
+
+    <!-- Markdown Rendering -->
+    <PackageVersion Include="Markdig" Version="0.37.0" />
 
     <!-- JSON -->
     <PackageVersion Include="System.Text.Json" Version="8.0.5" />
