@@ -188,8 +188,17 @@ export function useSession(sessionId?: string): UseSessionReturn {
       setMessages((prev) => [...prev, userMessage]);
 
       try {
-        await api.sendMessage(sessionId, content);
-        // Response will come via SSE
+        const response = await api.sendMessage(sessionId, content);
+        // Add assistant response from API
+        if (response && response.content) {
+          const assistantMessage: ChatMessage = {
+            id: response.messageId || crypto.randomUUID(),
+            role: 'assistant',
+            content: response.content,
+            timestamp: response.timestamp || new Date().toISOString(),
+          };
+          setMessages((prev) => [...prev, assistantMessage]);
+        }
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to send message';
         setError(message);

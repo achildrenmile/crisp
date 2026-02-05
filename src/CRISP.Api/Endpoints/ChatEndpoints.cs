@@ -88,7 +88,7 @@ public static class ChatEndpoints
             var response = await chatAgent.ProcessMessageAsync(
                 session, request.Content, cancellationToken);
 
-            return Results.Ok(new SendMessageResponse(response.MessageId, response.Role));
+            return Results.Ok(new SendMessageResponse(response.MessageId, response.Role, response.Content, response.Timestamp));
         }
         catch (Exception ex)
         {
@@ -168,7 +168,7 @@ public static class ChatEndpoints
             var response = await chatAgent.HandleApprovalAsync(
                 session, request.Approved, request.Feedback, cancellationToken);
 
-            return Results.Ok(new SendMessageResponse(response.MessageId, response.Role));
+            return Results.Ok(new SendMessageResponse(response.MessageId, response.Role, response.Content, response.Timestamp));
         }
         catch (InvalidOperationException ex)
         {

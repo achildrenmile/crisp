@@ -24,7 +24,7 @@ public sealed record SendMessageRequest(string Content);
 /// <summary>
 /// Response after sending a message.
 /// </summary>
-public sealed record SendMessageResponse(string MessageId, string Role);
+public sealed record SendMessageResponse(string MessageId, string Role, string Content, DateTime Timestamp);
 
 /// <summary>
 /// Request to approve or reject the execution plan.
