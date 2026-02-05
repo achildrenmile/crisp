@@ -188,12 +188,7 @@ export function useSession(sessionId?: string): UseSessionReturn {
       setMessages((prev) => [...prev, userMessage]);
 
       try {
-        const response = await api.sendMessage(sessionId, content) as {
-          messageId: string;
-          role: string;
-          content: string;
-          timestamp: string;
-        };
+        const response = await api.sendMessage(sessionId, content);
         // Add assistant response from API
         if (response && response.content) {
           const assistantMessage: ChatMessage = {

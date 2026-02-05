@@ -1,6 +1,14 @@
-import type { Session, ChatMessage, DeliveryCard } from '../types';
+import type { Session, DeliveryCard } from '../types';
 
 const API_BASE = '/api/chat';
+
+// API response type for send message (different from frontend ChatMessage)
+export interface SendMessageResponse {
+  messageId: string;
+  role: string;
+  content: string;
+  timestamp: string;
+}
 
 export async function createSession(): Promise<Session> {
   const response = await fetch(`${API_BASE}/sessions`, {
@@ -27,7 +35,7 @@ export async function createSession(): Promise<Session> {
 export async function sendMessage(
   sessionId: string,
   content: string
-): Promise<ChatMessage> {
+): Promise<SendMessageResponse> {
   const response = await fetch(`${API_BASE}/sessions/${sessionId}/messages`, {
     method: 'POST',
     headers: {
