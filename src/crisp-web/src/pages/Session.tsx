@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useRef, useEffect } from 'react';
 import { useSession } from '../hooks/useSession';
 import {
@@ -8,9 +8,11 @@ import {
   DeliveryCard,
   TypingIndicator,
 } from '../components';
+import { ChatSidebar } from '../components/ChatSidebar';
 
 export function Session() {
   const { sessionId } = useParams<{ sessionId: string }>();
+  const navigate = useNavigate();
   const {
     session,
     messages,
@@ -20,6 +22,7 @@ export function Session() {
     deliveryResult,
     sendMessage,
     approvePlan,
+    createSession,
   } = useSession(sessionId);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -35,6 +38,15 @@ export function Session() {
 
   const handleReject = () => {
     approvePlan(false, 'Please revise the plan');
+  };
+
+  const handleNewSession = async () => {
+    try {
+      const newSessionId = await createSession();
+      navigate(`/session/${newSessionId}`);
+    } catch {
+      // Error handled by hook
+    }
   };
 
   const isInputDisabled =
@@ -55,62 +67,65 @@ export function Session() {
   }
 
   return (
-    <div className="chat-container">
-      <div className="chat-header">
-        <div className="session-info">
-          <span className="session-id">Session: {sessionId.slice(0, 8)}...</span>
-          {session && (
-            <span
-              className={`session-status status-${session.status.toLowerCase().replace('_', '')}`}
-            >
-              {session.status.replace('_', ' ')}
-            </span>
-          )}
+    <div className="chat-layout">
+      <ChatSidebar currentSessionId={sessionId} onNewSession={handleNewSession} />
+
+      <div className="chat-container">
+        <div className="chat-header">
+          <div className="session-info">
+            {session && (
+              <span
+                className={`session-status status-${session.status.toLowerCase().replace('_', '')}`}
+              >
+                {session.status.replace('_', ' ')}
+              </span>
+            )}
+          </div>
         </div>
-      </div>
 
-      <div className="chat-messages">
-        {messages.length === 0 && (
-          <div className="welcome-message">
-            <p>Hi! I'm CRISP, your AI assistant for creating code repositories.</p>
-            <p>Tell me about the project you'd like to create. For example:</p>
-            <ul>
-              <li>"I need a .NET 8 Web API project called customer-api"</li>
-              <li>"Create a FastAPI project for a todo application"</li>
-              <li>"Set up a new microservice with Docker support"</li>
-            </ul>
-          </div>
-        )}
-
-        {messages.map((message) => (
-          <ChatMessage key={message.id} message={message} />
-        ))}
-
-        {currentPlan && (
-          <PlanView
-            plan={currentPlan}
-            isAwaitingApproval={session?.status === 'awaiting_approval'}
-            onApprove={handleApprove}
-            onReject={handleReject}
-          />
-        )}
-
-        {deliveryResult && <DeliveryCard card={deliveryResult} />}
-
-        {isLoading && <TypingIndicator />}
-
-        {error && (
-          <div className="message message-assistant error">
-            <div className="message-content">
-              <p>Error: {error}</p>
+        <div className="chat-messages">
+          {messages.length === 0 && (
+            <div className="welcome-message">
+              <p>Hi! I'm CRISP, your AI assistant for creating code repositories.</p>
+              <p>Tell me about the project you'd like to create. For example:</p>
+              <ul>
+                <li>"I need a .NET 8 Web API project called customer-api"</li>
+                <li>"Create a FastAPI project for a todo application"</li>
+                <li>"Set up a new microservice with Docker support"</li>
+              </ul>
             </div>
-          </div>
-        )}
+          )}
 
-        <div ref={messagesEndRef} />
+          {messages.map((message) => (
+            <ChatMessage key={message.id} message={message} />
+          ))}
+
+          {currentPlan && (
+            <PlanView
+              plan={currentPlan}
+              isAwaitingApproval={session?.status === 'awaiting_approval'}
+              onApprove={handleApprove}
+              onReject={handleReject}
+            />
+          )}
+
+          {deliveryResult && <DeliveryCard card={deliveryResult} />}
+
+          {isLoading && <TypingIndicator />}
+
+          {error && (
+            <div className="message message-assistant error">
+              <div className="message-content">
+                <p>Error: {error}</p>
+              </div>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
+
+        <ChatInput onSend={sendMessage} disabled={isInputDisabled} />
       </div>
-
-      <ChatInput onSend={sendMessage} disabled={isInputDisabled} />
     </div>
   );
 }

@@ -257,14 +257,22 @@ body {
   margin-bottom: 1rem;
 }
 
-/* Chat Container */
-.chat-container {
+/* Chat Layout with Sidebar */
+.chat-layout {
   display: flex;
-  flex-direction: column;
   height: calc(100vh - 200px);
   background: var(--surface-color);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+/* Chat Container */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
 }
 

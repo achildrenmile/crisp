@@ -56,7 +56,7 @@ export function ProjectHistory() {
     return date.toLocaleDateString();
   };
 
-  const truncateMessage = (message: string | null, maxLength: number = 60) => {
+  const truncateMessage = (message: string | null, maxLength: number = 80) => {
     if (!message) return 'No description';
     if (message.length <= maxLength) return message;
     return message.substring(0, maxLength) + '...';
