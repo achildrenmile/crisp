@@ -34,8 +34,8 @@ RUN dotnet publish src/CRISP.Api/CRISP.Api.csproj -c Release -o /app/publish --n
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 
-# Install git for LibGit2Sharp operations
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+# Install git for LibGit2Sharp operations and curl for health checks
+RUN apt-get update && apt-get install -y git curl && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user for security
 RUN useradd -m -s /bin/bash crisp
