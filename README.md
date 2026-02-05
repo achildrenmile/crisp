@@ -86,6 +86,46 @@ crisp/
 └── CRISP.sln                    # Solution file
 ```
 
+## How It Works
+
+CRISP uses Claude AI to have a natural conversation with developers to understand their project requirements. When enough information is gathered, Claude outputs a structured JSON action that triggers the actual scaffolding process.
+
+### Conversation Flow
+
+1. **Developer describes project** - "I want to create a new Python API called order-service"
+2. **Claude asks clarifying questions** - Framework preference, visibility, Docker support, etc.
+3. **Claude confirms and creates** - Once requirements are clear, outputs a JSON action block
+4. **CRISP executes** - Creates the repository, scaffolds code, pushes to GitHub/Azure DevOps
+5. **Delivery** - Returns repository URL, clone command, and VS Code link
+
+### Example Conversation
+
+```
+User: I need a new Python API for handling customer orders
+
+Claude: I can help you create that! Let me gather a few details:
+- What would you like to name the project? (e.g., "order-service")
+- Should I include Docker support?
+
+User: Call it customer-orders-api, and yes include Docker
+
+Claude: Great! I'll create customer-orders-api with:
+- Language: Python
+- Framework: FastAPI
+- Docker: Yes
+- Visibility: Private
+
+Ready to create?
+
+User: yes
+
+[CRISP executes scaffolding and creates the repository]
+
+Claude: ✅ Repository Created Successfully!
+📦 Repository: https://github.com/crispsorg/customer-orders-api
+🚀 Clone: git clone https://github.com/crispsorg/customer-orders-api.git
+```
+
 ## Getting Started
 
 ### Prerequisites
@@ -225,6 +265,20 @@ docker-compose down -v
 | `AZURE_DEVOPS_PAT` | Azure DevOps PAT | (for Azure DevOps) |
 | `DEFAULT_BRANCH` | Default branch name | `main` |
 | `GENERATE_CICD` | Generate CI/CD pipelines | `true` |
+| `BASIC_AUTH_USER` | HTTP Basic Auth username | (optional) |
+| `BASIC_AUTH_PASS` | HTTP Basic Auth password | (optional) |
+
+### Securing with Basic Auth
+
+The web frontend supports HTTP Basic Authentication for demo/staging deployments:
+
+```bash
+# In .env file
+BASIC_AUTH_USER=myusername
+BASIC_AUTH_PASS=mystrongpassword
+```
+
+When these variables are set, nginx will require authentication to access the web UI. API endpoints are excluded from auth to allow programmatic access.
 
 ### Building Individual Images
 
@@ -424,6 +478,75 @@ All MCP servers implement the Model Context Protocol and expose tools via stdio 
 3. **Policy compliance** - All organizational policies evaluated before execution
 4. **Full audit trail** - Every action logged with timestamps and outcomes
 5. **Platform-agnostic** - Same logic works for GitHub and Azure DevOps
+
+## Deployment
+
+### Production Deployment with Docker Compose
+
+For a production deployment, you'll typically:
+
+1. **Set up a server** with Docker installed
+2. **Clone the repository** and configure `.env`
+3. **Run behind a reverse proxy** (nginx, Caddy, Traefik) with HTTPS
+
+Example with Cloudflare Tunnel:
+
+```bash
+# On your server
+git clone https://github.com/achildrenmile/crisp.git /opt/crisp
+cd /opt/crisp
+cp .env.example .env
+
+# Edit .env with your credentials
+nano .env
+
+# Start services
+docker-compose up -d
+
+# Services are now running on:
+# - API: localhost:5000
+# - Web: localhost:3000
+```
+
+### GitHub Token Requirements
+
+Your GitHub Personal Access Token needs these scopes:
+
+- `repo` - Full control of private repositories
+- `workflow` - Update GitHub Action workflows
+- `admin:org` - (if using an organization) Manage organization settings
+
+For organization repositories, you must also authorize the token for the organization in GitHub settings.
+
+## Troubleshooting
+
+### Common Issues
+
+**"Failed to create repository"**
+- Check that your GitHub token has `repo` scope
+- For organizations, ensure the token is authorized for that org
+- Verify the repository name doesn't already exist
+
+**"Session not found" errors**
+- Sessions are stored in-memory and reset when the API restarts
+- Create a new session after API restarts
+
+**"Scaffolding appears to work but no repo created"**
+- Ensure the API can reach GitHub (check network/firewall)
+- Review API logs: `docker-compose logs api`
+
+### Viewing Logs
+
+```bash
+# All services
+docker-compose logs -f
+
+# API only
+docker-compose logs -f api
+
+# Web only
+docker-compose logs -f web
+```
 
 ## License
 
