@@ -11,5 +11,6 @@ public enum ProjectLanguage
     Python,
     Java,
     Go,
-    Rust
+    Rust,
+    Cpp
 }

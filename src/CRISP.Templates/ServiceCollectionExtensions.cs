@@ -35,12 +35,22 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IProjectGenerator, ExpressGenerator>();
         services.AddSingleton<IProjectGenerator, ReactGenerator>();
         services.AddSingleton<IProjectGenerator, NextJsGenerator>();
+        services.AddSingleton<IProjectGenerator, VueGenerator>();
+        services.AddSingleton<IProjectGenerator, NestJsGenerator>();
 
         // Java
         services.AddSingleton<IProjectGenerator, SpringBootGenerator>();
+        services.AddSingleton<IProjectGenerator, QuarkusGenerator>();
 
         // Go
         services.AddSingleton<IProjectGenerator, GinGenerator>();
+        services.AddSingleton<IProjectGenerator, EchoGenerator>();
+
+        // Rust
+        services.AddSingleton<IProjectGenerator, ActixGenerator>();
+
+        // C++
+        services.AddSingleton<IProjectGenerator, CppCMakeGenerator>();
 
         return services;
     }

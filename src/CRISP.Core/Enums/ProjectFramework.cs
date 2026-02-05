@@ -36,5 +36,9 @@ public enum ProjectFramework
 
     // Rust
     Actix,
-    Axum
+    Axum,
+
+    // C++
+    CppCMake,
+    CppConan
 }

@@ -55,16 +55,24 @@ public sealed class ChatAgent : IChatAgent
         - **Flask** (Python 3.12) - language: "Python", framework: "Flask"
         - **Django REST** (Python 3.12) - language: "Python", framework: "Django"
         - **Express.js** (Node.js 20) - language: "JavaScript" or "TypeScript", framework: "Express"
+        - **NestJS** (Node.js 20) - language: "TypeScript", framework: "NestJs"
         - **Spring Boot** (Java 21) - language: "Java", framework: "SpringBoot"
+        - **Quarkus** (Java 21) - language: "Java", framework: "Quarkus"
         - **Go Gin** (Go 1.22) - language: "Go", framework: "GinGonic"
+        - **Go Echo** (Go 1.22) - language: "Go", framework: "Echo"
+        - **Rust Actix** (Rust 1.75) - language: "Rust", framework: "Actix"
 
         ### Frontend Applications:
         - **React** with Vite - language: "JavaScript" or "TypeScript", framework: "React"
+        - **Vue.js** with Vite - language: "JavaScript" or "TypeScript", framework: "Vue"
         - **Next.js** (App Router) - language: "JavaScript" or "TypeScript", framework: "NextJs"
+
+        ### Desktop/CLI Applications:
+        - **C++ with CMake** (C++20) - language: "Cpp", framework: "CppCMake"
 
         ## Required Information:
         - Project name (lowercase, hyphenated, e.g., "my-api")
-        - Programming language (CSharp, Python, JavaScript, TypeScript, Java, or Go)
+        - Programming language (CSharp, Python, JavaScript, TypeScript, Java, Go, Rust, or Cpp)
         - Framework (one of the supported frameworks above)
 
         ## Optional Information (with defaults):
@@ -488,6 +496,8 @@ public sealed class ChatAgent : IChatAgent
             "typescript" => ("Node.js 20", "Jest"),
             "java" => ("Java 21", "JUnit"),
             "go" => ("Go 1.22", "go test"),
+            "rust" => ("Rust 1.75", "cargo test"),
+            "cpp" => ("C++20", "GoogleTest"),
             _ => ("", "")
         };
     }
