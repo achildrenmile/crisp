@@ -41,4 +41,10 @@ public interface ISessionManager
     /// <param name="sessionId">The session ID.</param>
     /// <returns>True if removed, false if not found.</returns>
     bool RemoveSession(string sessionId);
+
+    /// <summary>
+    /// Marks a session as modified so it will be persisted.
+    /// </summary>
+    /// <param name="sessionId">The session ID.</param>
+    void MarkDirty(string sessionId);
 }

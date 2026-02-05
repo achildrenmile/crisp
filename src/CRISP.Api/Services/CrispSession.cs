@@ -31,6 +31,36 @@ public sealed class CrispSession
     }
 
     /// <summary>
+    /// Restores a session from persisted data.
+    /// </summary>
+    public static CrispSession Restore(
+        string sessionId,
+        string? userId,
+        string? projectName,
+        DateTime createdAt,
+        DateTime lastActivityAt,
+        SessionStatus status,
+        IEnumerable<ChatMessage> messages,
+        DeliveryResult? deliveryResult)
+    {
+        var session = new CrispSession(sessionId, userId, null)
+        {
+            ProjectName = projectName,
+            CreatedAt = createdAt,
+            LastActivityAt = lastActivityAt,
+            Status = status,
+            DeliveryResult = deliveryResult
+        };
+
+        foreach (var message in messages)
+        {
+            session._messages.Enqueue(message);
+        }
+
+        return session;
+    }
+
+    /// <summary>
     /// Unique session identifier.
     /// </summary>
     public string SessionId { get; }
@@ -53,7 +83,7 @@ public sealed class CrispSession
     /// <summary>
     /// When the session was created.
     /// </summary>
-    public DateTime CreatedAt { get; }
+    public DateTime CreatedAt { get; private set; }
 
     /// <summary>
     /// When the session was last active.

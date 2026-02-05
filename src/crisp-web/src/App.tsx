@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
-import { User, LogOut } from 'lucide-react';
+import { User, LogOut, Github } from 'lucide-react';
 import { Home, Session } from './pages';
 import { LoginPage } from './pages/LoginPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -42,7 +42,14 @@ function Layout({ children }: { children: React.ReactNode }) {
       <Header />
       <main className="app-main">{children}</main>
       <footer className="app-footer">
-        <p>CRISP - Code Repo Initialization & Scaffolding Platform</p>
+        <p>
+          CRISP - Code Repo Initialization & Scaffolding Platform
+          <span className="footer-separator">|</span>
+          <a href="https://github.com/achildrenmile/crisp" target="_blank" rel="noopener noreferrer" className="footer-link">
+            <Github size={14} />
+            GitHub
+          </a>
+        </p>
       </footer>
     </div>
   );

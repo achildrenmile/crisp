@@ -54,8 +54,8 @@ COPY --from=api-build /app/publish .
 # Copy frontend build to wwwroot
 COPY --from=frontend-build /web/dist ./wwwroot
 
-# Create directories for logs and workspaces
-RUN mkdir -p /home/crisp/logs /home/crisp/workspaces && \
+# Create directories for logs, workspaces, and sessions
+RUN mkdir -p /home/crisp/logs /home/crisp/workspaces /home/crisp/.crisp/sessions && \
     chown -R crisp:crisp /home/crisp /app/wwwroot
 
 USER crisp

@@ -83,8 +83,14 @@ try
     // Add HTTP client factory
     builder.Services.AddHttpClient("AzureDevOps");
 
-    // Session management
-    builder.Services.AddSingleton<ISessionManager, InMemorySessionManager>();
+    // Session management with persistence
+    var sessionsPath = builder.Configuration.GetValue<string>("Crisp:SessionsPath")
+        ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".crisp", "sessions");
+    builder.Services.AddSingleton<ISessionManager>(sp =>
+    {
+        var logger = sp.GetRequiredService<ILogger<PersistentSessionManager>>();
+        return new PersistentSessionManager(logger, sessionsPath);
+    });
 
     // Claude client
     builder.Services.AddSingleton<IClaudeClient, ClaudeClient>();

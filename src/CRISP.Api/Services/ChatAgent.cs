@@ -18,6 +18,7 @@ public sealed class ChatAgent : IChatAgent
     private readonly ILogger<ChatAgent> _logger;
     private readonly IClaudeClient _claudeClient;
     private readonly ICrispAgent _crispAgent;
+    private readonly ISessionManager _sessionManager;
     private readonly CrispConfiguration _config;
 
     private const string SystemPrompt = """
@@ -95,11 +96,13 @@ public sealed class ChatAgent : IChatAgent
         ILogger<ChatAgent> logger,
         IClaudeClient claudeClient,
         ICrispAgent crispAgent,
+        ISessionManager sessionManager,
         IOptions<CrispConfiguration> config)
     {
         _logger = logger;
         _claudeClient = claudeClient;
         _crispAgent = crispAgent;
+        _sessionManager = sessionManager;
         _config = config.Value;
     }
 
@@ -112,6 +115,7 @@ public sealed class ChatAgent : IChatAgent
 
         // Add user message to history
         session.AddUserMessage(userMessage);
+        _sessionManager.MarkDirty(session.SessionId);
 
         // Build system prompt with current context
         var systemPrompt = BuildSystemPrompt(session);
@@ -143,6 +147,7 @@ public sealed class ChatAgent : IChatAgent
 
         // Regular conversation - add assistant response to history
         var assistantMessage = session.AddAssistantMessage(response);
+        _sessionManager.MarkDirty(session.SessionId);
 
         // Publish event for SSE subscribers
         await session.PublishEventAsync(new AgentMessageEvent(
@@ -244,6 +249,7 @@ public sealed class ChatAgent : IChatAgent
                     """;
 
                 var assistantMessage = session.AddAssistantMessage(successMessage);
+                _sessionManager.MarkDirty(session.SessionId);
 
                 var deliveryCard = new DeliveryCardDto(
                     result.Platform,
@@ -280,6 +286,7 @@ public sealed class ChatAgent : IChatAgent
                     """;
 
                 var assistantMessage = session.AddAssistantMessage(errorMessage);
+                _sessionManager.MarkDirty(session.SessionId);
 
                 await session.PublishEventAsync(new ErrorEvent(
                     result.ErrorMessage ?? "Unknown error", DateTime.UtcNow));
@@ -305,6 +312,7 @@ public sealed class ChatAgent : IChatAgent
                 """;
 
             var assistantMessage = session.AddAssistantMessage(errorMessage);
+            _sessionManager.MarkDirty(session.SessionId);
 
             await session.PublishEventAsync(new ErrorEvent(
                 ex.Message, DateTime.UtcNow));
@@ -372,6 +380,7 @@ public sealed class ChatAgent : IChatAgent
                 var completionMessage = session.AddAssistantMessage(
                     result.SummaryCard ?? "Repository created successfully!",
                     new MessageMetadata(Phase: "Delivery", DeliveryCard: deliveryCard));
+                _sessionManager.MarkDirty(session.SessionId);
 
                 await session.PublishEventAsync(new DeliveryReadyEvent(
                     deliveryCard, DateTime.UtcNow));
@@ -383,6 +392,7 @@ public sealed class ChatAgent : IChatAgent
                 session.SetStatus(SessionStatus.Failed);
                 var errorMessage = session.AddAssistantMessage(
                     $"Execution failed: {result.ErrorMessage}");
+                _sessionManager.MarkDirty(session.SessionId);
 
                 await session.PublishEventAsync(new ErrorEvent(
                     result.ErrorMessage ?? "Unknown error", DateTime.UtcNow));
@@ -397,6 +407,7 @@ public sealed class ChatAgent : IChatAgent
 
             var errorMessage = session.AddAssistantMessage(
                 $"I encountered an error while executing the plan: {ex.Message}");
+            _sessionManager.MarkDirty(session.SessionId);
 
             await session.PublishEventAsync(new ErrorEvent(
                 ex.Message, DateTime.UtcNow));

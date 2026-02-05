@@ -38,6 +38,7 @@ services:
     volumes:
       - crisp-logs:/home/crisp/logs
       - crisp-workspaces:/home/crisp/workspaces
+      - crisp-sessions:/home/crisp/.crisp/sessions
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
       interval: 30s
@@ -52,6 +53,8 @@ volumes:
   crisp-logs:
     driver: local
   crisp-workspaces:
+    driver: local
+  crisp-sessions:
     driver: local
 
 networks:
