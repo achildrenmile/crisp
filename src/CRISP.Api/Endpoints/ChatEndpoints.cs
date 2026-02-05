@@ -73,6 +73,7 @@ public static class ChatEndpoints
             s.CreatedAt,
             s.LastActivityAt,
             s.DeliveryResult?.RepositoryUrl,
+            s.DeliveryResult?.VsCodeLink,
             s.Messages.FirstOrDefault(m => m.Role == "user")?.Content
         )).ToList();
 

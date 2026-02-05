@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { History, Clock, CheckCircle, XCircle, Loader2, MessageSquare, ExternalLink } from 'lucide-react';
+import { History, Clock, CheckCircle, XCircle, Loader2, MessageSquare, ExternalLink, Code } from 'lucide-react';
 import { getSessionHistory, SessionHistoryItem } from '../services/api';
 import './ProjectHistory.css';
 
@@ -137,18 +137,36 @@ export function ProjectHistory() {
                 {getStatusIcon(session.status)}
                 {session.status}
               </span>
-              {session.repositoryUrl && (
-                <a
-                  href={session.repositoryUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="repo-link"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <ExternalLink size={14} />
-                  View Repo
-                </a>
-              )}
+              <div className="history-item-actions">
+                {session.vsCodeUrl && (
+                  <button
+                    className="vscode-link"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Protocol links need special handling
+                      const link = document.createElement('a');
+                      link.href = session.vsCodeUrl!;
+                      link.click();
+                    }}
+                    title="Open in VS Code"
+                  >
+                    <Code size={14} />
+                    VS Code
+                  </button>
+                )}
+                {session.repositoryUrl && (
+                  <a
+                    href={session.repositoryUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="repo-link"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <ExternalLink size={14} />
+                    View Repo
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         ))}

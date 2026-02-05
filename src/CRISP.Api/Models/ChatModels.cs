@@ -105,6 +105,7 @@ public sealed record SessionHistoryItem(
     DateTime CreatedAt,
     DateTime LastActivityAt,
     string? RepositoryUrl,
+    string? VsCodeUrl,
     string? FirstMessage);
 
 /// <summary>
