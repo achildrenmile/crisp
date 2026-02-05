@@ -1,4 +1,4 @@
-import type { Session, DeliveryCard } from '../types';
+import type { Session, ChatMessage, DeliveryCard } from '../types';
 
 const API_BASE = '/api/chat';
 
