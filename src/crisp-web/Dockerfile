@@ -40,9 +40,9 @@ USER crisp
 # Expose port
 EXPOSE 3000
 
-# Health check
+# Health check (use 127.0.0.1 to avoid IPv6 resolution issues)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
+    CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/ || exit 1
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]
