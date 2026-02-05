@@ -23,8 +23,24 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ITemplateEngine, ScribanTemplateEngine>();
 
         // Register built-in generators
+        // .NET
         services.AddSingleton<IProjectGenerator, AspNetCoreWebApiGenerator>();
+
+        // Python
         services.AddSingleton<IProjectGenerator, FastApiGenerator>();
+        services.AddSingleton<IProjectGenerator, FlaskGenerator>();
+        services.AddSingleton<IProjectGenerator, DjangoGenerator>();
+
+        // JavaScript/TypeScript
+        services.AddSingleton<IProjectGenerator, ExpressGenerator>();
+        services.AddSingleton<IProjectGenerator, ReactGenerator>();
+        services.AddSingleton<IProjectGenerator, NextJsGenerator>();
+
+        // Java
+        services.AddSingleton<IProjectGenerator, SpringBootGenerator>();
+
+        // Go
+        services.AddSingleton<IProjectGenerator, GinGenerator>();
 
         return services;
     }

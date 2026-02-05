@@ -48,13 +48,24 @@ public sealed class ChatAgent : IChatAgent
         3. When you have enough information, output a JSON block to create the project
 
         ## Project Types You Support:
-        - ASP.NET Core Web API (.NET 8) - use language: "CSharp", framework: "AspNetCoreWebApi"
-        - FastAPI (Python 3.12) - use language: "Python", framework: "FastApi"
+
+        ### Backend APIs:
+        - **ASP.NET Core Web API** (.NET 8) - language: "CSharp", framework: "AspNetCoreWebApi"
+        - **FastAPI** (Python 3.12) - language: "Python", framework: "FastApi"
+        - **Flask** (Python 3.12) - language: "Python", framework: "Flask"
+        - **Django REST** (Python 3.12) - language: "Python", framework: "Django"
+        - **Express.js** (Node.js 20) - language: "JavaScript" or "TypeScript", framework: "Express"
+        - **Spring Boot** (Java 21) - language: "Java", framework: "SpringBoot"
+        - **Go Gin** (Go 1.22) - language: "Go", framework: "GinGonic"
+
+        ### Frontend Applications:
+        - **React** with Vite - language: "JavaScript" or "TypeScript", framework: "React"
+        - **Next.js** (App Router) - language: "JavaScript" or "TypeScript", framework: "NextJs"
 
         ## Required Information:
         - Project name (lowercase, hyphenated, e.g., "my-api")
-        - Programming language (CSharp or Python)
-        - Framework (AspNetCoreWebApi or FastApi)
+        - Programming language (CSharp, Python, JavaScript, TypeScript, Java, or Go)
+        - Framework (one of the supported frameworks above)
 
         ## Optional Information (with defaults):
         - Description (default: empty)
@@ -166,10 +177,8 @@ public sealed class ChatAgent : IChatAgent
         try
         {
             // Convert DTO to domain model
-            // Determine runtime version based on language
-            var runtimeVersion = requirementsDto.Language.Equals("CSharp", StringComparison.OrdinalIgnoreCase)
-                ? ".NET 8"
-                : "Python 3.12";
+            // Determine runtime version and testing framework based on language
+            var (runtimeVersion, testingFramework) = GetLanguageDefaults(requirementsDto.Language);
 
             var requirements = new ProjectRequirements
             {
@@ -183,9 +192,7 @@ public sealed class ChatAgent : IChatAgent
                     ? vis
                     : RepositoryVisibility.Private,
                 IncludeContainerSupport = requirementsDto.IncludeDocker,
-                TestingFramework = requirementsDto.Language.Equals("CSharp", StringComparison.OrdinalIgnoreCase)
-                    ? "xUnit"
-                    : "pytest"
+                TestingFramework = testingFramework
             };
 
             // Send progress message
@@ -469,6 +476,20 @@ public sealed class ChatAgent : IChatAgent
             _logger.LogWarning(ex, "Failed to parse action from response");
             return null;
         }
+    }
+
+    private static (string RuntimeVersion, string TestingFramework) GetLanguageDefaults(string language)
+    {
+        return language.ToLowerInvariant() switch
+        {
+            "csharp" => (".NET 8", "xUnit"),
+            "python" => ("Python 3.12", "pytest"),
+            "javascript" => ("Node.js 20", "Jest"),
+            "typescript" => ("Node.js 20", "Jest"),
+            "java" => ("Java 21", "JUnit"),
+            "go" => ("Go 1.22", "go test"),
+            _ => ("", "")
+        };
     }
 
     private sealed class ActionResult
