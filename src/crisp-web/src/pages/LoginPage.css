@@ -3,18 +3,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background-color: var(--background-color);
   padding: 1rem;
 }
 
 .login-container {
-  background: #1e1e2e;
-  border-radius: 12px;
+  background: var(--surface-color);
+  border-radius: var(--radius-lg);
   padding: 2.5rem;
   width: 100%;
   max-width: 400px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  border: 1px solid #2d2d3d;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
 }
 
 .login-header {
@@ -23,15 +23,14 @@
 }
 
 .login-header h1 {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 700;
-  color: #6c5ce7;
+  color: var(--primary-color);
   margin: 0;
-  letter-spacing: 2px;
 }
 
 .login-header p {
-  color: #888;
+  color: var(--text-muted);
   margin: 0.5rem 0 0;
   font-size: 0.9rem;
 }
@@ -49,67 +48,64 @@
 }
 
 .form-group label {
-  color: #ccc;
+  color: var(--text-color);
   font-size: 0.9rem;
   font-weight: 500;
 }
 
 .form-group input {
-  padding: 0.875rem 1rem;
-  border: 1px solid #3d3d4d;
-  border-radius: 8px;
-  background: #252535;
-  color: #fff;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background: var(--surface-color);
+  color: var(--text-color);
   font-size: 1rem;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #6c5ce7;
-  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .form-group input::placeholder {
-  color: #666;
+  color: var(--text-muted);
 }
 
 .form-group input:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+  background: var(--background-color);
 }
 
 .error-message {
-  background: rgba(231, 76, 60, 0.1);
-  border: 1px solid rgba(231, 76, 60, 0.3);
-  color: #e74c3c;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: var(--error-color);
   padding: 0.75rem 1rem;
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-size: 0.9rem;
 }
 
 .login-form button {
-  padding: 0.875rem 1rem;
-  background: #6c5ce7;
+  padding: 0.75rem 1rem;
+  background: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  transition: background 0.2s;
 }
 
 .login-form button:hover:not(:disabled) {
-  background: #5b4cdb;
-}
-
-.login-form button:active:not(:disabled) {
-  transform: scale(0.98);
+  background: var(--primary-hover);
 }
 
 .login-form button:disabled {
-  background: #4a4a5a;
+  background: var(--secondary-color);
   cursor: not-allowed;
 }
 
@@ -119,7 +115,7 @@
 }
 
 .login-footer p {
-  color: #666;
+  color: var(--text-muted);
   font-size: 0.85rem;
   margin: 0;
 }

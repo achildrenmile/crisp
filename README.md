@@ -481,32 +481,80 @@ All MCP servers implement the Model Context Protocol and expose tools via stdio 
 
 ## Deployment
 
-### Production Deployment with Docker Compose
-
-For a production deployment, you'll typically:
-
-1. **Set up a server** with Docker installed
-2. **Clone the repository** and configure `.env`
-3. **Run behind a reverse proxy** (nginx, Caddy, Traefik) with HTTPS
-
-Example with Cloudflare Tunnel:
+### Quick Deploy with Script
 
 ```bash
-# On your server
-git clone https://github.com/achildrenmile/crisp.git /opt/crisp
-cd /opt/crisp
-cp .env.example .env
+# Deploy to server (default: host-node-01)
+./deploy.sh
 
-# Edit .env with your credentials
-nano .env
-
-# Start services
-docker-compose up -d
-
-# Services are now running on:
-# - API: localhost:5000
-# - Web: localhost:3000
+# Deploy to specific host
+./deploy.sh my-server
 ```
+
+### Manual Deployment
+
+1. **Clone and configure on server:**
+   ```bash
+   git clone https://github.com/achildrenmile/crisp.git /opt/crisp
+   cd /opt/crisp
+   cp .env.example .env
+   ```
+
+2. **Generate secrets and edit `.env`:**
+   ```bash
+   # Generate JWT secret
+   openssl rand -base64 32
+
+   # Generate API key
+   openssl rand -base64 32 | tr -d '+=/\n' | head -c 32
+   ```
+
+3. **Configure `.env` with required values:**
+   ```bash
+   # Authentication (required)
+   JWT_SECRET=<generated-jwt-secret>
+   API_KEY=<generated-api-key>
+
+   # Claude API (required)
+   CLAUDE_API_KEY=sk-ant-your-key
+
+   # GitHub (required)
+   GITHUB_OWNER=your-org-or-username
+   GITHUB_TOKEN=ghp_your_token
+   ```
+
+4. **Build and start:**
+   ```bash
+   docker compose up -d --build
+   ```
+
+5. **Access the application:**
+   - URL: `http://localhost:5000`
+   - Login with your configured API key
+
+### Authentication
+
+CRISP uses JWT-based authentication with API keys:
+
+1. User enters API key on login page
+2. API validates key and issues JWT token
+3. Token is used for subsequent requests
+4. Token expires after 60 minutes (configurable)
+
+**Environment Variables:**
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `JWT_SECRET` | Secret for signing JWTs (min 32 chars) | Yes |
+| `API_KEY` | API key for authentication | Yes |
+| `API_KEY_NAME` | Display name for the key | No |
+| `AUTH_ENABLED` | Enable/disable auth (default: true) | No |
+
+### Cloudflare Tunnel Setup
+
+1. Create a tunnel in Cloudflare Zero Trust dashboard
+2. Configure the public hostname to point to `http://crisp:5000`
+3. Add the container to the `cloudflared-tunnel` network
 
 ### GitHub Token Requirements
 
@@ -533,19 +581,20 @@ For organization repositories, you must also authorize the token for the organiz
 
 **"Scaffolding appears to work but no repo created"**
 - Ensure the API can reach GitHub (check network/firewall)
-- Review API logs: `docker-compose logs api`
+- Review API logs: `docker compose logs crisp`
+
+**"401 Unauthorized" on login**
+- Verify the API_KEY in .env matches what you're entering
+- Check that AUTH_ENABLED is not set to false
 
 ### Viewing Logs
 
 ```bash
-# All services
-docker-compose logs -f
+# Follow logs
+docker compose logs -f crisp
 
-# API only
-docker-compose logs -f api
-
-# Web only
-docker-compose logs -f web
+# Last 100 lines
+docker compose logs --tail 100 crisp
 ```
 
 ## License
