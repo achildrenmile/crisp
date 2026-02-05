@@ -39,7 +39,7 @@ function Layout({ children }: { children: React.ReactNode }) {
       <Header />
       <main className="app-main">{children}</main>
       <footer className="app-footer">
-        <p>CRISP - Powered by Claude AI</p>
+        <p>CRISP - Code Repo Initialization & Scaffolding Platform</p>
       </footer>
     </div>
   );
