@@ -45,6 +45,9 @@ services:
     container_name: crisp-web
     ports:
       - "3000:3000"
+    environment:
+      - BASIC_AUTH_USER=${BASIC_AUTH_USER:-demo}
+      - BASIC_AUTH_PASS=${BASIC_AUTH_PASS:-demo}
     depends_on:
       api:
         condition: service_healthy
