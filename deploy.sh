@@ -88,7 +88,7 @@ check_env() {
     fi
 
     if [ -z "$GITHUB_TOKEN" ] || [ "$GITHUB_TOKEN" = "ghp_your_personal_access_token" ]; then
-        missing="$missing GITHUB_TOKEN"
+        log_warning "GITHUB_TOKEN not configured - repository creation will be disabled"
     fi
 
     if [ -n "$missing" ]; then
