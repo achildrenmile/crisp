@@ -238,7 +238,7 @@ if __name__ == '__main__':
 
     private static string GenerateSettings(string projectName)
     {
-        return $@"\"\"\"Django settings for {projectName} project.\"\"\"
+        return $@"""""""Django settings for {projectName} project.""""""
 import os
 from pathlib import Path
 
@@ -324,7 +324,7 @@ REST_FRAMEWORK = {{
 
     private static string GenerateUrls()
     {
-        return @"\"\"\"URL configuration for the project.\"\"\"
+        return @"""""""URL configuration for the project.""""""
 from django.contrib import admin
 from django.urls import path, include
 
@@ -337,7 +337,7 @@ urlpatterns = [
 
     private static string GenerateWsgi()
     {
-        return @"\"\"\"WSGI config for the project.\"\"\"
+        return @"""""""WSGI config for the project.""""""
 import os
 
 from django.core.wsgi import get_wsgi_application
@@ -350,7 +350,7 @@ application = get_wsgi_application()
 
     private static string GenerateAsgi()
     {
-        return @"\"\"\"ASGI config for the project.\"\"\"
+        return @"""""""ASGI config for the project.""""""
 import os
 
 from django.core.asgi import get_asgi_application
@@ -363,12 +363,12 @@ application = get_asgi_application()
 
     private static string GenerateModels()
     {
-        return @"\"\"\"API models.\"\"\"
+        return @"""""""API models.""""""
 from django.db import models
 
 
 class Item(models.Model):
-    \"\"\"Item model.\"\"\"
+    """"""Item model.""""""
 
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
@@ -386,7 +386,7 @@ class Item(models.Model):
 
     private static string GenerateViews()
     {
-        return @"\"\"\"API views.\"\"\"
+        return @"""""""API views.""""""
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -396,7 +396,7 @@ from .serializers import ItemSerializer
 
 
 class ItemViewSet(viewsets.ModelViewSet):
-    \"\"\"ViewSet for Item model.\"\"\"
+    """"""ViewSet for Item model.""""""
 
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
@@ -404,27 +404,27 @@ class ItemViewSet(viewsets.ModelViewSet):
 
 @api_view(['GET'])
 def health_check(request):
-    \"\"\"Health check endpoint.\"\"\"
-    return Response({'status': 'healthy'})
+    """"""Health check endpoint.""""""
+    return Response({{'status': 'healthy'}})
 
 
 @api_view(['GET'])
 def root(request):
-    \"\"\"Root endpoint.\"\"\"
-    return Response({'message': 'Welcome to the API'})
+    """"""Root endpoint.""""""
+    return Response({{'message': 'Welcome to the API'}})
 ";
     }
 
     private static string GenerateSerializers()
     {
-        return @"\"\"\"API serializers.\"\"\"
+        return @"""""""API serializers.""""""
 from rest_framework import serializers
 
 from .models import Item
 
 
 class ItemSerializer(serializers.ModelSerializer):
-    \"\"\"Serializer for Item model.\"\"\"
+    """"""Serializer for Item model.""""""
 
     class Meta:
         model = Item
@@ -435,7 +435,7 @@ class ItemSerializer(serializers.ModelSerializer):
 
     private static string GenerateApiUrls()
     {
-        return @"\"\"\"API URL configuration.\"\"\"
+        return @"""""""API URL configuration.""""""
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
@@ -454,7 +454,7 @@ urlpatterns = [
 
     private static string GenerateApps()
     {
-        return @"\"\"\"API app configuration.\"\"\"
+        return @"""""""API app configuration.""""""
 from django.apps import AppConfig
 
 
@@ -466,7 +466,7 @@ class ApiConfig(AppConfig):
 
     private static string GenerateAdmin()
     {
-        return @"\"\"\"Admin configuration.\"\"\"
+        return @"""""""Admin configuration.""""""
 from django.contrib import admin
 
 from .models import Item
@@ -635,7 +635,7 @@ MIT
 
     private static string GenerateTests()
     {
-        return @"\"\"\"API tests.\"\"\"
+        return @"""""""API tests.""""""
 import pytest
 from django.urls import reverse
 from rest_framework import status
@@ -663,7 +663,7 @@ class TestHealthCheck:
     def test_health_check(self, api_client):
         response = api_client.get('/api/health/')
         assert response.status_code == status.HTTP_200_OK
-        assert response.data == {'status': 'healthy'}
+        assert response.data == {{'status': 'healthy'}}
 
 
 @pytest.mark.django_db
@@ -674,18 +674,18 @@ class TestItemAPI:
         assert len(response.data) == 1
 
     def test_create_item(self, api_client):
-        data = {'name': 'New Item', 'price': '19.99'}
+        data = {{'name': 'New Item', 'price': '19.99'}}
         response = api_client.post('/api/items/', data)
         assert response.status_code == status.HTTP_201_CREATED
         assert response.data['name'] == 'New Item'
 
     def test_get_item(self, api_client, sample_item):
-        response = api_client.get(f'/api/items/{sample_item.id}/')
+        response = api_client.get(f'/api/items/{{sample_item.id}}/')
         assert response.status_code == status.HTTP_200_OK
         assert response.data['name'] == sample_item.name
 
     def test_delete_item(self, api_client, sample_item):
-        response = api_client.delete(f'/api/items/{sample_item.id}/')
+        response = api_client.delete(f'/api/items/{{sample_item.id}}/')
         assert response.status_code == status.HTTP_204_NO_CONTENT
 ";
     }

@@ -195,14 +195,14 @@ public sealed class FlaskGenerator : IProjectGenerator
 
     private static string GenerateAppInit(string projectName)
     {
-        return $@"\"\"\"Flask application factory.\"\"\"
+        return $@"""""""Flask application factory.""""""
 from flask import Flask, jsonify
 
 from .config import Config
 
 
 def create_app(config_class=Config):
-    \"\"\"Create and configure the Flask application.\"\"\"
+    """"""Create and configure the Flask application.""""""
     app = Flask(__name__)
     app.config.from_object(config_class)
 
@@ -229,7 +229,7 @@ def create_app(config_class=Config):
 
     private static string GenerateRoutesInit()
     {
-        return @"\"\"\"Routes package.\"\"\"
+        return @"""""""Routes package.""""""
 from .items import bp as items_bp
 
 __all__ = ['items_bp']
@@ -238,7 +238,7 @@ __all__ = ['items_bp']
 
     private static string GenerateItemsRoute()
     {
-        return @"\"\"\"Items routes.\"\"\"
+        return @"""""""Items routes.""""""
 from flask import Blueprint, jsonify, request, abort
 
 from app.models.item import Item, items_db, get_next_id
@@ -248,13 +248,13 @@ bp = Blueprint('items', __name__)
 
 @bp.route('', methods=['GET'])
 def get_items():
-    \"\"\"Get all items.\"\"\"
+    """"""Get all items.""""""
     return jsonify(list(items_db.values()))
 
 
 @bp.route('/<int:item_id>', methods=['GET'])
 def get_item(item_id: int):
-    \"\"\"Get a specific item.\"\"\"
+    """"""Get a specific item.""""""
     item = items_db.get(item_id)
     if item is None:
         abort(404, description='Item not found')
@@ -263,19 +263,19 @@ def get_item(item_id: int):
 
 @bp.route('', methods=['POST'])
 def create_item():
-    \"\"\"Create a new item.\"\"\"
+    """"""Create a new item.""""""
     data = request.get_json()
 
     if not data or 'name' not in data or 'price' not in data:
         abort(400, description='Name and price are required')
 
     item_id = get_next_id()
-    item: Item = {
+    item: Item = {{
         'id': item_id,
         'name': data['name'],
         'description': data.get('description', ''),
         'price': float(data['price'])
-    }
+    }}
 
     items_db[item_id] = item
     return jsonify(item), 201
@@ -283,7 +283,7 @@ def create_item():
 
 @bp.route('/<int:item_id>', methods=['DELETE'])
 def delete_item(item_id: int):
-    \"\"\"Delete an item.\"\"\"
+    """"""Delete an item.""""""
     if item_id not in items_db:
         abort(404, description='Item not found')
 
@@ -293,18 +293,18 @@ def delete_item(item_id: int):
 
 @bp.errorhandler(400)
 def bad_request(error):
-    return jsonify({'error': str(error.description)}), 400
+    return jsonify({{'error': str(error.description)}}), 400
 
 
 @bp.errorhandler(404)
 def not_found(error):
-    return jsonify({'error': str(error.description)}), 404
+    return jsonify({{'error': str(error.description)}}), 404
 ";
     }
 
     private static string GenerateItemModel()
     {
-        return @"\"\"\"Item model.\"\"\"
+        return @"""""""Item model.""""""
 from typing import TypedDict
 
 # In-memory storage
@@ -313,7 +313,7 @@ _current_id = 0
 
 
 class Item(TypedDict):
-    \"\"\"Item type definition.\"\"\"
+    """"""Item type definition.""""""
     id: int
     name: str
     description: str
@@ -321,7 +321,7 @@ class Item(TypedDict):
 
 
 def get_next_id() -> int:
-    \"\"\"Get the next available ID.\"\"\"
+    """"""Get the next available ID.""""""
     global _current_id
     _current_id += 1
     return _current_id
@@ -330,36 +330,36 @@ def get_next_id() -> int:
 
     private static string GenerateConfig()
     {
-        return @"\"\"\"Application configuration.\"\"\"
+        return @"""""""Application configuration.""""""
 import os
 
 
 class Config:
-    \"\"\"Base configuration.\"\"\"
+    """"""Base configuration.""""""
     SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key')
     DEBUG = False
     TESTING = False
 
 
 class DevelopmentConfig(Config):
-    \"\"\"Development configuration.\"\"\"
+    """"""Development configuration.""""""
     DEBUG = True
 
 
 class ProductionConfig(Config):
-    \"\"\"Production configuration.\"\"\"
+    """"""Production configuration.""""""
     pass
 
 
 class TestingConfig(Config):
-    \"\"\"Testing configuration.\"\"\"
+    """"""Testing configuration.""""""
     TESTING = True
 ";
     }
 
     private static string GenerateRun()
     {
-        return @"\"\"\"Application entry point.\"\"\"
+        return @"""""""Application entry point.""""""
 import os
 
 from app import create_app
@@ -544,7 +544,7 @@ PORT=5000
 
     private static string GenerateConftest()
     {
-        return @"\"\"\"Pytest fixtures.\"\"\"
+        return @"""""""Pytest fixtures.""""""
 import pytest
 
 from app import create_app
@@ -553,41 +553,41 @@ from app.config import TestingConfig
 
 @pytest.fixture
 def app():
-    \"\"\"Create application for testing.\"\"\"
+    """"""Create application for testing.""""""
     app = create_app(TestingConfig)
     yield app
 
 
 @pytest.fixture
 def client(app):
-    \"\"\"Create test client.\"\"\"
+    """"""Create test client.""""""
     return app.test_client()
 ";
     }
 
     private static string GenerateTestApp()
     {
-        return @"\"\"\"Application tests.\"\"\"
+        return @"""""""Application tests.""""""
 
 
 def test_index(client):
-    \"\"\"Test index endpoint.\"\"\"
+    """"""Test index endpoint.""""""
     response = client.get('/')
     assert response.status_code == 200
     assert 'message' in response.json
 
 
 def test_health(client):
-    \"\"\"Test health endpoint.\"\"\"
+    """"""Test health endpoint.""""""
     response = client.get('/health')
     assert response.status_code == 200
-    assert response.json == {'status': 'healthy'}
+    assert response.json == {{'status': 'healthy'}}
 
 
 def test_create_and_get_item(client):
-    \"\"\"Test creating and retrieving an item.\"\"\"
+    """"""Test creating and retrieving an item.""""""
     # Create item
-    item_data = {'name': 'Test Item', 'price': 9.99}
+    item_data = {{'name': 'Test Item', 'price': 9.99}}
     response = client.post('/items', json=item_data)
     assert response.status_code == 201
     created_item = response.json
@@ -595,29 +595,29 @@ def test_create_and_get_item(client):
 
     # Get item
     item_id = created_item['id']
-    response = client.get(f'/items/{item_id}')
+    response = client.get(f'/items/{{item_id}}')
     assert response.status_code == 200
     assert response.json['id'] == item_id
 
 
 def test_get_nonexistent_item(client):
-    \"\"\"Test getting a nonexistent item.\"\"\"
+    """"""Test getting a nonexistent item.""""""
     response = client.get('/items/99999')
     assert response.status_code == 404
 
 
 def test_delete_item(client):
-    \"\"\"Test deleting an item.\"\"\"
+    """"""Test deleting an item.""""""
     # Create item first
-    response = client.post('/items', json={'name': 'To Delete', 'price': 5.00})
+    response = client.post('/items', json={{'name': 'To Delete', 'price': 5.00}})
     item_id = response.json['id']
 
     # Delete it
-    response = client.delete(f'/items/{item_id}')
+    response = client.delete(f'/items/{{item_id}}')
     assert response.status_code == 204
 
     # Verify it's gone
-    response = client.get(f'/items/{item_id}')
+    response = client.get(f'/items/{{item_id}}')
     assert response.status_code == 404
 ";
     }
