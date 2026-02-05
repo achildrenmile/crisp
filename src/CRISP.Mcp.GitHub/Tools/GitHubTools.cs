@@ -24,7 +24,7 @@ public sealed class GitHubTools
         _config = config.Value;
     }
 
-    [McpServerTool("create_repository")]
+    [McpServerTool(Name = "create_repository")]
     [Description("Creates a new GitHub repository")]
     public async Task<CreateRepositoryResult> CreateRepositoryAsync(
         [Description("Repository name")] string name,
@@ -50,7 +50,7 @@ public sealed class GitHubTools
         };
     }
 
-    [McpServerTool("configure_branch_protection")]
+    [McpServerTool(Name = "configure_branch_protection")]
     [Description("Configures branch protection rules on a repository")]
     public async Task<BranchProtectionResult> ConfigureBranchProtectionAsync(
         [Description("Repository name")] string repositoryName,
@@ -65,7 +65,7 @@ public sealed class GitHubTools
         };
     }
 
-    [McpServerTool("trigger_workflow")]
+    [McpServerTool(Name = "trigger_workflow")]
     [Description("Triggers a GitHub Actions workflow")]
     public async Task<WorkflowTriggerResult> TriggerWorkflowAsync(
         [Description("Repository name")] string repositoryName,
@@ -83,7 +83,7 @@ public sealed class GitHubTools
         };
     }
 
-    [McpServerTool("get_workflow_status")]
+    [McpServerTool(Name = "get_workflow_status")]
     [Description("Gets the status of a GitHub Actions workflow run")]
     public async Task<WorkflowStatusResult> GetWorkflowStatusAsync(
         [Description("Repository name")] string repositoryName,
@@ -99,7 +99,7 @@ public sealed class GitHubTools
         };
     }
 
-    [McpServerTool("validate_connection")]
+    [McpServerTool(Name = "validate_connection")]
     [Description("Validates the GitHub connection and authentication")]
     public async Task<ConnectionValidationResult> ValidateConnectionAsync()
     {

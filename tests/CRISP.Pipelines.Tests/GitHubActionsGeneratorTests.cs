@@ -3,6 +3,7 @@ using CRISP.Core.Models;
 using CRISP.Pipelines.Generators;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
+using Xunit;
 
 namespace CRISP.Pipelines.Tests;
 

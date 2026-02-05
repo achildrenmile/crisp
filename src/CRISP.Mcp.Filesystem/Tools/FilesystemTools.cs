@@ -17,7 +17,7 @@ public sealed class FilesystemTools
         _filesystem = filesystem;
     }
 
-    [McpServerTool("create_workspace")]
+    [McpServerTool(Name = "create_workspace")]
     [Description("Creates a temporary workspace directory for scaffolding")]
     public async Task<WorkspaceResult> CreateWorkspaceAsync(
         [Description("Prefix for the workspace name")] string prefix)
@@ -26,7 +26,7 @@ public sealed class FilesystemTools
         return new WorkspaceResult { Success = true, Path = path };
     }
 
-    [McpServerTool("create_directory")]
+    [McpServerTool(Name = "create_directory")]
     [Description("Creates a directory at the specified path")]
     public async Task<OperationResult> CreateDirectoryAsync(
         [Description("Directory path to create")] string path)
@@ -35,7 +35,7 @@ public sealed class FilesystemTools
         return new OperationResult { Success = true, Message = $"Directory created: {path}" };
     }
 
-    [McpServerTool("write_file")]
+    [McpServerTool(Name = "write_file")]
     [Description("Writes content to a file")]
     public async Task<OperationResult> WriteFileAsync(
         [Description("File path")] string path,
@@ -45,7 +45,7 @@ public sealed class FilesystemTools
         return new OperationResult { Success = true, Message = $"File written: {path}" };
     }
 
-    [McpServerTool("read_file")]
+    [McpServerTool(Name = "read_file")]
     [Description("Reads content from a file")]
     public async Task<FileContentResult> ReadFileAsync(
         [Description("File path")] string path)
@@ -54,7 +54,7 @@ public sealed class FilesystemTools
         return new FileContentResult { Success = true, Path = path, Content = content };
     }
 
-    [McpServerTool("list_files")]
+    [McpServerTool(Name = "list_files")]
     [Description("Lists files in a directory")]
     public async Task<FileListResult> ListFilesAsync(
         [Description("Directory path")] string path,
@@ -65,7 +65,7 @@ public sealed class FilesystemTools
         return new FileListResult { Success = true, Path = path, Files = files };
     }
 
-    [McpServerTool("delete")]
+    [McpServerTool(Name = "delete")]
     [Description("Deletes a file or directory")]
     public async Task<OperationResult> DeleteAsync(
         [Description("Path to delete")] string path,
@@ -75,7 +75,7 @@ public sealed class FilesystemTools
         return new OperationResult { Success = true, Message = $"Deleted: {path}" };
     }
 
-    [McpServerTool("exists")]
+    [McpServerTool(Name = "exists")]
     [Description("Checks if a file or directory exists")]
     public ExistsResult Exists(
         [Description("Path to check")] string path)
@@ -84,7 +84,7 @@ public sealed class FilesystemTools
         return new ExistsResult { Path = path, Exists = exists };
     }
 
-    [McpServerTool("cleanup_workspace")]
+    [McpServerTool(Name = "cleanup_workspace")]
     [Description("Cleans up a workspace directory")]
     public async Task<OperationResult> CleanupWorkspaceAsync(
         [Description("Workspace path")] string workspacePath)

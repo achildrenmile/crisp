@@ -45,7 +45,10 @@
     <PackageVersion Include="Octokit" Version="13.0.1" />
 
     <!-- JSON -->
-    <PackageVersion Include="System.Text.Json" Version="8.0.4" />
+    <PackageVersion Include="System.Text.Json" Version="8.0.5" />
+
+    <!-- Source Link -->
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
 
     <!-- MCP SDK -->
     <PackageVersion Include="ModelContextProtocol" Version="0.1.0-preview.9" />

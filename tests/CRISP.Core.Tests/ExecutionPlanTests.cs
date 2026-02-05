@@ -1,6 +1,7 @@
 using CRISP.Core.Enums;
 using CRISP.Core.Models;
 using FluentAssertions;
+using Xunit;
 
 namespace CRISP.Core.Tests;
 

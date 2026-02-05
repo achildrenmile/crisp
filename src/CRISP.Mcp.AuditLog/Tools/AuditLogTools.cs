@@ -19,7 +19,7 @@ public sealed class AuditLogTools
         _auditLogger = auditLogger;
     }
 
-    [McpServerTool("log_action")]
+    [McpServerTool(Name = "log_action")]
     [Description("Logs an action to the audit log")]
     public async Task<LogResult> LogActionAsync(
         [Description("Action name (e.g., 'github-mcp.create_repository')")] string action,
@@ -40,7 +40,7 @@ public sealed class AuditLogTools
         };
     }
 
-    [McpServerTool("get_session_logs")]
+    [McpServerTool(Name = "get_session_logs")]
     [Description("Retrieves audit logs for a session")]
     public async Task<SessionLogsResult> GetSessionLogsAsync(
         [Description("Session ID (leave empty for current session)")] string? sessionId = null)
@@ -66,7 +66,7 @@ public sealed class AuditLogTools
         };
     }
 
-    [McpServerTool("export_logs")]
+    [McpServerTool(Name = "export_logs")]
     [Description("Exports audit logs to a specified format")]
     public async Task<ExportResult> ExportLogsAsync(
         [Description("Export format (json, csv)")] string format,
@@ -86,14 +86,14 @@ public sealed class AuditLogTools
         };
     }
 
-    [McpServerTool("get_session_id")]
+    [McpServerTool(Name = "get_session_id")]
     [Description("Gets the current session ID")]
     public SessionIdResult GetSessionId()
     {
         return new SessionIdResult { SessionId = _auditLogger.SessionId };
     }
 
-    [McpServerTool("set_agent_id")]
+    [McpServerTool(Name = "set_agent_id")]
     [Description("Sets the agent ID for audit logging")]
     public SetAgentIdResult SetAgentId(
         [Description("Agent ID")] string agentId)

@@ -46,7 +46,7 @@ public sealed class GitHubSourceControlProvider : ISourceControlProvider
     public async Task<RepositoryDetails> CreateRepositoryAsync(
         string name,
         string? description,
-        RepositoryVisibility visibility,
+        Core.Enums.RepositoryVisibility visibility,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Creating GitHub repository: {Owner}/{Name}", _config.Owner, name);
@@ -54,7 +54,7 @@ public sealed class GitHubSourceControlProvider : ISourceControlProvider
         var newRepo = new NewRepository(name)
         {
             Description = description,
-            Private = visibility != RepositoryVisibility.Public,
+            Private = visibility != Core.Enums.RepositoryVisibility.Public,
             AutoInit = false,
             HasIssues = true,
             HasProjects = true,
@@ -100,7 +100,7 @@ public sealed class GitHubSourceControlProvider : ISourceControlProvider
         {
             var protection = new BranchProtectionSettingsUpdate(
                 requiredStatusChecks: new BranchProtectionRequiredStatusChecksUpdate(true, ["ci"]),
-                requiredPullRequestReviews: new BranchProtectionPullRequestReviewsUpdate(
+                requiredPullRequestReviews: new BranchProtectionRequiredReviewsUpdate(
                     dismissStaleReviews: true,
                     requireCodeOwnerReviews: false,
                     requiredApprovingReviewCount: 1

@@ -20,13 +20,13 @@ public interface ITemplateEngine
     /// <summary>
     /// Scaffolds a project using the specified template.
     /// </summary>
-    /// <param name="template">Template to use.</param>
+    /// <param name="templateSelection">Template to use.</param>
     /// <param name="requirements">Project requirements.</param>
     /// <param name="outputPath">Output directory path.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Scaffolding result.</returns>
     Task<ScaffoldingResult> ScaffoldProjectAsync(
-        TemplateSelection template,
+        TemplateSelection templateSelection,
         ProjectRequirements requirements,
         string outputPath,
         CancellationToken cancellationToken = default);
@@ -46,12 +46,12 @@ public interface ITemplateEngine
     /// <summary>
     /// Gets the list of files that would be created for the given template and requirements.
     /// </summary>
-    /// <param name="template">Template to use.</param>
+    /// <param name="templateSelection">Template to use.</param>
     /// <param name="requirements">Project requirements.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>List of planned files.</returns>
     Task<IReadOnlyList<PlannedFile>> GetPlannedFilesAsync(
-        TemplateSelection template,
+        TemplateSelection templateSelection,
         ProjectRequirements requirements,
         CancellationToken cancellationToken = default);
 }

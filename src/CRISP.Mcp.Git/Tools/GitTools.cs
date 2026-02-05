@@ -17,7 +17,7 @@ public sealed class GitTools
         _git = git;
     }
 
-    [McpServerTool("init")]
+    [McpServerTool(Name = "init")]
     [Description("Initializes a new Git repository")]
     public async Task<GitResult> InitAsync(
         [Description("Repository path")] string path,
@@ -27,7 +27,7 @@ public sealed class GitTools
         return new GitResult { Success = true, Message = $"Repository initialized at {path}" };
     }
 
-    [McpServerTool("stage_all")]
+    [McpServerTool(Name = "stage_all")]
     [Description("Stages all files in the repository")]
     public async Task<GitResult> StageAllAsync(
         [Description("Repository path")] string path)
@@ -36,7 +36,7 @@ public sealed class GitTools
         return new GitResult { Success = true, Message = "All files staged" };
     }
 
-    [McpServerTool("commit")]
+    [McpServerTool(Name = "commit")]
     [Description("Creates a commit with staged changes")]
     public async Task<CommitResult> CommitAsync(
         [Description("Repository path")] string path,
@@ -48,7 +48,7 @@ public sealed class GitTools
         return new CommitResult { Success = true, Sha = sha, Message = "Commit created" };
     }
 
-    [McpServerTool("add_remote")]
+    [McpServerTool(Name = "add_remote")]
     [Description("Adds a remote to the repository")]
     public async Task<GitResult> AddRemoteAsync(
         [Description("Repository path")] string path,
@@ -59,7 +59,7 @@ public sealed class GitTools
         return new GitResult { Success = true, Message = $"Remote '{remoteName}' added" };
     }
 
-    [McpServerTool("push")]
+    [McpServerTool(Name = "push")]
     [Description("Pushes changes to the remote repository")]
     public async Task<GitResult> PushAsync(
         [Description("Repository path")] string path,
@@ -73,7 +73,7 @@ public sealed class GitTools
         return new GitResult { Success = true, Message = $"Pushed to {remoteName}/{branchName}" };
     }
 
-    [McpServerTool("get_current_branch")]
+    [McpServerTool(Name = "get_current_branch")]
     [Description("Gets the current branch name")]
     public BranchResult GetCurrentBranch(
         [Description("Repository path")] string path)
@@ -82,7 +82,7 @@ public sealed class GitTools
         return new BranchResult { Branch = branch };
     }
 
-    [McpServerTool("get_latest_commit")]
+    [McpServerTool(Name = "get_latest_commit")]
     [Description("Gets the latest commit SHA")]
     public CommitInfoResult GetLatestCommit(
         [Description("Repository path")] string path)

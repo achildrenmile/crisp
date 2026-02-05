@@ -24,7 +24,7 @@ public sealed class AzureDevOpsTools
         _config = config.Value;
     }
 
-    [McpServerTool("create_repository")]
+    [McpServerTool(Name = "create_repository")]
     [Description("Creates a new Git repository in Azure DevOps Server")]
     public async Task<CreateRepositoryResult> CreateRepositoryAsync(
         [Description("Repository name")] string name,
@@ -44,7 +44,7 @@ public sealed class AzureDevOpsTools
         };
     }
 
-    [McpServerTool("configure_branch_policies")]
+    [McpServerTool(Name = "configure_branch_policies")]
     [Description("Configures branch policies on a repository")]
     public async Task<BranchPolicyResult> ConfigureBranchPoliciesAsync(
         [Description("Repository name")] string repositoryName,
@@ -59,7 +59,7 @@ public sealed class AzureDevOpsTools
         };
     }
 
-    [McpServerTool("create_pipeline")]
+    [McpServerTool(Name = "create_pipeline")]
     [Description("Creates an Azure Pipeline definition")]
     public async Task<PipelineCreationResult> CreatePipelineAsync(
         [Description("Repository name")] string repositoryName,
@@ -76,7 +76,7 @@ public sealed class AzureDevOpsTools
         };
     }
 
-    [McpServerTool("trigger_pipeline")]
+    [McpServerTool(Name = "trigger_pipeline")]
     [Description("Triggers an Azure Pipeline build")]
     public async Task<PipelineTriggerResult> TriggerPipelineAsync(
         [Description("Repository name")] string repositoryName,
@@ -94,7 +94,7 @@ public sealed class AzureDevOpsTools
         };
     }
 
-    [McpServerTool("get_build_status")]
+    [McpServerTool(Name = "get_build_status")]
     [Description("Gets the status of an Azure Pipeline build")]
     public async Task<BuildStatusResult> GetBuildStatusAsync(
         [Description("Repository name")] string repositoryName,
@@ -110,7 +110,7 @@ public sealed class AzureDevOpsTools
         };
     }
 
-    [McpServerTool("validate_connection")]
+    [McpServerTool(Name = "validate_connection")]
     [Description("Validates the Azure DevOps Server connection")]
     public async Task<ConnectionValidationResult> ValidateConnectionAsync()
     {
@@ -125,7 +125,7 @@ public sealed class AzureDevOpsTools
         };
     }
 
-    [McpServerTool("get_server_info")]
+    [McpServerTool(Name = "get_server_info")]
     [Description("Gets Azure DevOps Server configuration information")]
     public ServerInfoResult GetServerInfo()
     {

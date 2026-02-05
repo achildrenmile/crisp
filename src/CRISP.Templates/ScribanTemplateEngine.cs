@@ -52,22 +52,22 @@ public sealed class ScribanTemplateEngine : ITemplateEngine
     }
 
     public async Task<ScaffoldingResult> ScaffoldProjectAsync(
-        TemplateSelection template,
+        TemplateSelection templateSelection,
         ProjectRequirements requirements,
         string outputPath,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Scaffolding project {ProjectName} using template {TemplateId}",
-            requirements.ProjectName, template.TemplateId);
+            requirements.ProjectName, templateSelection.TemplateId);
 
-        if (!_generators.TryGetValue(template.TemplateId, out var generator))
+        if (!_generators.TryGetValue(templateSelection.TemplateId, out var generator))
         {
             return new ScaffoldingResult
             {
                 Success = false,
                 WorkspacePath = outputPath,
                 CreatedFiles = [],
-                ErrorMessage = $"Template '{template.TemplateId}' not found"
+                ErrorMessage = $"Template '{templateSelection.TemplateId}' not found"
             };
         }
 
@@ -128,11 +128,11 @@ public sealed class ScribanTemplateEngine : ITemplateEngine
     }
 
     public async Task<IReadOnlyList<PlannedFile>> GetPlannedFilesAsync(
-        TemplateSelection template,
+        TemplateSelection templateSelection,
         ProjectRequirements requirements,
         CancellationToken cancellationToken = default)
     {
-        if (!_generators.TryGetValue(template.TemplateId, out var generator))
+        if (!_generators.TryGetValue(templateSelection.TemplateId, out var generator))
         {
             return [];
         }

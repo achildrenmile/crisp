@@ -17,7 +17,7 @@ public sealed class PolicyEngineTools
         _policyEngine = policyEngine;
     }
 
-    [McpServerTool("get_policies")]
+    [McpServerTool(Name = "get_policies")]
     [Description("Gets all loaded policy definitions")]
     public GetPoliciesResult GetPolicies()
     {
@@ -38,7 +38,7 @@ public sealed class PolicyEngineTools
         };
     }
 
-    [McpServerTool("load_policies")]
+    [McpServerTool(Name = "load_policies")]
     [Description("Loads policies from a JSON or YAML file")]
     public async Task<LoadPoliciesResult> LoadPoliciesAsync(
         [Description("Path to policy file (JSON or YAML)")] string policyPath)
@@ -54,7 +54,7 @@ public sealed class PolicyEngineTools
         };
     }
 
-    [McpServerTool("check_policies_passed")]
+    [McpServerTool(Name = "check_policies_passed")]
     [Description("Checks if all policy validations passed")]
     public CheckPoliciesResult CheckPoliciesPassed(
         [Description("Policy results as JSON array")] string resultsJson)
