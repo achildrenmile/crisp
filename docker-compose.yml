@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # CRISP API - .NET 8 backend
+  api:
+    build:
+      context: .
+      dockerfile: src/CRISP.Api/Dockerfile
+    container_name: crisp-api
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - Claude__ApiKey=${CLAUDE_API_KEY}
+      - Claude__Model=${CLAUDE_MODEL:-claude-sonnet-4-20250514}
+      - Crisp__ScmPlatform=${SCM_PLATFORM:-GitHub}
+      - Crisp__GitHub__Owner=${GITHUB_OWNER}
+      - Crisp__GitHub__Token=${GITHUB_TOKEN}
+      - Crisp__GitHub__Visibility=${GITHUB_VISIBILITY:-Private}
+      - Crisp__AzureDevOps__Organization=${AZURE_DEVOPS_ORG}
+      - Crisp__AzureDevOps__Project=${AZURE_DEVOPS_PROJECT}
+      - Crisp__AzureDevOps__Pat=${AZURE_DEVOPS_PAT}
+      - Crisp__Common__DefaultBranch=${DEFAULT_BRANCH:-main}
+      - Crisp__Common__GenerateCiCd=${GENERATE_CICD:-true}
+    volumes:
+      - crisp-logs:/home/crisp/logs
+      - crisp-workspaces:/home/crisp/workspaces
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - crisp-network
+
+  # CRISP Web UI - React frontend with nginx
+  web:
+    build:
+      context: src/crisp-web
+      dockerfile: Dockerfile
+    container_name: crisp-web
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      - crisp-network
+
+volumes:
+  crisp-logs:
+    driver: local
+  crisp-workspaces:
+    driver: local
+
+networks:
+  crisp-network:
+    driver: bridge

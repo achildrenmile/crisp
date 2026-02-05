@@ -78,6 +78,8 @@ crisp/
 │   ├── CRISP.Pipelines.Tests/
 │   └── CRISP.Agent.Tests/
 ├── .github/workflows/ci.yml     # GitHub Actions CI
+├── docker-compose.yml           # Docker orchestration
+├── .env.example                 # Environment variables template
 ├── Directory.Build.props        # Central MSBuild configuration
 ├── Directory.Packages.props     # Central package management
 ├── global.json                  # .NET SDK version
@@ -88,9 +90,11 @@ crisp/
 
 ### Prerequisites
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- [Node.js 18+](https://nodejs.org/) (for the React frontend)
-- Git
+- [Docker](https://docs.docker.com/get-docker/) (recommended for deployment)
+- Or for local development:
+  - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+  - [Node.js 18+](https://nodejs.org/) (for the React frontend)
+  - Git
 
 ### Quick Start
 
@@ -143,6 +147,93 @@ crisp/
 
 ```bash
 dotnet test
+```
+
+## Docker Deployment
+
+CRISP can be run using Docker for easy deployment.
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
+
+### Quick Start with Docker
+
+1. **Clone and configure**
+   ```bash
+   git clone https://github.com/achildrenmile/crisp.git
+   cd crisp
+   cp .env.example .env
+   ```
+
+2. **Edit `.env`** with your credentials:
+   ```bash
+   CLAUDE_API_KEY=sk-ant-your-api-key
+   GITHUB_OWNER=your-username-or-org
+   GITHUB_TOKEN=ghp_your_token
+   ```
+
+3. **Build and run**
+   ```bash
+   docker-compose up --build
+   ```
+
+4. **Access the application**
+   - Web UI: http://localhost:3000
+   - API: http://localhost:5000
+   - Swagger: http://localhost:5000/swagger
+
+### Docker Services
+
+| Service | Port | Description |
+|---------|------|-------------|
+| `api` | 5000 | CRISP REST API (.NET 8) |
+| `web` | 3000 | React frontend (nginx) |
+
+### Docker Commands
+
+```bash
+# Build images
+docker-compose build
+
+# Start services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+
+# Stop and remove volumes
+docker-compose down -v
+```
+
+### Environment Variables for Docker
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `CLAUDE_API_KEY` | Anthropic Claude API key | (required) |
+| `CLAUDE_MODEL` | Claude model to use | `claude-sonnet-4-20250514` |
+| `SCM_PLATFORM` | `GitHub` or `AzureDevOps` | `GitHub` |
+| `GITHUB_OWNER` | GitHub username or org | (required for GitHub) |
+| `GITHUB_TOKEN` | GitHub personal access token | (required for GitHub) |
+| `GITHUB_VISIBILITY` | Repository visibility | `Private` |
+| `AZURE_DEVOPS_ORG` | Azure DevOps org URL | (for Azure DevOps) |
+| `AZURE_DEVOPS_PROJECT` | Azure DevOps project | (for Azure DevOps) |
+| `AZURE_DEVOPS_PAT` | Azure DevOps PAT | (for Azure DevOps) |
+| `DEFAULT_BRANCH` | Default branch name | `main` |
+| `GENERATE_CICD` | Generate CI/CD pipelines | `true` |
+
+### Building Individual Images
+
+```bash
+# Build API image only
+docker build -t crisp-api -f src/CRISP.Api/Dockerfile .
+
+# Build web image only
+docker build -t crisp-web src/crisp-web
 ```
 
 ## API Endpoints
