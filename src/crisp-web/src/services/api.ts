@@ -15,7 +15,13 @@ export async function createSession(): Promise<Session> {
     throw new Error(`Failed to create session: ${response.statusText}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  // Map API response to frontend Session type
+  return {
+    id: data.sessionId,
+    status: data.status.toLowerCase() as Session['status'],
+    messages: [],
+  };
 }
 
 export async function sendMessage(
