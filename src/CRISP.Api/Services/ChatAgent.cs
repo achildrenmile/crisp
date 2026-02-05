@@ -1,14 +1,17 @@
+using System.Text.Json;
 using CRISP.Api.Models;
 using CRISP.Core.Configuration;
+using CRISP.Core.Enums;
 using CRISP.Core.Interfaces;
+using CRISP.Core.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace CRISP.Api.Services;
 
 /// <summary>
-/// Chat-based agent implementation that uses Claude for conversation.
-/// For MVP Milestone 1, this handles simple chat without tool execution.
+/// Chat-based agent implementation that uses Claude for conversation
+/// and executes actual scaffolding operations.
 /// </summary>
 public sealed class ChatAgent : IChatAgent
 {
@@ -23,37 +26,50 @@ public sealed class ChatAgent : IChatAgent
         Your role is to:
         1. Understand what kind of project the developer wants to create
         2. Gather requirements through natural conversation
-        3. Create an execution plan for scaffolding the repository
-        4. Execute the plan after approval
+        3. When you have enough information, output a JSON block to create the project
 
         ## Project Types You Support:
-        - ASP.NET Core Web API (.NET 8)
-        - FastAPI (Python 3.12)
-        - More templates coming soon
+        - ASP.NET Core Web API (.NET 8) - use language: "CSharp", framework: "AspNetCoreWebApi"
+        - FastAPI (Python 3.12) - use language: "Python", framework: "FastApi"
 
-        ## Information to Gather:
+        ## Required Information:
         - Project name (lowercase, hyphenated, e.g., "my-api")
-        - Description (optional)
-        - Programming language (C# or Python)
-        - Framework (ASP.NET Core Web API or FastAPI)
-        - Target platform (GitHub or Azure DevOps)
-        - Repository visibility (private, internal, public)
-        - Whether to include CI/CD pipeline
-        - Whether to include Docker support
+        - Programming language (CSharp or Python)
+        - Framework (AspNetCoreWebApi or FastApi)
+
+        ## Optional Information (with defaults):
+        - Description (default: empty)
+        - Repository visibility: Private, Internal, or Public (default: Private)
+        - Include Docker support (container): true/false (default: true)
+
+        ## When Ready to Create:
+        When you have gathered enough information, output EXACTLY this JSON block (no other text):
+
+        ```json
+        {
+            "action": "create_project",
+            "requirements": {
+                "projectName": "the-project-name",
+                "description": "Optional description",
+                "language": "CSharp",
+                "framework": "AspNetCoreWebApi",
+                "visibility": "Private",
+                "includeDocker": true
+            }
+        }
+        ```
 
         ## Conversation Style:
         - Be concise and helpful
         - Ask clarifying questions when needed
-        - Summarize requirements before creating a plan
-        - Use markdown formatting for code and lists
+        - Confirm the project name and type before creating
+        - If user says things like "yes", "go ahead", "create it", "do it" after you've summarized requirements, output the JSON block
 
-        ## Current Status:
+        ## Current Configuration:
         - Platform: {PLATFORM}
         - Organization/Owner: {OWNER}
 
-        When you have gathered enough information, summarize the requirements and ask if the developer wants to proceed with scaffolding.
-
-        Remember: You are in the INTAKE phase. Focus on understanding what the developer needs.
+        IMPORTANT: Only output the JSON block when you're ready to create the project. Otherwise, have a normal conversation.
         """;
 
     public ChatAgent(
@@ -90,7 +106,20 @@ public sealed class ChatAgent : IChatAgent
             history,
             cancellationToken);
 
-        // Add assistant response to history
+        _logger.LogInformation("Claude response: {Response}", response);
+
+        // Check if response contains a create_project action
+        var actionResult = TryParseAction(response);
+
+        if (actionResult != null && actionResult.Action == "create_project")
+        {
+            _logger.LogInformation("Detected create_project action, executing scaffolding...");
+
+            // Execute the actual scaffolding
+            return await ExecuteScaffoldingAsync(session, actionResult.Requirements!, cancellationToken);
+        }
+
+        // Regular conversation - add assistant response to history
         var assistantMessage = session.AddAssistantMessage(response);
 
         // Publish event for SSE subscribers
@@ -100,6 +129,166 @@ public sealed class ChatAgent : IChatAgent
             assistantMessage.Timestamp));
 
         return assistantMessage;
+    }
+
+    private async Task<ChatMessage> ExecuteScaffoldingAsync(
+        CrispSession session,
+        ProjectRequirementsDto requirementsDto,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            // Convert DTO to domain model
+            // Determine runtime version based on language
+            var runtimeVersion = requirementsDto.Language.Equals("CSharp", StringComparison.OrdinalIgnoreCase)
+                ? ".NET 8"
+                : "Python 3.12";
+
+            var requirements = new ProjectRequirements
+            {
+                ProjectName = requirementsDto.ProjectName,
+                Description = requirementsDto.Description ?? $"Repository created by CRISP for {requirementsDto.ProjectName}",
+                Language = Enum.Parse<ProjectLanguage>(requirementsDto.Language, ignoreCase: true),
+                RuntimeVersion = runtimeVersion,
+                Framework = Enum.Parse<ProjectFramework>(requirementsDto.Framework, ignoreCase: true),
+                ScmPlatform = _config.ScmPlatform,
+                Visibility = Enum.TryParse<RepositoryVisibility>(requirementsDto.Visibility, ignoreCase: true, out var vis)
+                    ? vis
+                    : RepositoryVisibility.Private,
+                IncludeContainerSupport = requirementsDto.IncludeDocker,
+                TestingFramework = requirementsDto.Language.Equals("CSharp", StringComparison.OrdinalIgnoreCase)
+                    ? "xUnit"
+                    : "pytest"
+            };
+
+            // Send progress message
+            var startMessage = $"""
+                🚀 **Starting Project Scaffolding**
+
+                Creating **{requirements.ProjectName}** with:
+                - Language: {requirements.Language}
+                - Framework: {requirements.Framework}
+                - Platform: {_config.ScmPlatform}
+                - Visibility: {requirements.Visibility}
+                - Docker: {(requirements.IncludeContainerSupport ? "Yes" : "No")}
+
+                Please wait while I create your repository...
+                """;
+
+            session.AddAssistantMessage(startMessage);
+            await session.PublishEventAsync(new AgentMessageEvent(
+                Guid.NewGuid().ToString(),
+                startMessage,
+                DateTime.UtcNow));
+
+            // Create the plan
+            _logger.LogInformation("Creating execution plan for {ProjectName}", requirements.ProjectName);
+            var plan = await _crispAgent.CreatePlanAsync(requirements, cancellationToken);
+
+            // Auto-approve for now (in production, would wait for user approval)
+            plan.IsApproved = true;
+            session.SetPlan(plan);
+            session.SetStatus(SessionStatus.Executing);
+
+            // Execute the plan
+            _logger.LogInformation("Executing plan for {ProjectName}", requirements.ProjectName);
+            var result = await _crispAgent.ExecutePlanAsync(plan, cancellationToken);
+
+            session.SetDeliveryResult(result);
+
+            if (result.Success)
+            {
+                session.SetStatus(SessionStatus.Completed);
+
+                var successMessage = $"""
+                    ✅ **Repository Created Successfully!**
+
+                    📦 **Repository Details:**
+                    - **URL:** [{result.RepositoryUrl}]({result.RepositoryUrl})
+                    - **Branch:** {result.DefaultBranch}
+                    - **Platform:** {result.Platform}
+                    {(result.PipelineUrl != null ? $"- **CI/CD:** [{result.PipelineUrl}]({result.PipelineUrl})" : "")}
+                    {(result.BuildStatus != null && result.BuildStatus != "N/A" ? $"- **Build Status:** {result.BuildStatus}" : "")}
+
+                    🚀 **Next Steps:**
+                    1. Clone the repository:
+                       ```bash
+                       git clone {result.CloneUrl}
+                       ```
+                    2. Open in VS Code: [Click here]({result.VsCodeLink})
+                    3. Follow the README for setup instructions
+
+                    Happy coding! 🎉
+                    """;
+
+                var assistantMessage = session.AddAssistantMessage(successMessage);
+
+                var deliveryCard = new DeliveryCardDto(
+                    result.Platform,
+                    result.RepositoryUrl,
+                    result.DefaultBranch,
+                    result.PipelineUrl,
+                    result.BuildStatus ?? "N/A",
+                    result.VsCodeLink);
+
+                await session.PublishEventAsync(new DeliveryReadyEvent(
+                    deliveryCard, DateTime.UtcNow));
+
+                return assistantMessage;
+            }
+            else
+            {
+                session.SetStatus(SessionStatus.Failed);
+
+                var errorMessage = $"""
+                    ❌ **Scaffolding Failed**
+
+                    I encountered an error while creating your repository:
+
+                    ```
+                    {result.ErrorMessage}
+                    ```
+
+                    Please check the configuration and try again. Common issues:
+                    - Invalid GitHub token or permissions
+                    - Repository name already exists
+                    - Network connectivity issues
+
+                    Would you like me to try again with different settings?
+                    """;
+
+                var assistantMessage = session.AddAssistantMessage(errorMessage);
+
+                await session.PublishEventAsync(new ErrorEvent(
+                    result.ErrorMessage ?? "Unknown error", DateTime.UtcNow));
+
+                return assistantMessage;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Scaffolding failed with exception");
+            session.SetStatus(SessionStatus.Failed);
+
+            var errorMessage = $"""
+                ❌ **Scaffolding Failed**
+
+                An unexpected error occurred:
+
+                ```
+                {ex.Message}
+                ```
+
+                Please try again or contact support if the issue persists.
+                """;
+
+            var assistantMessage = session.AddAssistantMessage(errorMessage);
+
+            await session.PublishEventAsync(new ErrorEvent(
+                ex.Message, DateTime.UtcNow));
+
+            return assistantMessage;
+        }
     }
 
     public async Task<ChatMessage> HandleApprovalAsync(
@@ -199,12 +388,69 @@ public sealed class ChatAgent : IChatAgent
         var config = session.Configuration ?? _config;
 
         var platform = config.ScmPlatform.ToString();
-        var owner = config.ScmPlatform == Core.Enums.ScmPlatform.GitHub
+        var owner = config.ScmPlatform == ScmPlatform.GitHub
             ? config.GitHub.Owner
             : config.AzureDevOps.Project ?? "Unknown";
 
         return SystemPrompt
             .Replace("{PLATFORM}", platform)
             .Replace("{OWNER}", owner);
+    }
+
+    private ActionResult? TryParseAction(string response)
+    {
+        try
+        {
+            // Look for JSON block in the response
+            var jsonStart = response.IndexOf("```json", StringComparison.OrdinalIgnoreCase);
+            var jsonEnd = response.LastIndexOf("```", StringComparison.OrdinalIgnoreCase);
+
+            if (jsonStart >= 0 && jsonEnd > jsonStart)
+            {
+                var jsonContent = response.Substring(jsonStart + 7, jsonEnd - jsonStart - 7).Trim();
+                _logger.LogInformation("Found JSON block: {Json}", jsonContent);
+
+                var result = JsonSerializer.Deserialize<ActionResult>(jsonContent, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                return result;
+            }
+
+            // Also try to parse the entire response as JSON (in case Claude outputs raw JSON)
+            if (response.TrimStart().StartsWith('{'))
+            {
+                var result = JsonSerializer.Deserialize<ActionResult>(response, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                return result;
+            }
+
+            return null;
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogWarning(ex, "Failed to parse action from response");
+            return null;
+        }
+    }
+
+    private sealed class ActionResult
+    {
+        public string Action { get; set; } = string.Empty;
+        public ProjectRequirementsDto? Requirements { get; set; }
+    }
+
+    private sealed class ProjectRequirementsDto
+    {
+        public string ProjectName { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public string Language { get; set; } = "CSharp";
+        public string Framework { get; set; } = "AspNetCoreWebApi";
+        public string Visibility { get; set; } = "Private";
+        public bool IncludeDocker { get; set; } = true;
     }
 }
