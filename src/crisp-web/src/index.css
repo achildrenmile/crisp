@@ -710,6 +710,10 @@ body {
   border-radius: var(--radius);
   text-decoration: none;
   font-weight: 500;
+  font-size: 1rem;
+  font-family: inherit;
+  border: none;
+  cursor: pointer;
   transition: transform 0.2s;
 }
 

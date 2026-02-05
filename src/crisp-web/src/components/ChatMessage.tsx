@@ -60,11 +60,34 @@ export function ChatMessage({ message }: ChatMessageProps) {
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
-              a: ({ href, children }) => (
-                <a href={href} target="_blank" rel="noopener noreferrer">
-                  {children}
-                </a>
-              ),
+              a: ({ href, children }) => {
+                // Check if this is a protocol link (vscode://, etc.)
+                const isProtocolLink = href && !href.startsWith('http://') && !href.startsWith('https://') && href.includes('://');
+
+                if (isProtocolLink) {
+                  return (
+                    <a
+                      href={href}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        // Create a temporary link and click it to trigger protocol handler
+                        const link = document.createElement('a');
+                        link.href = href;
+                        link.click();
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {children}
+                    </a>
+                  );
+                }
+
+                return (
+                  <a href={href} target="_blank" rel="noopener noreferrer">
+                    {children}
+                  </a>
+                );
+              },
               code: ({ children, className, node, ...props }) => {
                 // Check if this code block is inside a pre tag (block code)
                 const isBlock = node?.position &&
