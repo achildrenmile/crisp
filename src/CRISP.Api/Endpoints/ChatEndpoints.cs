@@ -17,6 +17,11 @@ public static class ChatEndpoints
             .WithTags("Chat")
             .RequireAuthorization();
 
+        // Get session history for current user
+        group.MapGet("/sessions", GetSessionHistory)
+            .WithName("GetSessionHistory")
+            .WithDescription("Gets all sessions for the current user");
+
         // Create a new session
         group.MapPost("/sessions", CreateSession)
             .WithName("CreateSession")
@@ -54,11 +59,33 @@ public static class ChatEndpoints
             .WithDescription("Gets the delivery result (when completed)");
     }
 
+    private static IResult GetSessionHistory(
+        HttpContext context,
+        ISessionManager sessionManager)
+    {
+        var userId = context.User.Identity?.Name ?? "anonymous";
+        var sessions = sessionManager.GetSessionsByUser(userId);
+
+        var history = sessions.Select(s => new SessionHistoryItem(
+            s.SessionId,
+            s.ProjectName,
+            s.Status.ToString(),
+            s.CreatedAt,
+            s.LastActivityAt,
+            s.DeliveryResult?.RepositoryUrl,
+            s.Messages.FirstOrDefault(m => m.Role == "user")?.Content
+        )).ToList();
+
+        return Results.Ok(history);
+    }
+
     private static IResult CreateSession(
+        HttpContext context,
         [FromBody] CreateSessionRequest? request,
         ISessionManager sessionManager)
     {
-        var session = sessionManager.CreateSession(request?.Configuration);
+        var userId = context.User.Identity?.Name ?? "anonymous";
+        var session = sessionManager.CreateSession(userId, request?.Configuration);
 
         return Results.Created(
             $"/api/chat/sessions/{session.SessionId}",

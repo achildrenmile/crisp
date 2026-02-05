@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { MessageSquare, Rocket, ShieldCheck, FolderPlus, Loader2 } from 'lucide-react';
 import { useSession } from '../hooks/useSession';
+import { ProjectHistory } from '../components/ProjectHistory';
 
 export function Home() {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ export function Home() {
   };
 
   return (
-    <div className="home-container">
+    <div className="home-container-with-history">
       <div className="hero">
         <h1>Welcome to CRISP</h1>
         <p className="hero-subtitle">
@@ -74,6 +75,8 @@ export function Home() {
           )}
         </button>
       </div>
+
+      <ProjectHistory />
     </div>
   );
 }

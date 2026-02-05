@@ -10,9 +10,10 @@ public interface ISessionManager
     /// <summary>
     /// Creates a new session.
     /// </summary>
+    /// <param name="userId">The user ID who owns this session.</param>
     /// <param name="configOverride">Optional configuration override.</param>
     /// <returns>The created session.</returns>
-    CrispSession CreateSession(CrispConfiguration? configOverride = null);
+    CrispSession CreateSession(string? userId = null, CrispConfiguration? configOverride = null);
 
     /// <summary>
     /// Gets a session by ID.
@@ -26,6 +27,13 @@ public interface ISessionManager
     /// </summary>
     /// <returns>All active sessions.</returns>
     IReadOnlyList<CrispSession> GetAllSessions();
+
+    /// <summary>
+    /// Gets all sessions for a specific user.
+    /// </summary>
+    /// <param name="userId">The user ID.</param>
+    /// <returns>All sessions belonging to the user.</returns>
+    IReadOnlyList<CrispSession> GetSessionsByUser(string userId);
 
     /// <summary>
     /// Removes a session.

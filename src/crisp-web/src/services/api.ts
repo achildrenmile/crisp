@@ -11,6 +11,17 @@ export interface SendMessageResponse {
   timestamp: string;
 }
 
+// Session history item from API
+export interface SessionHistoryItem {
+  sessionId: string;
+  projectName: string | null;
+  status: string;
+  createdAt: string;
+  lastActivityAt: string;
+  repositoryUrl: string | null;
+  firstMessage: string | null;
+}
+
 // Helper to make authenticated requests
 async function authFetch(url: string, options: RequestInit = {}): Promise<Response> {
   const headers = {
@@ -135,4 +146,14 @@ export function createEventSource(sessionId: string): EventSource {
     ? `${API_BASE}/sessions/${sessionId}/events?token=${encodeURIComponent(token)}`
     : `${API_BASE}/sessions/${sessionId}/events`;
   return new EventSource(url);
+}
+
+export async function getSessionHistory(): Promise<SessionHistoryItem[]> {
+  const response = await authFetch(`${API_BASE}/sessions`);
+
+  if (!response.ok) {
+    throw new Error(`Failed to get session history: ${response.statusText}`);
+  }
+
+  return response.json();
 }

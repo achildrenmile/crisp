@@ -134,6 +134,9 @@ public sealed class ChatAgent : IChatAgent
         {
             _logger.LogInformation("Detected create_project action, executing scaffolding...");
 
+            // Set the project name on the session for history tracking
+            session.SetProjectName(actionResult.Requirements!.ProjectName);
+
             // Execute the actual scaffolding
             return await ExecuteScaffoldingAsync(session, actionResult.Requirements!, cancellationToken);
         }

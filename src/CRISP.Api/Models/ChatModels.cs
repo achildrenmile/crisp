@@ -96,6 +96,18 @@ public sealed record SessionStatusResponse(
     DateTime? LastActivityAt);
 
 /// <summary>
+/// Session history item for the history list.
+/// </summary>
+public sealed record SessionHistoryItem(
+    string SessionId,
+    string? ProjectName,
+    string Status,
+    DateTime CreatedAt,
+    DateTime LastActivityAt,
+    string? RepositoryUrl,
+    string? FirstMessage);
+
+/// <summary>
 /// The possible states of a chat session.
 /// </summary>
 public enum SessionStatus

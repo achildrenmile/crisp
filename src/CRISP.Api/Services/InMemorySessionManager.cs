@@ -10,10 +10,10 @@ public sealed class InMemorySessionManager : ISessionManager
 {
     private readonly ConcurrentDictionary<string, CrispSession> _sessions = new();
 
-    public CrispSession CreateSession(CrispConfiguration? configOverride = null)
+    public CrispSession CreateSession(string? userId = null, CrispConfiguration? configOverride = null)
     {
         var sessionId = Guid.NewGuid().ToString("N")[..12];
-        var session = new CrispSession(sessionId, configOverride);
+        var session = new CrispSession(sessionId, userId, configOverride);
         _sessions[sessionId] = session;
         return session;
     }
@@ -26,6 +26,14 @@ public sealed class InMemorySessionManager : ISessionManager
     public IReadOnlyList<CrispSession> GetAllSessions()
     {
         return _sessions.Values.ToList();
+    }
+
+    public IReadOnlyList<CrispSession> GetSessionsByUser(string userId)
+    {
+        return _sessions.Values
+            .Where(s => s.UserId == userId)
+            .OrderByDescending(s => s.LastActivityAt)
+            .ToList();
     }
 
     public bool RemoveSession(string sessionId)

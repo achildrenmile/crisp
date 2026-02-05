@@ -14,9 +14,10 @@ public sealed class CrispSession
     private readonly ConcurrentQueue<ChatMessage> _messages = new();
     private readonly Channel<AgentEvent> _eventChannel;
 
-    public CrispSession(string sessionId, CrispConfiguration? configOverride = null)
+    public CrispSession(string sessionId, string? userId = null, CrispConfiguration? configOverride = null)
     {
         SessionId = sessionId;
+        UserId = userId;
         Configuration = configOverride;
         CreatedAt = DateTime.UtcNow;
         LastActivityAt = CreatedAt;
@@ -33,6 +34,16 @@ public sealed class CrispSession
     /// Unique session identifier.
     /// </summary>
     public string SessionId { get; }
+
+    /// <summary>
+    /// The user ID who owns this session.
+    /// </summary>
+    public string? UserId { get; }
+
+    /// <summary>
+    /// Project name extracted from the scaffolding request.
+    /// </summary>
+    public string? ProjectName { get; private set; }
 
     /// <summary>
     /// Optional configuration override for this session.
@@ -139,6 +150,15 @@ public sealed class CrispSession
     public void SetDeliveryResult(DeliveryResult result)
     {
         DeliveryResult = result;
+        LastActivityAt = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Sets the project name for this session.
+    /// </summary>
+    public void SetProjectName(string projectName)
+    {
+        ProjectName = projectName;
         LastActivityAt = DateTime.UtcNow;
     }
 
