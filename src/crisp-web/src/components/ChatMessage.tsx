@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Copy, Check } from 'lucide-react';
@@ -9,28 +9,17 @@ interface ChatMessageProps {
 }
 
 interface CodeBlockProps {
-  children?: React.ReactNode;
-  className?: string;
+  children: string;
 }
 
 function CodeBlock({ children }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
-
-  // Extract text content from the code element
-  const extractText = (node: React.ReactNode): string => {
-    if (typeof node === 'string') return node;
-    if (Array.isArray(node)) return node.map(extractText).join('');
-    if (node && typeof node === 'object' && 'props' in node) {
-      return extractText((node as React.ReactElement).props.children);
-    }
-    return '';
-  };
-
-  const codeContent = extractText(children).replace(/\n$/, '');
+  const codeRef = useRef<HTMLElement>(null);
 
   const handleCopy = async () => {
+    const textToCopy = codeRef.current?.textContent || children;
     try {
-      await navigator.clipboard.writeText(codeContent);
+      await navigator.clipboard.writeText(textToCopy);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
@@ -41,7 +30,7 @@ function CodeBlock({ children }: CodeBlockProps) {
   return (
     <div className="code-block-wrapper">
       <pre>
-        {children}
+        <code ref={codeRef}>{children}</code>
       </pre>
       <button
         className={`copy-btn ${copied ? 'copied' : ''}`}
@@ -76,17 +65,20 @@ export function ChatMessage({ message }: ChatMessageProps) {
                   {children}
                 </a>
               ),
-              pre: ({ children }) => {
-                return <CodeBlock>{children}</CodeBlock>;
-              },
-              code: ({ children, className, ...props }) => {
-                // Inline code (no className means not a code block)
-                const isInline = !className;
-                if (isInline) {
-                  return <code className="inline-code" {...props}>{children}</code>;
+              code: ({ children, className, node, ...props }) => {
+                // Check if this code block is inside a pre tag (block code)
+                const isBlock = node?.position &&
+                  String(children).includes('\n') || className?.startsWith('language-');
+
+                if (isBlock || className) {
+                  return <CodeBlock>{String(children).replace(/\n$/, '')}</CodeBlock>;
                 }
-                // Block code is handled by pre
-                return <code className={className} {...props}>{children}</code>;
+                // Inline code
+                return <code className="inline-code" {...props}>{children}</code>;
+              },
+              pre: ({ children }) => {
+                // Just return children since CodeBlock handles the pre wrapper
+                return <>{children}</>;
               },
             }}
           >
