@@ -81,23 +81,23 @@ export function DeliveryCard({ card }: DeliveryCardProps) {
 
       <div className="delivery-actions">
         <a
-          href={card.vsCodeWebUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn-vscode"
-          title="Open instantly in browser"
-        >
-          <span className="vscode-icon">🌐</span>
-          Open in Browser
-        </a>
-
-        <a
           href={card.vsCodeCloneUrl}
-          className="btn-vscode-clone"
+          className="btn-vscode"
           title="Clone and open in VS Code desktop"
         >
           <span className="vscode-icon">💻</span>
           Clone to Desktop
+        </a>
+
+        <a
+          href={card.vsCodeWebUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-vscode-clone"
+          title="Open instantly in browser"
+        >
+          <span className="vscode-icon">🌐</span>
+          Open in Browser
         </a>
 
         <a

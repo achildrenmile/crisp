@@ -50,7 +50,8 @@ export function useSession(sessionId?: string): UseSessionReturn {
         break;
       }
       case 'plan_ready': {
-        const plan = event.data as ExecutionPlan;
+        const eventData = event as unknown as { plan: ExecutionPlan };
+        const plan = eventData.plan;
         setCurrentPlan(plan);
         setSession((prev) =>
           prev ? { ...prev, status: 'awaiting_approval' as SessionStatus } : prev
@@ -82,7 +83,8 @@ export function useSession(sessionId?: string): UseSessionReturn {
         break;
       }
       case 'delivery_ready': {
-        const delivery = event.data as DeliveryCard;
+        const eventData = event as unknown as { deliveryCard: DeliveryCard };
+        const delivery = eventData.deliveryCard;
         setDeliveryResult(delivery);
         setSession((prev) =>
           prev ? { ...prev, status: 'completed' as SessionStatus } : prev
