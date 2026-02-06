@@ -61,18 +61,39 @@ export function ChatMessage({ message }: ChatMessageProps) {
             remarkPlugins={[remarkGfm]}
             components={{
               a: ({ href, children }) => {
-                // Check if this is a VS Code protocol link
-                const isVsCodeLink = href && href.startsWith('vscode://');
+                // Check if this is a VS Code web link (vscode.dev or github.dev)
+                const isVsCodeWebLink = href && (
+                  href.startsWith('https://vscode.dev/') ||
+                  href.startsWith('https://github.dev/')
+                );
+
+                // Check if this is a VS Code protocol link (legacy)
+                const isVsCodeProtocolLink = href && href.startsWith('vscode://');
 
                 // Check if this is a protocol link (vscode://, etc.)
                 const isProtocolLink = href && !href.startsWith('http://') && !href.startsWith('https://') && href.includes('://');
 
-                if (isVsCodeLink) {
+                // Render VS Code web links as styled buttons
+                if (isVsCodeWebLink) {
+                  return (
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="vscode-btn"
+                    >
+                      <Code size={14} />
+                      {children}
+                    </a>
+                  );
+                }
+
+                // Handle legacy vscode:// protocol links
+                if (isVsCodeProtocolLink) {
                   return (
                     <button
                       className="vscode-btn"
                       onClick={() => {
-                        // Create a temporary link and click it to trigger protocol handler
                         const link = document.createElement('a');
                         link.href = href;
                         link.click();
@@ -90,7 +111,6 @@ export function ChatMessage({ message }: ChatMessageProps) {
                       href={href}
                       onClick={(e) => {
                         e.preventDefault();
-                        // Create a temporary link and click it to trigger protocol handler
                         const link = document.createElement('a');
                         link.href = href;
                         link.click();

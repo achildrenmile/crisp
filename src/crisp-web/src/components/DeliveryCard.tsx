@@ -4,14 +4,6 @@ interface DeliveryCardProps {
   card: DeliveryCardType;
 }
 
-// Handle protocol links (vscode://, etc.) properly
-const handleProtocolLink = (url: string) => {
-  // For protocol links, we need to use window.location or create a hidden link
-  const link = document.createElement('a');
-  link.href = url;
-  link.click();
-};
-
 export function DeliveryCard({ card }: DeliveryCardProps) {
   const getBuildStatusClass = () => {
     const status = card.buildStatus.toLowerCase();
@@ -88,13 +80,15 @@ export function DeliveryCard({ card }: DeliveryCardProps) {
       </div>
 
       <div className="delivery-actions">
-        <button
-          onClick={() => handleProtocolLink(card.vsCodeUrl)}
+        <a
+          href={card.vsCodeUrl}
+          target="_blank"
+          rel="noopener noreferrer"
           className="btn-vscode"
         >
           <span className="vscode-icon">📝</span>
           Open in VS Code
-        </button>
+        </a>
 
         <a
           href={card.repositoryUrl}

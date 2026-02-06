@@ -306,7 +306,7 @@ public sealed class CrispAgent : ICrispAgent
             }
 
             // Generate delivery result
-            var vsCodeLink = GenerateVsCodeLink(plan.Repository.CloneUrl!);
+            var vsCodeLink = GenerateVsCodeLink(plan.Repository.Url!, plan.Requirements.ScmPlatform);
 
             var deliveryResult = new DeliveryResult
             {
@@ -562,8 +562,32 @@ public sealed class CrispAgent : ICrispAgent
             """;
     }
 
-    private static string GenerateVsCodeLink(string cloneUrl)
+    private static string GenerateVsCodeLink(string repositoryUrl, ScmPlatform platform)
     {
-        return $"vscode://vscode.git/clone?url={Uri.EscapeDataString(cloneUrl)}";
+        // For GitHub repositories, use vscode.dev which opens instantly in browser
+        // Format: https://vscode.dev/github/owner/repo
+        if (platform == ScmPlatform.GitHub)
+        {
+            // Extract owner/repo from GitHub URL
+            // e.g., https://github.com/owner/repo -> owner/repo
+            var uri = new Uri(repositoryUrl);
+            var path = uri.AbsolutePath.TrimStart('/').TrimEnd('/');
+            if (path.EndsWith(".git"))
+            {
+                path = path[..^4];
+            }
+            return $"https://vscode.dev/github/{path}";
+        }
+
+        // For Azure DevOps, use the web-based editor
+        // Format: https://dev.azure.com/org/project/_git/repo?path=/&version=GBmain&_a=contents
+        // The repository URL is already the web URL, just append editor parameters
+        if (repositoryUrl.Contains("dev.azure.com") || repositoryUrl.Contains("visualstudio.com"))
+        {
+            return $"{repositoryUrl}?path=/&_a=contents";
+        }
+
+        // Fallback: return the repository URL itself
+        return repositoryUrl;
     }
 }

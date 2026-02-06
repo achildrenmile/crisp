@@ -139,20 +139,17 @@ export function ProjectHistory() {
               </span>
               <div className="history-item-actions">
                 {session.vsCodeUrl && (
-                  <button
+                  <a
+                    href={session.vsCodeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="vscode-link"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Protocol links need special handling
-                      const link = document.createElement('a');
-                      link.href = session.vsCodeUrl!;
-                      link.click();
-                    }}
+                    onClick={(e) => e.stopPropagation()}
                     title="Open in VS Code"
                   >
                     <Code size={14} />
                     VS Code
-                  </button>
+                  </a>
                 )}
                 {session.repositoryUrl && (
                   <a
