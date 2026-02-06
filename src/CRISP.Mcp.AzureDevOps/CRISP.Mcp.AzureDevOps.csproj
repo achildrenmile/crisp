@@ -16,7 +16,6 @@
     <PackageReference Include="ModelContextProtocol" />
     <PackageReference Include="Serilog.Extensions.Hosting" />
     <PackageReference Include="Serilog.Sinks.Console" />
-    <PackageReference Include="System.Text.Json" />
   </ItemGroup>
 
 </Project>
