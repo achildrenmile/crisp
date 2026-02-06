@@ -13,7 +13,10 @@ using CRISP.Mcp.GitHub;
 using CRISP.Mcp.PolicyEngine;
 using CRISP.Pipelines;
 using CRISP.Templates;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -58,30 +61,116 @@ try
     // Configure authentication
     if (authConfig.Enabled)
     {
-        builder.Services.AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        })
-        .AddJwtBearer(options =>
-        {
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(authConfig.Jwt.Secret)),
-                ValidateIssuer = true,
-                ValidIssuer = authConfig.Jwt.Issuer,
-                ValidateAudience = true,
-                ValidAudience = authConfig.Jwt.Audience,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.FromMinutes(1)
-            };
-        })
-        .AddScheme<ApiKeyAuthOptions, ApiKeyAuthHandler>(
-            ApiKeyAuthOptions.DefaultScheme, _ => { });
+        var oidcEnabled = authConfig.Oidc?.Enabled ?? false;
 
-        builder.Services.AddAuthorization();
+        if (oidcEnabled && authConfig.Oidc != null)
+        {
+            // OIDC authentication with cookie-based sessions
+            Log.Information("Configuring OIDC authentication with authority: {Authority}", authConfig.Oidc.Authority);
+
+            var sameSiteMode = authConfig.Oidc.Cookie.SameSite.ToLowerInvariant() switch
+            {
+                "strict" => SameSiteMode.Strict,
+                "lax" => SameSiteMode.Lax,
+                "none" => SameSiteMode.None,
+                _ => SameSiteMode.Lax
+            };
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+            })
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+            {
+                options.Cookie.Name = authConfig.Oidc.Cookie.Name;
+                options.Cookie.SameSite = sameSiteMode;
+                options.Cookie.SecurePolicy = authConfig.Oidc.Cookie.SecurePolicy
+                    ? CookieSecurePolicy.Always
+                    : CookieSecurePolicy.SameAsRequest;
+                options.Cookie.HttpOnly = true;
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(authConfig.Oidc.Cookie.ExpirationMinutes);
+                options.SlidingExpiration = true;
+                options.Events = OidcEvents.CreateCookieEvents();
+            })
+            .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
+            {
+                options.Authority = authConfig.Oidc.Authority;
+                options.ClientId = authConfig.Oidc.ClientId;
+                options.ClientSecret = authConfig.Oidc.ClientSecret;
+                options.ResponseType = authConfig.Oidc.ResponseType;
+                options.CallbackPath = authConfig.Oidc.CallbackPath;
+                options.SignedOutCallbackPath = authConfig.Oidc.SignedOutCallbackPath;
+                options.SaveTokens = authConfig.Oidc.SaveTokens;
+                options.GetClaimsFromUserInfoEndpoint = authConfig.Oidc.GetClaimsFromUserInfoEndpoint;
+
+                options.Scope.Clear();
+                foreach (var scope in authConfig.Oidc.Scopes)
+                {
+                    options.Scope.Add(scope);
+                }
+
+                options.Events = OidcEvents.CreateOidcEvents();
+            })
+            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                // Also support JWT Bearer for API calls
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(authConfig.Jwt.Secret)),
+                    ValidateIssuer = true,
+                    ValidIssuer = authConfig.Jwt.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = authConfig.Jwt.Audience,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.FromMinutes(1)
+                };
+            })
+            .AddScheme<ApiKeyAuthOptions, ApiKeyAuthHandler>(
+                ApiKeyAuthOptions.DefaultScheme, _ => { });
+
+            // Add policy selector to handle multiple auth schemes
+            builder.Services.AddAuthorization(options =>
+            {
+                options.DefaultPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .AddAuthenticationSchemes(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        JwtBearerDefaults.AuthenticationScheme,
+                        ApiKeyAuthOptions.DefaultScheme)
+                    .Build();
+            });
+        }
+        else
+        {
+            // JWT-only authentication (default)
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(authConfig.Jwt.Secret)),
+                    ValidateIssuer = true,
+                    ValidIssuer = authConfig.Jwt.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = authConfig.Jwt.Audience,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.FromMinutes(1)
+                };
+            })
+            .AddScheme<ApiKeyAuthOptions, ApiKeyAuthHandler>(
+                ApiKeyAuthOptions.DefaultScheme, _ => { });
+
+            builder.Services.AddAuthorization();
+        }
     }
 
     // Add HTTP client factory

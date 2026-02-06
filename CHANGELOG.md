@@ -5,6 +5,29 @@ All notable changes to CRISP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-02-06
+
+### Added
+- **OIDC Authentication**: Added optional OpenID Connect (OIDC) authentication support for SSO with external identity providers (Azure AD, Okta, Auth0, Keycloak, etc.)
+- **Theme Support**: Added auto/light/dark mode toggle in the header with OS preference detection
+- Theme context and provider for React components
+- Theme persistence in localStorage
+- Clickable version link in footer to GitHub releases
+- Azure DevOps SCM platform configuration documentation
+
+### Changed
+- Improved dark mode colors for better visibility of links and buttons
+- Updated CSS to use theme-aware CSS custom properties
+- ProjectHistory component updated to support dark mode
+
+### Technical Details
+- New `OidcConfiguration` and `OidcCookieConfiguration` classes for OIDC settings
+- `OidcEvents.cs` for handling AJAX requests without redirects
+- `ThemeContext.tsx` for theme state management
+- `ThemeToggle.tsx` component for cycling through themes
+- Multiple authentication schemes supported simultaneously (Cookie, JWT Bearer, API Key)
+- Cookie-based sessions for OIDC with configurable SameSite policies
+
 ## [2.1.0] - 2026-02-06
 
 ### Added

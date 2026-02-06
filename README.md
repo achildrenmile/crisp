@@ -671,7 +671,9 @@ All MCP servers implement the Model Context Protocol and expose tools via stdio 
 
 ### Authentication
 
-CRISP uses JWT-based authentication with API keys:
+CRISP supports multiple authentication methods:
+
+#### JWT with API Keys (Default)
 
 1. User enters API key on login page
 2. API validates key and issues JWT token
@@ -686,6 +688,95 @@ CRISP uses JWT-based authentication with API keys:
 | `API_KEY` | API key for authentication | Yes |
 | `API_KEY_NAME` | Display name for the key | No |
 | `AUTH_ENABLED` | Enable/disable auth (default: true) | No |
+
+#### OIDC Authentication (Optional)
+
+CRISP can integrate with external identity providers via OpenID Connect (OIDC). This allows SSO with providers like Azure AD, Okta, Auth0, Keycloak, etc.
+
+**Configuration (appsettings.json):**
+
+```json
+{
+  "Auth": {
+    "Enabled": true,
+    "Jwt": {
+      "Secret": "your-jwt-secret-min-32-chars",
+      "Issuer": "CRISP",
+      "Audience": "CRISP-Web",
+      "ExpirationMinutes": 60
+    },
+    "Oidc": {
+      "Enabled": true,
+      "Authority": "https://login.microsoftonline.com/{tenant-id}/v2.0",
+      "ClientId": "your-client-id",
+      "ClientSecret": "your-client-secret",
+      "ResponseType": "code",
+      "Scopes": ["openid", "profile", "email"],
+      "CallbackPath": "/signin-oidc",
+      "SignedOutCallbackPath": "/signout-callback-oidc",
+      "SaveTokens": true,
+      "GetClaimsFromUserInfoEndpoint": true,
+      "Cookie": {
+        "Name": ".CRISP.Auth",
+        "SameSite": "Lax",
+        "SecurePolicy": true,
+        "ExpirationMinutes": 60
+      }
+    }
+  }
+}
+```
+
+**OIDC Configuration Options:**
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| `Enabled` | Enable OIDC authentication | `false` |
+| `Authority` | OIDC provider URL | (required) |
+| `ClientId` | Application client ID | (required) |
+| `ClientSecret` | Application client secret | (required) |
+| `ResponseType` | OAuth response type | `code` |
+| `Scopes` | Requested scopes | `["openid", "profile", "email"]` |
+| `CallbackPath` | Callback URL path | `/signin-oidc` |
+| `SignedOutCallbackPath` | Signout callback path | `/signout-callback-oidc` |
+| `SaveTokens` | Store tokens in auth properties | `true` |
+| `GetClaimsFromUserInfoEndpoint` | Fetch claims from userinfo | `true` |
+| `Cookie.Name` | Authentication cookie name | `.CRISP.Auth` |
+| `Cookie.SameSite` | SameSite cookie policy | `Lax` |
+| `Cookie.SecurePolicy` | Require HTTPS for cookies | `true` |
+| `Cookie.ExpirationMinutes` | Session cookie expiration | `60` |
+
+**Azure AD Example:**
+
+```json
+{
+  "Auth": {
+    "Oidc": {
+      "Enabled": true,
+      "Authority": "https://login.microsoftonline.com/{tenant-id}/v2.0",
+      "ClientId": "00000000-0000-0000-0000-000000000000",
+      "ClientSecret": "your-client-secret"
+    }
+  }
+}
+```
+
+**Keycloak Example:**
+
+```json
+{
+  "Auth": {
+    "Oidc": {
+      "Enabled": true,
+      "Authority": "https://keycloak.example.com/realms/your-realm",
+      "ClientId": "crisp",
+      "ClientSecret": "your-client-secret"
+    }
+  }
+}
+```
+
+> **Note:** When OIDC is enabled, both cookie-based (OIDC) and JWT Bearer authentication are supported. API calls can use JWT tokens while browser sessions use cookies. API Key authentication remains available for programmatic access.
 
 ### Cloudflare Tunnel Setup
 
