@@ -19,6 +19,20 @@
   --code-bg: #1e293b;
   --code-text: #e2e8f0;
   --inline-code-bg: rgba(0, 0, 0, 0.1);
+  --link-color: #2563eb;
+  --link-hover: #1d4ed8;
+  --vscode-color: #007acc;
+  --vscode-hover: #005a9e;
+  --clone-color: #6b21a8;
+  --clone-hover: #581c87;
+  --status-intake-bg: #dbeafe;
+  --status-intake-text: #1d4ed8;
+  --status-warning-bg: #fef3c7;
+  --status-warning-text: #b45309;
+  --status-success-bg: #dcfce7;
+  --status-success-text: #166534;
+  --status-error-bg: #fee2e2;
+  --status-error-text: #991b1b;
 }
 
 /* Dark Theme */
@@ -26,7 +40,7 @@
   --primary-color: #3b82f6;
   --primary-hover: #60a5fa;
   --secondary-color: #94a3b8;
-  --success-color: #22c55e;
+  --success-color: #4ade80;
   --error-color: #f87171;
   --warning-color: #fbbf24;
   --background-color: #0f172a;
@@ -39,6 +53,20 @@
   --code-bg: #0f172a;
   --code-text: #e2e8f0;
   --inline-code-bg: rgba(255, 255, 255, 0.1);
+  --link-color: #60a5fa;
+  --link-hover: #93c5fd;
+  --vscode-color: #3b9ddb;
+  --vscode-hover: #5cb3e8;
+  --clone-color: #a78bfa;
+  --clone-hover: #c4b5fd;
+  --status-intake-bg: #1e3a5f;
+  --status-intake-text: #60a5fa;
+  --status-warning-bg: #422006;
+  --status-warning-text: #fbbf24;
+  --status-success-bg: #14532d;
+  --status-success-text: #4ade80;
+  --status-error-bg: #450a0a;
+  --status-error-text: #f87171;
 }
 
 * {
@@ -363,8 +391,8 @@ body {
 }
 
 .error-message {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--status-error-bg);
+  color: var(--status-error-text);
   padding: 1rem;
   border-radius: var(--radius);
   margin-bottom: 1rem;
@@ -415,13 +443,13 @@ body {
   text-transform: uppercase;
 }
 
-.status-intake { background: #dbeafe; color: #1d4ed8; }
-.status-planning { background: #fef3c7; color: #b45309; }
-.status-awaitingapproval { background: #fef3c7; color: #b45309; }
-.status-executing { background: #dbeafe; color: #1d4ed8; }
-.status-delivering { background: #dbeafe; color: #1d4ed8; }
-.status-completed { background: #dcfce7; color: #166534; }
-.status-failed { background: #fee2e2; color: #991b1b; }
+.status-intake { background: var(--status-intake-bg); color: var(--status-intake-text); }
+.status-planning { background: var(--status-warning-bg); color: var(--status-warning-text); }
+.status-awaitingapproval { background: var(--status-warning-bg); color: var(--status-warning-text); }
+.status-executing { background: var(--status-intake-bg); color: var(--status-intake-text); }
+.status-delivering { background: var(--status-intake-bg); color: var(--status-intake-text); }
+.status-completed { background: var(--status-success-bg); color: var(--status-success-text); }
+.status-failed { background: var(--status-error-bg); color: var(--status-error-text); }
 
 /* Chat Messages */
 .chat-messages {
@@ -544,12 +572,22 @@ body {
   margin: 0.5rem 0;
 }
 
+.message-content a {
+  color: var(--link-color);
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.message-content a:hover {
+  color: var(--link-hover);
+}
+
 .message-content .vscode-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
   padding: 0.5rem 1rem;
-  background: #007acc;
+  background: var(--vscode-color);
   color: white !important;
   border: none;
   border-radius: var(--radius);
@@ -562,7 +600,7 @@ body {
 }
 
 .message-content .vscode-btn:hover {
-  background: #005a9e;
+  background: var(--vscode-hover);
   color: white !important;
 }
 
@@ -571,7 +609,7 @@ body {
   align-items: center;
   gap: 0.375rem;
   padding: 0.5rem 1rem;
-  background: #6b21a8;
+  background: var(--clone-color);
   color: white !important;
   border: none;
   border-radius: var(--radius);
@@ -584,7 +622,7 @@ body {
 }
 
 .message-content .vscode-clone-btn:hover {
-  background: #581c87;
+  background: var(--clone-hover);
   color: white !important;
 }
 
@@ -598,8 +636,8 @@ body {
 }
 
 .message.error .message-content {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--status-error-bg);
+  color: var(--status-error-text);
 }
 
 /* Typing Indicator */

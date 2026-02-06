@@ -121,24 +121,24 @@
 .status-badge.status-intake,
 .status-badge.status-planning,
 .status-badge.status-awaitingapproval {
-  background: #fef3c7;
-  color: #b45309;
+  background: var(--status-warning-bg);
+  color: var(--status-warning-text);
 }
 
 .status-badge.status-executing,
 .status-badge.status-delivering {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--status-intake-bg);
+  color: var(--status-intake-text);
 }
 
 .status-badge.status-completed {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--status-success-bg);
+  color: var(--status-success-text);
 }
 
 .status-badge.status-failed {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--status-error-bg);
+  color: var(--status-error-text);
 }
 
 .status-icon {
@@ -146,11 +146,11 @@
 }
 
 .status-icon.success {
-  color: #166534;
+  color: var(--status-success-text);
 }
 
 .status-icon.error {
-  color: #991b1b;
+  color: var(--status-error-text);
 }
 
 .history-item-actions {
@@ -180,19 +180,20 @@
   align-items: center;
   gap: 0.25rem;
   font-size: 0.75rem;
-  color: #007acc;
+  color: var(--vscode-color);
   background: transparent;
   border: none;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, color 0.2s;
   font-family: inherit;
   text-decoration: none;
 }
 
 .vscode-link:hover {
   background: rgba(0, 122, 204, 0.1);
+  color: var(--vscode-hover);
 }
 
 .clone-link {
@@ -200,17 +201,18 @@
   align-items: center;
   gap: 0.25rem;
   font-size: 0.75rem;
-  color: #6b21a8;
+  color: var(--clone-color);
   background: transparent;
   border: none;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, color 0.2s;
   font-family: inherit;
   text-decoration: none;
 }
 
 .clone-link:hover {
-  background: rgba(107, 33, 168, 0.1);
+  background: rgba(167, 139, 250, 0.1);
+  color: var(--clone-hover);
 }
