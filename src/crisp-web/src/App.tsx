@@ -4,6 +4,7 @@ import { Home, Session } from './pages';
 import { LoginPage } from './pages/LoginPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { isAuthenticated, logout, getStoredUser } from './services/auth';
+import { VERSION } from './version';
 
 function Header() {
   const navigate = useNavigate();
@@ -44,6 +45,8 @@ function Layout({ children }: { children: React.ReactNode }) {
       <footer className="app-footer">
         <p>
           CRISP - Code Repo Initialization & Scaffolding Platform
+          <span className="footer-separator">|</span>
+          <span className="footer-version">v{VERSION}</span>
           <span className="footer-separator">|</span>
           <a href="https://github.com/achildrenmile/crisp" target="_blank" rel="noopener noreferrer" className="footer-link">
             <Github size={14} />
