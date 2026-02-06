@@ -123,8 +123,9 @@ public sealed class SessionPersistence
                 var session = JsonSerializer.Deserialize<PersistedSession>(json, _jsonOptions);
                 if (session != null)
                 {
-                    // Migrate old vscode:// protocol links to vscode.dev URLs
+                    // Migrate old sessions to new format
                     MigrateVsCodeLink(session);
+                    MigrateMessageContent(session);
                     sessions.Add(session);
                 }
             }
@@ -184,6 +185,47 @@ public sealed class SessionPersistence
                 else
                 {
                     session.DeliveryResult.VsCodeWebUrl = repoUrl;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Migrates old message content to include both VS Code links.
+    /// </summary>
+    private static void MigrateMessageContent(PersistedSession session)
+    {
+        if (session.DeliveryResult == null || session.Messages == null)
+            return;
+
+        var vsCodeWebUrl = session.DeliveryResult.VsCodeWebUrl;
+        var vsCodeCloneUrl = session.DeliveryResult.VsCodeCloneUrl;
+
+        if (string.IsNullOrEmpty(vsCodeWebUrl) || string.IsNullOrEmpty(vsCodeCloneUrl))
+            return;
+
+        foreach (var message in session.Messages)
+        {
+            if (message.Role != "assistant")
+                continue;
+
+            // Check if message contains old single VS Code link pattern
+            // Old: "2. Or open directly in VS Code: [Open in VS Code](vscode://...)"
+            // New: Two separate links
+            if (message.Content.Contains("[Open in VS Code](vscode://") ||
+                message.Content.Contains("[Open in VS Code](https://vscode.dev"))
+            {
+                // Replace old single-link pattern with new dual-link pattern
+                var oldPattern1 = System.Text.RegularExpressions.Regex.Match(
+                    message.Content,
+                    @"2\. Or open directly in VS Code: \[Open in VS Code\]\([^)]+\)");
+
+                if (oldPattern1.Success)
+                {
+                    var newText = $@"2. Open in VS Code:
+                       - [Open in Browser]({vsCodeWebUrl}) - instant, no download needed
+                       - [Clone to Desktop]({vsCodeCloneUrl}) - full local development";
+                    message.Content = message.Content.Replace(oldPattern1.Value, newText);
                 }
             }
         }
