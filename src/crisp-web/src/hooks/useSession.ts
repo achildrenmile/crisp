@@ -134,20 +134,38 @@ export function useSession(sessionId?: string): UseSessionReturn {
     };
   }, [sessionId, handleEvent]);
 
-  // Load initial messages
+  // Load initial session data (messages, status, and delivery result)
   useEffect(() => {
     if (!sessionId) return;
 
-    const loadMessages = async () => {
+    const loadSessionData = async () => {
       try {
+        // Load messages
         const msgs = await api.getMessages(sessionId);
         setMessages(msgs);
+
+        // Load session status
+        const statusData = await api.getSessionStatus(sessionId);
+        const status = statusData.status.toLowerCase() as SessionStatus;
+        setSession({
+          id: sessionId,
+          status,
+          messages: msgs,
+        });
+
+        // If session is completed, load delivery result
+        if (status === 'completed') {
+          const result = await api.getDeliveryResult(sessionId);
+          if (result) {
+            setDeliveryResult(result);
+          }
+        }
       } catch (err) {
-        console.error('Failed to load messages:', err);
+        console.error('Failed to load session data:', err);
       }
     };
 
-    loadMessages();
+    loadSessionData();
   }, [sessionId]);
 
   const createSession = useCallback(async (): Promise<string> => {
