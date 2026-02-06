@@ -222,9 +222,7 @@ public sealed class SessionPersistence
 
                 if (oldPattern1.Success)
                 {
-                    var newText = $@"2. Open in VS Code:
-                       - [Open in Browser]({vsCodeWebUrl}) - instant, no download needed
-                       - [Clone to Desktop]({vsCodeCloneUrl}) - full local development";
+                    var newText = $"2. Open in VS Code:\n   - [Open in Browser]({vsCodeWebUrl}) - instant, no download needed\n   - [Clone to Desktop]({vsCodeCloneUrl}) - full local development";
                     message.Content = message.Content.Replace(oldPattern1.Value, newText);
                 }
             }
