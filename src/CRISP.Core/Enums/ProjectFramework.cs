@@ -40,5 +40,9 @@ public enum ProjectFramework
 
     // C++
     CppCMake,
-    CppConan
+    CppConan,
+
+    // Dart
+    DartShelf,
+    DartFrog
 }

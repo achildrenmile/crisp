@@ -12,5 +12,6 @@ public enum ProjectLanguage
     Java,
     Go,
     Rust,
-    Cpp
+    Cpp,
+    Dart
 }

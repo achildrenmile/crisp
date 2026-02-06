@@ -61,6 +61,7 @@ public sealed class ChatAgent : IChatAgent
         - **Go Gin** (Go 1.22) - language: "Go", framework: "GinGonic"
         - **Go Echo** (Go 1.22) - language: "Go", framework: "Echo"
         - **Rust Actix** (Rust 1.75) - language: "Rust", framework: "Actix"
+        - **Dart Shelf** (Dart 3.0) - language: "Dart", framework: "DartShelf"
 
         ### Frontend Applications:
         - **React** with Vite - language: "JavaScript" or "TypeScript", framework: "React"
@@ -72,7 +73,7 @@ public sealed class ChatAgent : IChatAgent
 
         ## Required Information:
         - Project name (lowercase, hyphenated, e.g., "my-api")
-        - Programming language (CSharp, Python, JavaScript, TypeScript, Java, Go, Rust, or Cpp)
+        - Programming language (CSharp, Python, JavaScript, TypeScript, Java, Go, Rust, Cpp, or Dart)
         - Framework (one of the supported frameworks above)
 
         ## Optional Information (with defaults):
@@ -502,6 +503,7 @@ public sealed class ChatAgent : IChatAgent
             "go" => ("Go 1.22", "go test"),
             "rust" => ("Rust 1.75", "cargo test"),
             "cpp" => ("C++20", "GoogleTest"),
+            "dart" => ("Dart 3.0", "dart test"),
             _ => ("", "")
         };
     }

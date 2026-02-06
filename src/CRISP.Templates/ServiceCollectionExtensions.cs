@@ -52,6 +52,9 @@ public static class ServiceCollectionExtensions
         // C++
         services.AddSingleton<IProjectGenerator, CppCMakeGenerator>();
 
+        // Dart
+        services.AddSingleton<IProjectGenerator, DartShelfGenerator>();
+
         return services;
     }
 }
