@@ -72,9 +72,14 @@ public sealed class DeliveryResult
     public string? BuildStatus { get; init; }
 
     /// <summary>
-    /// VS Code deep link to clone the repository.
+    /// VS Code web URL (vscode.dev) for instant browser editing.
     /// </summary>
-    public required string VsCodeLink { get; init; }
+    public required string VsCodeWebUrl { get; init; }
+
+    /// <summary>
+    /// VS Code clone URL (vscode:// protocol) for cloning to desktop.
+    /// </summary>
+    public required string VsCodeCloneUrl { get; init; }
 
     /// <summary>
     /// Collection URL (Azure DevOps only).

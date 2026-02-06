@@ -19,7 +19,8 @@ export interface SessionHistoryItem {
   createdAt: string;
   lastActivityAt: string;
   repositoryUrl: string | null;
-  vsCodeUrl: string | null;
+  vsCodeWebUrl: string | null;
+  vsCodeCloneUrl: string | null;
   firstMessage: string | null;
 }
 

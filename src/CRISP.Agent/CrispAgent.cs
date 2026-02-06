@@ -306,7 +306,8 @@ public sealed class CrispAgent : ICrispAgent
             }
 
             // Generate delivery result
-            var vsCodeLink = GenerateVsCodeLink(plan.Repository.Url!, plan.Requirements.ScmPlatform);
+            var vsCodeWebUrl = GenerateVsCodeWebUrl(plan.Repository.Url!, plan.Requirements.ScmPlatform);
+            var vsCodeCloneUrl = GenerateVsCodeCloneUrl(plan.Repository.CloneUrl!);
 
             var deliveryResult = new DeliveryResult
             {
@@ -317,14 +318,15 @@ public sealed class CrispAgent : ICrispAgent
                 DefaultBranch = _config.Common.DefaultBranch,
                 PipelineUrl = pipelineUrl,
                 BuildStatus = buildStatus ?? "N/A",
-                VsCodeLink = vsCodeLink,
+                VsCodeWebUrl = vsCodeWebUrl,
+                VsCodeCloneUrl = vsCodeCloneUrl,
                 CollectionUrl = plan.Requirements.ScmPlatform == ScmPlatform.AzureDevOps
                     ? $"{_config.AzureDevOps.ServerUrl}/{_config.AzureDevOps.Collection}"
                     : null,
                 ProjectName = plan.Requirements.ScmPlatform == ScmPlatform.AzureDevOps
                     ? _config.AzureDevOps.Project
                     : null,
-                SummaryCard = GenerateSummaryCard(plan, pipelineUrl, buildStatus, vsCodeLink)
+                SummaryCard = GenerateSummaryCard(plan, pipelineUrl, buildStatus, vsCodeWebUrl)
             };
 
             await _auditLogger.LogActionAsync(
@@ -352,7 +354,8 @@ public sealed class CrispAgent : ICrispAgent
                 RepositoryUrl = string.Empty,
                 CloneUrl = string.Empty,
                 DefaultBranch = _config.Common.DefaultBranch,
-                VsCodeLink = string.Empty,
+                VsCodeWebUrl = string.Empty,
+                VsCodeCloneUrl = string.Empty,
                 ErrorMessage = ex.Message,
                 SummaryCard = $"❌ Execution failed: {ex.Message}"
             };
@@ -562,7 +565,10 @@ public sealed class CrispAgent : ICrispAgent
             """;
     }
 
-    private static string GenerateVsCodeLink(string repositoryUrl, ScmPlatform platform)
+    /// <summary>
+    /// Generates a browser-based VS Code URL (vscode.dev) for instant editing.
+    /// </summary>
+    private static string GenerateVsCodeWebUrl(string repositoryUrl, ScmPlatform platform)
     {
         // For GitHub repositories, use vscode.dev which opens instantly in browser
         // Format: https://vscode.dev/github/owner/repo
@@ -580,8 +586,7 @@ public sealed class CrispAgent : ICrispAgent
         }
 
         // For Azure DevOps, use the web-based editor
-        // Format: https://dev.azure.com/org/project/_git/repo?path=/&version=GBmain&_a=contents
-        // The repository URL is already the web URL, just append editor parameters
+        // Format: https://dev.azure.com/org/project/_git/repo?path=/&_a=contents
         if (repositoryUrl.Contains("dev.azure.com") || repositoryUrl.Contains("visualstudio.com"))
         {
             return $"{repositoryUrl}?path=/&_a=contents";
@@ -589,5 +594,13 @@ public sealed class CrispAgent : ICrispAgent
 
         // Fallback: return the repository URL itself
         return repositoryUrl;
+    }
+
+    /// <summary>
+    /// Generates a VS Code protocol URL for cloning to desktop.
+    /// </summary>
+    private static string GenerateVsCodeCloneUrl(string cloneUrl)
+    {
+        return $"vscode://vscode.git/clone?url={Uri.EscapeDataString(cloneUrl)}";
     }
 }

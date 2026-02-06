@@ -138,17 +138,28 @@ export function ProjectHistory() {
                 {session.status}
               </span>
               <div className="history-item-actions">
-                {session.vsCodeUrl && (
+                {session.vsCodeWebUrl && (
                   <a
-                    href={session.vsCodeUrl}
+                    href={session.vsCodeWebUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="vscode-link"
                     onClick={(e) => e.stopPropagation()}
-                    title="Open in VS Code"
+                    title="Open in browser (vscode.dev)"
                   >
                     <Code size={14} />
-                    VS Code
+                    Browser
+                  </a>
+                )}
+                {session.vsCodeCloneUrl && (
+                  <a
+                    href={session.vsCodeCloneUrl}
+                    className="clone-link"
+                    onClick={(e) => e.stopPropagation()}
+                    title="Clone to VS Code desktop"
+                  >
+                    <Code size={14} />
+                    Clone
                   </a>
                 )}
                 {session.repositoryUrl && (
@@ -160,7 +171,7 @@ export function ProjectHistory() {
                     onClick={(e) => e.stopPropagation()}
                   >
                     <ExternalLink size={14} />
-                    View Repo
+                    Repo
                   </a>
                 )}
               </div>

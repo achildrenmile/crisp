@@ -43,7 +43,8 @@ export interface DeliveryCard {
   branch: string;
   pipelineUrl?: string;
   buildStatus: string;
-  vsCodeUrl: string;
+  vsCodeWebUrl: string;
+  vsCodeCloneUrl: string;
 }
 
 export interface Session {

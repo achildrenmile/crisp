@@ -83,7 +83,8 @@ public sealed record DeliveryCardDto(
     string Branch,
     string? PipelineUrl,
     string BuildStatus,
-    string VsCodeUrl);
+    string VsCodeWebUrl,
+    string VsCodeCloneUrl);
 
 /// <summary>
 /// Session status response.
@@ -105,7 +106,8 @@ public sealed record SessionHistoryItem(
     DateTime CreatedAt,
     DateTime LastActivityAt,
     string? RepositoryUrl,
-    string? VsCodeUrl,
+    string? VsCodeWebUrl,
+    string? VsCodeCloneUrl,
     string? FirstMessage);
 
 /// <summary>

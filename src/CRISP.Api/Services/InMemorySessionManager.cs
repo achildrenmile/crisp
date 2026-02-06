@@ -67,7 +67,8 @@ public sealed class PersistentSessionManager : ISessionManager, IDisposable
                             DefaultBranch = persisted.DeliveryResult.DefaultBranch,
                             PipelineUrl = persisted.DeliveryResult.PipelineUrl,
                             BuildStatus = persisted.DeliveryResult.BuildStatus,
-                            VsCodeLink = persisted.DeliveryResult.VsCodeLink,
+                            VsCodeWebUrl = persisted.DeliveryResult.VsCodeWebUrl,
+                            VsCodeCloneUrl = persisted.DeliveryResult.VsCodeCloneUrl,
                             SummaryCard = persisted.DeliveryResult.SummaryCard ?? "Repository created successfully!",
                             ErrorMessage = persisted.DeliveryResult.ErrorMessage
                         };

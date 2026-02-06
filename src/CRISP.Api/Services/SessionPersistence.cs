@@ -37,7 +37,10 @@ public sealed class PersistedDeliveryResult
     public string DefaultBranch { get; set; } = string.Empty;
     public string? PipelineUrl { get; set; }
     public string? BuildStatus { get; set; }
-    public string VsCodeLink { get; set; } = string.Empty;
+    // Legacy field - kept for backwards compatibility during migration
+    public string? VsCodeLink { get; set; }
+    public string VsCodeWebUrl { get; set; } = string.Empty;
+    public string VsCodeCloneUrl { get; set; } = string.Empty;
     public string SummaryCard { get; set; } = string.Empty;
     public string? ErrorMessage { get; set; }
 }
@@ -93,7 +96,8 @@ public sealed class SessionPersistence
                 DefaultBranch = session.DeliveryResult.DefaultBranch,
                 PipelineUrl = session.DeliveryResult.PipelineUrl,
                 BuildStatus = session.DeliveryResult.BuildStatus,
-                VsCodeLink = session.DeliveryResult.VsCodeLink,
+                VsCodeWebUrl = session.DeliveryResult.VsCodeWebUrl,
+                VsCodeCloneUrl = session.DeliveryResult.VsCodeCloneUrl,
                 SummaryCard = session.DeliveryResult.SummaryCard,
                 ErrorMessage = session.DeliveryResult.ErrorMessage
             };
@@ -134,40 +138,54 @@ public sealed class SessionPersistence
     }
 
     /// <summary>
-    /// Migrates old vscode:// protocol links to browser-based vscode.dev URLs.
+    /// Migrates old session data to new format with both VS Code URLs.
     /// </summary>
     private static void MigrateVsCodeLink(PersistedSession session)
     {
         if (session.DeliveryResult == null)
             return;
 
-        var vsCodeLink = session.DeliveryResult.VsCodeLink;
-        if (string.IsNullOrEmpty(vsCodeLink) || !vsCodeLink.StartsWith("vscode://"))
-            return;
-
-        // Convert based on repository URL
         var repoUrl = session.DeliveryResult.RepositoryUrl;
+        var cloneUrl = session.DeliveryResult.CloneUrl;
+
         if (string.IsNullOrEmpty(repoUrl))
             return;
 
-        // GitHub: https://github.com/owner/repo -> https://vscode.dev/github/owner/repo
-        if (repoUrl.Contains("github.com"))
+        // Always ensure VsCodeCloneUrl is set
+        if (string.IsNullOrEmpty(session.DeliveryResult.VsCodeCloneUrl) && !string.IsNullOrEmpty(cloneUrl))
         {
-            var uri = new Uri(repoUrl);
-            var path = uri.AbsolutePath.TrimStart('/').TrimEnd('/');
-            if (path.EndsWith(".git"))
-                path = path[..^4];
-            session.DeliveryResult.VsCodeLink = $"https://vscode.dev/github/{path}";
+            session.DeliveryResult.VsCodeCloneUrl = $"vscode://vscode.git/clone?url={Uri.EscapeDataString(cloneUrl)}";
         }
-        // Azure DevOps: open web editor
-        else if (repoUrl.Contains("dev.azure.com") || repoUrl.Contains("visualstudio.com"))
+
+        // Always ensure VsCodeWebUrl is set
+        if (string.IsNullOrEmpty(session.DeliveryResult.VsCodeWebUrl))
         {
-            session.DeliveryResult.VsCodeLink = $"{repoUrl}?path=/&_a=contents";
-        }
-        else
-        {
-            // Fallback to repo URL
-            session.DeliveryResult.VsCodeLink = repoUrl;
+            // Check if we have old VsCodeLink that's already a web URL
+            var oldLink = session.DeliveryResult.VsCodeLink;
+            if (!string.IsNullOrEmpty(oldLink) && oldLink.StartsWith("https://"))
+            {
+                session.DeliveryResult.VsCodeWebUrl = oldLink;
+            }
+            else
+            {
+                // Generate from repository URL
+                if (repoUrl.Contains("github.com"))
+                {
+                    var uri = new Uri(repoUrl);
+                    var path = uri.AbsolutePath.TrimStart('/').TrimEnd('/');
+                    if (path.EndsWith(".git"))
+                        path = path[..^4];
+                    session.DeliveryResult.VsCodeWebUrl = $"https://vscode.dev/github/{path}";
+                }
+                else if (repoUrl.Contains("dev.azure.com") || repoUrl.Contains("visualstudio.com"))
+                {
+                    session.DeliveryResult.VsCodeWebUrl = $"{repoUrl}?path=/&_a=contents";
+                }
+                else
+                {
+                    session.DeliveryResult.VsCodeWebUrl = repoUrl;
+                }
+            }
         }
     }
 

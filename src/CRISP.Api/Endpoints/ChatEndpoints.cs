@@ -73,7 +73,8 @@ public static class ChatEndpoints
             s.CreatedAt,
             s.LastActivityAt,
             s.DeliveryResult?.RepositoryUrl,
-            s.DeliveryResult?.VsCodeLink,
+            s.DeliveryResult?.VsCodeWebUrl,
+            s.DeliveryResult?.VsCodeCloneUrl,
             s.Messages.FirstOrDefault(m => m.Role == "user")?.Content
         )).ToList();
 
@@ -282,6 +283,7 @@ public static class ChatEndpoints
             result.DefaultBranch,
             result.PipelineUrl,
             result.BuildStatus ?? "N/A",
-            result.VsCodeLink));
+            result.VsCodeWebUrl,
+            result.VsCodeCloneUrl));
     }
 }

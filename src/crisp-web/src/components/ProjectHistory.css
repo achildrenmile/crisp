@@ -188,8 +188,29 @@
   cursor: pointer;
   transition: background-color 0.2s;
   font-family: inherit;
+  text-decoration: none;
 }
 
 .vscode-link:hover {
   background: rgba(0, 122, 204, 0.1);
+}
+
+.clone-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: #6b21a8;
+  background: transparent;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-family: inherit;
+  text-decoration: none;
+}
+
+.clone-link:hover {
+  background: rgba(107, 33, 168, 0.1);
 }

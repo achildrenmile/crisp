@@ -67,13 +67,13 @@ export function ChatMessage({ message }: ChatMessageProps) {
                   href.startsWith('https://github.dev/')
                 );
 
-                // Check if this is a VS Code protocol link (legacy)
-                const isVsCodeProtocolLink = href && href.startsWith('vscode://');
+                // Check if this is a VS Code clone protocol link
+                const isVsCodeCloneLink = href && href.startsWith('vscode://vscode.git/clone');
 
                 // Check if this is a protocol link (vscode://, etc.)
                 const isProtocolLink = href && !href.startsWith('http://') && !href.startsWith('https://') && href.includes('://');
 
-                // Render VS Code web links as styled buttons
+                // Render VS Code web links as styled buttons (browser)
                 if (isVsCodeWebLink) {
                   return (
                     <a
@@ -81,6 +81,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="vscode-btn"
+                      title="Opens instantly in browser"
                     >
                       <Code size={14} />
                       {children}
@@ -88,20 +89,17 @@ export function ChatMessage({ message }: ChatMessageProps) {
                   );
                 }
 
-                // Handle legacy vscode:// protocol links
-                if (isVsCodeProtocolLink) {
+                // Handle VS Code clone protocol links with distinct styling
+                if (isVsCodeCloneLink) {
                   return (
-                    <button
-                      className="vscode-btn"
-                      onClick={() => {
-                        const link = document.createElement('a');
-                        link.href = href;
-                        link.click();
-                      }}
+                    <a
+                      href={href}
+                      className="vscode-clone-btn"
+                      title="Clones to your local VS Code"
                     >
                       <Code size={14} />
                       {children}
-                    </button>
+                    </a>
                   );
                 }
 

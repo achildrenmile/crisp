@@ -257,7 +257,9 @@ public sealed class ChatAgent : IChatAgent
                        ```bash
                        git clone {result.CloneUrl}
                        ```
-                    2. Or open directly in VS Code: [Open in VS Code]({result.VsCodeLink})
+                    2. Open in VS Code:
+                       - [Open in Browser]({result.VsCodeWebUrl}) - instant, no download needed
+                       - [Clone to Desktop]({result.VsCodeCloneUrl}) - full local development
                     3. Follow the README for setup instructions
 
                     Happy coding!
@@ -272,7 +274,8 @@ public sealed class ChatAgent : IChatAgent
                     result.DefaultBranch,
                     result.PipelineUrl,
                     result.BuildStatus ?? "N/A",
-                    result.VsCodeLink);
+                    result.VsCodeWebUrl,
+                    result.VsCodeCloneUrl);
 
                 await session.PublishEventAsync(new DeliveryReadyEvent(
                     deliveryCard, DateTime.UtcNow));
@@ -390,7 +393,8 @@ public sealed class ChatAgent : IChatAgent
                     result.DefaultBranch,
                     result.PipelineUrl,
                     result.BuildStatus ?? "N/A",
-                    result.VsCodeLink);
+                    result.VsCodeWebUrl,
+                    result.VsCodeCloneUrl);
 
                 var completionMessage = session.AddAssistantMessage(
                     result.SummaryCard ?? "Repository created successfully!",
