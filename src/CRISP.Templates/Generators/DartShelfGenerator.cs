@@ -74,7 +74,7 @@ public sealed class DartShelfGenerator : IProjectGenerator
         createdFiles.Add(serverPath);
 
         // lib/<project_name>.dart (library entry)
-        var libEntryContent = GenerateLibEntry(requirements.ProjectName);
+        var libEntryContent = GenerateLibEntry();
         var libEntryPath = Path.Combine(libPath, $"{ToSnakeCase(requirements.ProjectName)}.dart");
         await _filesystem.WriteFileAsync(libEntryPath, libEntryContent, cancellationToken);
         createdFiles.Add(libEntryPath);
@@ -127,7 +127,7 @@ public sealed class DartShelfGenerator : IProjectGenerator
         // Docker support
         if (requirements.IncludeContainerSupport)
         {
-            var dockerfileContent = GenerateDockerfile(requirements.ProjectName);
+            var dockerfileContent = GenerateDockerfile();
             var dockerfilePath = Path.Combine(outputPath, "Dockerfile");
             await _filesystem.WriteFileAsync(dockerfilePath, dockerfileContent, cancellationToken);
             createdFiles.Add(dockerfilePath);
@@ -190,8 +190,10 @@ public sealed class DartShelfGenerator : IProjectGenerator
     private static string GeneratePubspec(string projectName, ProjectRequirements requirements)
     {
         var snakeName = projectName.Replace("-", "_").ToLowerInvariant();
-        return $@"name: {snakeName}
-description: {requirements.Description ?? "A Dart Shelf REST API server."}
+        var description = requirements.Description ?? "A Dart Shelf REST API server.";
+        return $"""
+name: {snakeName}
+description: {description}
 version: 1.0.0
 publish_to: none
 
@@ -207,12 +209,13 @@ dev_dependencies:
   lints: ^3.0.0
   test: ^1.24.0
   http: ^1.2.0
-";
+""";
     }
 
     private static string GenerateAnalysisOptions()
     {
-        return @"include: package:lints/recommended.yaml
+        return """
+include: package:lints/recommended.yaml
 
 linter:
   rules:
@@ -225,19 +228,20 @@ analyzer:
   errors:
     unused_import: warning
     unused_local_variable: warning
-";
+""";
     }
 
     private static string GenerateServer(string projectName)
     {
         var snakeName = projectName.Replace("-", "_").ToLowerInvariant();
-        return $@"import 'dart:io';
+        return $$"""
+import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
-import 'package:{snakeName}/{snakeName}.dart';
+import 'package:{{snakeName}}/{{snakeName}}.dart';
 
-void main(List<String> args) async {{
+void main(List<String> args) async {
   final parser = ArgParser()..addOption('port', abbr: 'p', defaultsTo: '8080');
   final result = parser.parse(args);
 
@@ -246,39 +250,41 @@ void main(List<String> args) async {{
 
   final server = await shelf_io.serve(app, InternetAddress.anyIPv4, port);
 
-  print('Server running on http://${{server.address.host}}:${{server.port}}');
-}}
-";
+  print('Server running on http://${server.address.host}:${server.port}');
+}
+""";
     }
 
-    private static string GenerateLibEntry(string projectName)
+    private static string GenerateLibEntry()
     {
-        return @"/// Server library
+        return """
+/// Server library
 library;
 
 export 'src/app.dart';
-";
+""";
     }
 
     private static string GenerateApp(string projectName)
     {
-        return $@"import 'package:shelf/shelf.dart';
+        return $$"""
+import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 import 'routes/health_route.dart';
 import 'routes/items_route.dart';
 
 /// Creates the main application handler
-Handler createApp() {{
+Handler createApp() {
   final router = Router();
 
   // Root endpoint
-  router.get('/', (Request request) {{
+  router.get('/', (Request request) {
     return Response.ok(
-      '{{"message": "Welcome to {projectName}"}}',
-      headers: {{'content-type': 'application/json'}},
+      '{"message": "Welcome to {{projectName}}"}',
+      headers: {'content-type': 'application/json'},
     );
-  }});
+  });
 
   // Mount routes
   router.mount('/health', HealthRoute().router.call);
@@ -291,33 +297,34 @@ Handler createApp() {{
       .addHandler(router.call);
 
   return handler;
-}}
+}
 
 /// CORS middleware
-Middleware _corsMiddleware() {{
-  return (Handler innerHandler) {{
-    return (Request request) async {{
-      if (request.method == 'OPTIONS') {{
+Middleware _corsMiddleware() {
+  return (Handler innerHandler) {
+    return (Request request) async {
+      if (request.method == 'OPTIONS') {
         return Response.ok('', headers: _corsHeaders);
-      }}
+      }
 
       final response = await innerHandler(request);
       return response.change(headers: _corsHeaders);
-    }};
-  }};
-}}
+    };
+  };
+}
 
-const _corsHeaders = {{
+const _corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Origin, Content-Type, Accept, Authorization',
-}};
-";
+};
+""";
     }
 
     private static string GenerateHealthRoute()
     {
-        return @"import 'package:shelf/shelf.dart';
+        return """
+import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
 
 /// Health check route handler
@@ -335,12 +342,13 @@ class HealthRoute {
     return router;
   }
 }
-";
+""";
     }
 
     private static string GenerateItemsRoute()
     {
-        return @"import 'dart:convert';
+        return """
+import 'dart:convert';
 
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
@@ -458,12 +466,13 @@ class ItemsRoute {
     return router;
   }
 }
-";
+""";
     }
 
     private static string GenerateItemModel()
     {
-        return @"/// Item data model
+        return """
+/// Item data model
 class Item {
   final int id;
   final String name;
@@ -495,12 +504,13 @@ class Item {
     };
   }
 }
-";
+""";
     }
 
     private static string GenerateGitignore()
     {
-        return @"# Dart/Flutter
+        return """
+# Dart/Flutter
 .dart_tool/
 .packages
 build/
@@ -521,14 +531,17 @@ coverage/
 # Generated files
 *.g.dart
 *.freezed.dart
-";
+""";
     }
 
     private static string GenerateReadme(string projectName, ProjectRequirements requirements)
     {
-        return $@"# {projectName}
+        var projectSnake = ToSnakeCase(projectName);
+        var description = requirements.Description ?? "A Dart Shelf REST API server.";
+        return $"""
+# {projectName}
 
-{requirements.Description ?? "A Dart Shelf REST API server."}
+{description}
 
 ## Getting Started
 
@@ -586,7 +599,7 @@ dart test
 ├── bin/
 │   └── server.dart       # Entry point
 ├── lib/
-│   ├── {ToSnakeCase(projectName)}.dart    # Library entry
+│   ├── {projectSnake}.dart    # Library entry
 │   └── src/
 │       ├── app.dart      # Application setup
 │       ├── routes/
@@ -602,54 +615,55 @@ dart test
 ## License
 
 MIT
-";
+""";
     }
 
     private static string GenerateTest(string projectName)
     {
         var snakeName = projectName.Replace("-", "_").ToLowerInvariant();
-        return $@"import 'dart:convert';
+        return $$"""
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:shelf/shelf_io.dart' as shelf_io;
-import 'package:{snakeName}/{snakeName}.dart';
+import 'package:{{snakeName}}/{{snakeName}}.dart';
 import 'package:test/test.dart';
 
-void main() {{
+void main() {
   late HttpServer server;
   late Uri baseUrl;
 
-  setUp(() async {{
+  setUp(() async {
     final app = createApp();
     server = await shelf_io.serve(app, 'localhost', 0);
-    baseUrl = Uri.parse('http://${{server.address.host}}:${{server.port}}');
-  }});
+    baseUrl = Uri.parse('http://${server.address.host}:${server.port}');
+  });
 
-  tearDown(() async {{
+  tearDown(() async {
     await server.close();
-  }});
+  });
 
-  test('GET / returns welcome message', () async {{
+  test('GET / returns welcome message', () async {
     final response = await http.get(baseUrl);
 
     expect(response.statusCode, equals(200));
     expect(jsonDecode(response.body), containsPair('message', isNotEmpty));
-  }});
+  });
 
-  test('GET /health returns healthy status', () async {{
+  test('GET /health returns healthy status', () async {
     final response = await http.get(baseUrl.resolve('/health'));
 
     expect(response.statusCode, equals(200));
-    expect(jsonDecode(response.body), equals({{'status': 'healthy'}}));
-  }});
+    expect(jsonDecode(response.body), equals({'status': 'healthy'}));
+  });
 
-  group('Items API', () {{
-    test('POST /items creates an item', () async {{
+  group('Items API', () {
+    test('POST /items creates an item', () async {
       final response = await http.post(
         baseUrl.resolve('/items'),
-        headers: {{'content-type': 'application/json'}},
-        body: jsonEncode({{'name': 'Test Item', 'price': 9.99}}),
+        headers: {'content-type': 'application/json'},
+        body: jsonEncode({'name': 'Test Item', 'price': 9.99}),
       );
 
       expect(response.statusCode, equals(201));
@@ -657,28 +671,29 @@ void main() {{
       expect(body['name'], equals('Test Item'));
       expect(body['price'], equals(9.99));
       expect(body['id'], isNotNull);
-    }});
+    });
 
-    test('GET /items returns empty list initially', () async {{
+    test('GET /items returns empty list initially', () async {
       final response = await http.get(baseUrl.resolve('/items'));
 
       expect(response.statusCode, equals(200));
       expect(jsonDecode(response.body), isList);
-    }});
+    });
 
-    test('GET /items/:id returns 404 for nonexistent item', () async {{
+    test('GET /items/:id returns 404 for nonexistent item', () async {
       final response = await http.get(baseUrl.resolve('/items/99999'));
 
       expect(response.statusCode, equals(404));
-    }});
-  }});
-}}
-";
+    });
+  });
+}
+""";
     }
 
-    private static string GenerateDockerfile(string projectName)
+    private static string GenerateDockerfile()
     {
-        return $@"# Build stage
+        return """
+# Build stage
 FROM dart:stable AS build
 
 WORKDIR /app
@@ -697,13 +712,14 @@ WORKDIR /app
 COPY --from=build /app/bin/server /app/bin/server
 
 EXPOSE 8080
-CMD [""/app/bin/server"", ""--port"", ""8080""]
-";
+CMD ["/app/bin/server", "--port", "8080"]
+""";
     }
 
     private static string GenerateDockerignore()
     {
-        return @".dart_tool/
+        return """
+.dart_tool/
 .packages
 build/
 .git
@@ -713,6 +729,6 @@ test/
 coverage/
 .idea/
 .vscode/
-";
+""";
     }
 }
