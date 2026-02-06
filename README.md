@@ -403,6 +403,86 @@ CRISP supports multiple LLM providers. Set the `Llm:Provider` to choose:
 }
 ```
 
+### SCM Platform Configuration
+
+CRISP supports two SCM platforms. Set `Crisp:ScmPlatform` to choose between them:
+
+| Platform | Value | Description |
+|----------|-------|-------------|
+| GitHub | `GitHub` | GitHub.com or GitHub Enterprise (default) |
+| Azure DevOps | `AzureDevOps` | Azure DevOps Server (on-premises) |
+
+**Using GitHub (default):**
+```json
+{
+  "Crisp": {
+    "ScmPlatform": "GitHub",
+    "GitHub": {
+      "Owner": "your-org-or-username",
+      "Visibility": "Private",
+      "Token": "ghp_xxx"
+    },
+    "Common": {
+      "DefaultBranch": "main",
+      "GenerateCiCd": true
+    }
+  }
+}
+```
+
+**Using Azure DevOps (disables GitHub):**
+```json
+{
+  "Crisp": {
+    "ScmPlatform": "AzureDevOps",
+    "AzureDevOps": {
+      "ServerUrl": "https://azuredevops.contoso.local",
+      "Collection": "DefaultCollection",
+      "Project": "MyProject",
+      "Token": "your-pat-token",
+      "AgentPool": "Default",
+      "PipelineFormat": "Yaml"
+    },
+    "Common": {
+      "DefaultBranch": "main",
+      "GenerateCiCd": true
+    }
+  }
+}
+```
+
+**Azure DevOps Configuration Options:**
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| `ServerUrl` | Azure DevOps Server URL | (required) |
+| `Collection` | Collection name | `DefaultCollection` |
+| `Project` | Team project name | (required) |
+| `Token` | Personal Access Token (PAT) | (required) |
+| `AgentPool` | Build agent pool name | (optional) |
+| `PipelineFormat` | `Yaml` or `Xaml` | `Yaml` |
+| `NuGetFeedUrl` | Internal NuGet feed URL | (optional) |
+
+**Using Environment Variables (Docker):**
+
+For GitHub:
+```bash
+SCM_PLATFORM=GitHub
+GITHUB_OWNER=your-org
+GITHUB_TOKEN=ghp_xxx
+GITHUB_VISIBILITY=Private
+```
+
+For Azure DevOps:
+```bash
+SCM_PLATFORM=AzureDevOps
+AZURE_DEVOPS_ORG=https://azuredevops.contoso.local
+AZURE_DEVOPS_PROJECT=MyProject
+AZURE_DEVOPS_PAT=your-pat-token
+```
+
+> **Note:** When `ScmPlatform` is set to `AzureDevOps`, GitHub configuration is ignored and vice versa. Only configure the platform you intend to use.
+
 ## Component Details
 
 ### CRISP.Api
