@@ -1,6 +1,6 @@
 {
   "name": "crisp-web",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "CRISP Web UI - React frontend for Code Repo Initialization & Scaffolding Platform",
   "type": "module",
   "scripts": {

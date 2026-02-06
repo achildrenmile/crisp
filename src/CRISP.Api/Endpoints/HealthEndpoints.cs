@@ -1,3 +1,4 @@
+using CRISP.Api.Services;
 using CRISP.Core.Interfaces;
 
 namespace CRISP.Api.Endpoints;
@@ -14,14 +15,22 @@ public static class HealthEndpoints
 
         group.MapGet("/health", async (
             ICrispAgent agent,
+            ILlmClient llmClient,
             CancellationToken cancellationToken) =>
         {
             var errors = await agent.ValidateConfigurationAsync(cancellationToken);
+            var llmInfo = llmClient.GetInfo();
 
             var health = new
             {
                 status = errors.Count == 0 ? "healthy" : "degraded",
                 timestamp = DateTime.UtcNow,
+                llm = new
+                {
+                    provider = llmInfo.Provider,
+                    model = llmInfo.Model,
+                    baseUrl = llmInfo.BaseUrl
+                },
                 checks = new
                 {
                     configuration = errors.Count == 0
@@ -36,5 +45,18 @@ public static class HealthEndpoints
         })
         .WithName("HealthCheck")
         .WithDescription("Health check for all dependent services");
+
+        group.MapGet("/llm-info", (ILlmClient llmClient) =>
+        {
+            var info = llmClient.GetInfo();
+            return Results.Ok(new
+            {
+                provider = info.Provider,
+                model = info.Model,
+                baseUrl = info.BaseUrl
+            });
+        })
+        .WithName("GetLlmInfo")
+        .WithDescription("Get information about the configured LLM provider");
     }
 }

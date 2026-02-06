@@ -159,3 +159,20 @@ export async function getSessionHistory(): Promise<SessionHistoryItem[]> {
 
   return response.json();
 }
+
+// LLM Info response
+export interface LlmInfo {
+  provider: string;
+  model: string;
+  baseUrl?: string;
+}
+
+export async function getLlmInfo(): Promise<LlmInfo> {
+  const response = await fetch('/api/llm-info');
+
+  if (!response.ok) {
+    throw new Error(`Failed to get LLM info: ${response.statusText}`);
+  }
+
+  return response.json();
+}

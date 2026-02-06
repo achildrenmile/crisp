@@ -19,7 +19,7 @@ CRISP is built with:
 - **.NET 10** backend (API and agent orchestration)
 - **React** frontend (TypeScript, Vite)
 - **Model Context Protocol (MCP)** for tool communication
-- **Claude AI** for natural language understanding
+- **LLM integration** - Claude (default) or OpenAI-compatible APIs
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -254,8 +254,12 @@ docker-compose down -v
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `CLAUDE_API_KEY` | Anthropic Claude API key | (required) |
+| `LLM_PROVIDER` | LLM provider (`Claude` or `OpenAI`) | `Claude` |
+| `CLAUDE_API_KEY` | Anthropic Claude API key | (required for Claude) |
 | `CLAUDE_MODEL` | Claude model to use | `claude-sonnet-4-20250514` |
+| `OPENAI_API_KEY` | OpenAI API key | (required for OpenAI) |
+| `OPENAI_MODEL` | OpenAI model to use | `gpt-4o` |
+| `OPENAI_BASE_URL` | Custom endpoint for OpenAI-compatible APIs | (optional) |
 | `SCM_PLATFORM` | `GitHub` or `AzureDevOps` | `GitHub` |
 | `GITHUB_OWNER` | GitHub username or org | (required for GitHub) |
 | `GITHUB_TOKEN` | GitHub personal access token | (required for GitHub) |
@@ -304,6 +308,7 @@ The CRISP API provides the following endpoints:
 | `GET` | `/api/chat/sessions/{id}/status` | Get session status |
 | `GET` | `/api/chat/sessions/{id}/result` | Get delivery result |
 | `GET` | `/api/health` | Health check |
+| `GET` | `/api/llm-info` | Get LLM provider and model info |
 
 API documentation is available at http://localhost:5000/swagger
 
@@ -326,10 +331,19 @@ API documentation is available at http://localhost:5000/swagger
 
 ```json
 {
+  "Llm": {
+    "Provider": "Claude"
+  },
   "Claude": {
     "ApiKey": "sk-ant-xxx",
     "Model": "claude-sonnet-4-20250514",
     "MaxTokens": 4096
+  },
+  "OpenAI": {
+    "ApiKey": "sk-xxx",
+    "Model": "gpt-4o",
+    "MaxTokens": 4096,
+    "BaseUrl": ""
   },
   "Crisp": {
     "ScmPlatform": "GitHub",
@@ -342,6 +356,49 @@ API documentation is available at http://localhost:5000/swagger
       "DefaultBranch": "main",
       "GenerateCiCd": true
     }
+  }
+}
+```
+
+### LLM Provider Configuration
+
+CRISP supports multiple LLM providers. Set the `Llm:Provider` to choose:
+
+| Provider | Description |
+|----------|-------------|
+| `Claude` | Anthropic Claude (default) |
+| `OpenAI` | OpenAI or OpenAI-compatible APIs |
+
+**Using Claude (default):**
+```json
+{
+  "Llm": { "Provider": "Claude" },
+  "Claude": {
+    "ApiKey": "sk-ant-xxx",
+    "Model": "claude-sonnet-4-20250514"
+  }
+}
+```
+
+**Using OpenAI:**
+```json
+{
+  "Llm": { "Provider": "OpenAI" },
+  "OpenAI": {
+    "ApiKey": "sk-xxx",
+    "Model": "gpt-4o"
+  }
+}
+```
+
+**Using OpenAI-compatible APIs (e.g., local LLMs, Azure OpenAI):**
+```json
+{
+  "Llm": { "Provider": "OpenAI" },
+  "OpenAI": {
+    "ApiKey": "your-key",
+    "Model": "your-model",
+    "BaseUrl": "http://localhost:11434/v1"
   }
 }
 ```

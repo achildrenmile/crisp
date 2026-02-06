@@ -49,6 +49,9 @@
     <!-- Anthropic Claude API -->
     <PackageVersion Include="Anthropic.SDK" Version="4.0.0" />
 
+    <!-- OpenAI API -->
+    <PackageVersion Include="OpenAI" Version="2.1.0" />
+
     <!-- Markdown Rendering -->
     <PackageVersion Include="Markdig" Version="0.38.0" />
 

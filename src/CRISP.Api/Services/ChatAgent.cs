@@ -10,13 +10,13 @@ using Microsoft.Extensions.Options;
 namespace CRISP.Api.Services;
 
 /// <summary>
-/// Chat-based agent implementation that uses Claude for conversation
+/// Chat-based agent implementation that uses an LLM for conversation
 /// and executes actual scaffolding operations.
 /// </summary>
 public sealed class ChatAgent : IChatAgent
 {
     private readonly ILogger<ChatAgent> _logger;
-    private readonly IClaudeClient _claudeClient;
+    private readonly ILlmClient _llmClient;
     private readonly ICrispAgent _crispAgent;
     private readonly ISessionManager _sessionManager;
     private readonly CrispConfiguration _config;
@@ -113,13 +113,13 @@ public sealed class ChatAgent : IChatAgent
 
     public ChatAgent(
         ILogger<ChatAgent> logger,
-        IClaudeClient claudeClient,
+        ILlmClient llmClient,
         ICrispAgent crispAgent,
         ISessionManager sessionManager,
         IOptions<CrispConfiguration> config)
     {
         _logger = logger;
-        _claudeClient = claudeClient;
+        _llmClient = llmClient;
         _crispAgent = crispAgent;
         _sessionManager = sessionManager;
         _config = config.Value;
@@ -142,13 +142,13 @@ public sealed class ChatAgent : IChatAgent
         // Get conversation history
         var history = session.GetConversationHistory();
 
-        // Call Claude
-        var response = await _claudeClient.SendMessageAsync(
+        // Call LLM
+        var response = await _llmClient.SendMessageAsync(
             systemPrompt,
             history,
             cancellationToken);
 
-        _logger.LogInformation("Claude response: {Response}", response);
+        _logger.LogInformation("LLM response: {Response}", response);
 
         // Check if response contains a create_project action
         var actionResult = TryParseAction(response);

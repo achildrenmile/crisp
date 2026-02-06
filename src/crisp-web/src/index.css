@@ -154,6 +154,20 @@ body {
   font-weight: 500;
 }
 
+.footer-llm {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  cursor: help;
+}
+
+.footer-llm svg {
+  color: var(--primary-color);
+}
+
 /* Buttons */
 .btn-primary, .btn-secondary {
   display: inline-flex;

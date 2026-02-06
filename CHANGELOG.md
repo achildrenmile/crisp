@@ -5,6 +5,28 @@ All notable changes to CRISP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-02-06
+
+### Added
+- **OpenAI Integration**: Added support for OpenAI and OpenAI-compatible APIs as an alternative LLM provider
+- New `ILlmClient` abstraction interface for pluggable LLM providers
+- `OpenAiClient` implementation with streaming support
+- LLM provider configuration via `Llm:Provider` setting (`Claude` or `OpenAI`)
+- New `/api/llm-info` endpoint to query the configured LLM provider and model
+- LLM model information displayed in the application footer
+- Support for custom base URLs for OpenAI-compatible APIs (local LLMs, Azure OpenAI, etc.)
+
+### Changed
+- Refactored `ClaudeClient` to implement the new `ILlmClient` interface
+- Renamed internal references from Claude-specific to generic LLM terminology
+- Health endpoint now includes LLM provider information
+
+### Technical Details
+- Added `OpenAI` NuGet package (v2.1.0) for OpenAI API integration
+- New configuration classes: `LlmConfiguration`, `OpenAiOptions`
+- Provider selection happens at startup based on configuration
+- Frontend fetches LLM info on load and displays in footer with tooltip
+
 ## [2.0.0] - 2026-02-06
 
 ### Breaking Changes
@@ -22,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - LibGit2Sharp 0.31.0
   - YamlDotNet 16.3.0
   - Octokit 14.0.0
-  - Anthropic.SDK 3.5.0
+  - Anthropic.SDK 4.0.0
 - Node.js version bumped to 22 in Docker builds
 - CI workflows updated to use .NET 10.x
 - Pipeline generators (GitHub Actions, Azure Pipelines) now generate .NET 10 configurations

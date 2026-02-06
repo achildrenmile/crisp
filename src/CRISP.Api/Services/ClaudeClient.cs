@@ -32,7 +32,7 @@ public sealed class ClaudeApiOptions
 /// <summary>
 /// Claude API client implementation using Anthropic.SDK.
 /// </summary>
-public sealed class ClaudeClient : IClaudeClient, IDisposable
+public sealed class ClaudeClient : ILlmClient, IDisposable
 {
     private readonly ILogger<ClaudeClient> _logger;
     private readonly ClaudeApiOptions _options;
@@ -47,6 +47,8 @@ public sealed class ClaudeClient : IClaudeClient, IDisposable
         _options = options.Value;
         _client = new AnthropicClient(_options.ApiKey);
     }
+
+    public LlmInfo GetInfo() => new("Anthropic Claude", _options.Model);
 
     public async Task<string> SendMessageAsync(
         string systemPrompt,

@@ -41,6 +41,10 @@ try
         builder.Configuration.GetSection("Crisp"));
     builder.Services.Configure<ClaudeApiOptions>(
         builder.Configuration.GetSection("Claude"));
+    builder.Services.Configure<OpenAiOptions>(
+        builder.Configuration.GetSection("OpenAI"));
+    builder.Services.Configure<LlmConfiguration>(
+        builder.Configuration.GetSection("Llm"));
     builder.Services.Configure<AuthConfiguration>(
         builder.Configuration.GetSection("Auth"));
 
@@ -92,8 +96,20 @@ try
         return new PersistentSessionManager(logger, sessionsPath);
     });
 
-    // Claude client
-    builder.Services.AddSingleton<IClaudeClient, ClaudeClient>();
+    // LLM client - register based on configuration
+    var llmConfig = builder.Configuration.GetSection("Llm").Get<LlmConfiguration>()
+        ?? new LlmConfiguration();
+
+    if (llmConfig.Provider == LlmProvider.OpenAI)
+    {
+        Log.Information("Using OpenAI as LLM provider");
+        builder.Services.AddSingleton<ILlmClient, OpenAiClient>();
+    }
+    else
+    {
+        Log.Information("Using Claude as LLM provider");
+        builder.Services.AddSingleton<ILlmClient, ClaudeClient>();
+    }
 
     // Chat agent
     builder.Services.AddScoped<IChatAgent, ChatAgent>();

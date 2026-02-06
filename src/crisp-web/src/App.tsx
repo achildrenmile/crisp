@@ -1,9 +1,11 @@
+import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
-import { User, LogOut, Github } from 'lucide-react';
+import { User, LogOut, Github, Bot } from 'lucide-react';
 import { Home, Session } from './pages';
 import { LoginPage } from './pages/LoginPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { isAuthenticated, logout, getStoredUser } from './services/auth';
+import { getLlmInfo, type LlmInfo } from './services/api';
 import { VERSION } from './version';
 
 function Header() {
@@ -38,6 +40,14 @@ function Header() {
 }
 
 function Layout({ children }: { children: React.ReactNode }) {
+  const [llmInfo, setLlmInfo] = useState<LlmInfo | null>(null);
+
+  useEffect(() => {
+    getLlmInfo()
+      .then(setLlmInfo)
+      .catch(console.error);
+  }, []);
+
   return (
     <div className="app-container">
       <Header />
@@ -47,6 +57,15 @@ function Layout({ children }: { children: React.ReactNode }) {
           CRISP - Code Repo Initialization & Scaffolding Platform
           <span className="footer-separator">|</span>
           <span className="footer-version">v{VERSION}</span>
+          {llmInfo && (
+            <>
+              <span className="footer-separator">|</span>
+              <span className="footer-llm" title={`Provider: ${llmInfo.provider}${llmInfo.baseUrl ? ` (${llmInfo.baseUrl})` : ''}`}>
+                <Bot size={14} />
+                {llmInfo.model}
+              </span>
+            </>
+          )}
           <span className="footer-separator">|</span>
           <a href="https://github.com/achildrenmile/crisp" target="_blank" rel="noopener noreferrer" className="footer-link">
             <Github size={14} />

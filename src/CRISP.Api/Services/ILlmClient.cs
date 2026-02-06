@@ -1,24 +1,29 @@
 namespace CRISP.Api.Services;
 
 /// <summary>
-/// Client for interacting with Claude API.
+/// Generic interface for interacting with LLM providers.
 /// </summary>
-public interface IClaudeClient
+public interface ILlmClient
 {
     /// <summary>
-    /// Sends a message to Claude and gets a response.
+    /// Gets information about the currently configured LLM provider and model.
+    /// </summary>
+    LlmInfo GetInfo();
+
+    /// <summary>
+    /// Sends a message to the LLM and gets a response.
     /// </summary>
     /// <param name="systemPrompt">The system prompt.</param>
     /// <param name="conversationHistory">Previous messages in the conversation.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Claude's response text.</returns>
+    /// <returns>The LLM's response text.</returns>
     Task<string> SendMessageAsync(
         string systemPrompt,
         IReadOnlyList<(string Role, string Content)> conversationHistory,
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Sends a message to Claude with streaming response.
+    /// Sends a message to the LLM with streaming response.
     /// </summary>
     /// <param name="systemPrompt">The system prompt.</param>
     /// <param name="conversationHistory">Previous messages in the conversation.</param>
@@ -31,3 +36,11 @@ public interface IClaudeClient
         Func<string, Task>? onChunk = null,
         CancellationToken cancellationToken = default);
 }
+
+/// <summary>
+/// Information about the LLM provider and model.
+/// </summary>
+public sealed record LlmInfo(
+    string Provider,
+    string Model,
+    string? BaseUrl = null);
