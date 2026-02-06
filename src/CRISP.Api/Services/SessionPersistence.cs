@@ -119,6 +119,8 @@ public sealed class SessionPersistence
                 var session = JsonSerializer.Deserialize<PersistedSession>(json, _jsonOptions);
                 if (session != null)
                 {
+                    // Migrate old vscode:// protocol links to vscode.dev URLs
+                    MigrateVsCodeLink(session);
                     sessions.Add(session);
                 }
             }
@@ -129,6 +131,44 @@ public sealed class SessionPersistence
         }
 
         return sessions;
+    }
+
+    /// <summary>
+    /// Migrates old vscode:// protocol links to browser-based vscode.dev URLs.
+    /// </summary>
+    private static void MigrateVsCodeLink(PersistedSession session)
+    {
+        if (session.DeliveryResult == null)
+            return;
+
+        var vsCodeLink = session.DeliveryResult.VsCodeLink;
+        if (string.IsNullOrEmpty(vsCodeLink) || !vsCodeLink.StartsWith("vscode://"))
+            return;
+
+        // Convert based on repository URL
+        var repoUrl = session.DeliveryResult.RepositoryUrl;
+        if (string.IsNullOrEmpty(repoUrl))
+            return;
+
+        // GitHub: https://github.com/owner/repo -> https://vscode.dev/github/owner/repo
+        if (repoUrl.Contains("github.com"))
+        {
+            var uri = new Uri(repoUrl);
+            var path = uri.AbsolutePath.TrimStart('/').TrimEnd('/');
+            if (path.EndsWith(".git"))
+                path = path[..^4];
+            session.DeliveryResult.VsCodeLink = $"https://vscode.dev/github/{path}";
+        }
+        // Azure DevOps: open web editor
+        else if (repoUrl.Contains("dev.azure.com") || repoUrl.Contains("visualstudio.com"))
+        {
+            session.DeliveryResult.VsCodeLink = $"{repoUrl}?path=/&_a=contents";
+        }
+        else
+        {
+            // Fallback to repo URL
+            session.DeliveryResult.VsCodeLink = repoUrl;
+        }
     }
 
     public void DeleteSession(string sessionId)
