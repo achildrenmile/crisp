@@ -233,7 +233,7 @@ EndGlobal
         {
             packagesSection = @"
   <ItemGroup>
-    <PackageReference Include=""Microsoft.CodeAnalysis.NetAnalyzers"" Version=""8.0.0"">
+    <PackageReference Include=""Microsoft.CodeAnalysis.NetAnalyzers"" Version=""10.0.0"">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
@@ -243,15 +243,15 @@ EndGlobal
         return $@"<Project Sdk=""Microsoft.NET.Sdk.Web"">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>{projectName.Replace("-", "_")}</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include=""Microsoft.AspNetCore.OpenApi"" Version=""8.0.0"" />
-    <PackageReference Include=""Swashbuckle.AspNetCore"" Version=""6.5.0"" />
+    <PackageReference Include=""Microsoft.AspNetCore.OpenApi"" Version=""10.0.0"" />
+    <PackageReference Include=""Swashbuckle.AspNetCore"" Version=""7.2.0"" />
   </ItemGroup>
 {packagesSection}
 </Project>
@@ -373,7 +373,7 @@ public class WeatherForecast
         return $@"<Project Sdk=""Microsoft.NET.Sdk"">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
@@ -381,15 +381,15 @@ public class WeatherForecast
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include=""Microsoft.AspNetCore.Mvc.Testing"" Version=""8.0.0"" />
-    <PackageReference Include=""Microsoft.NET.Test.Sdk"" Version=""17.10.0"" />
-    <PackageReference Include=""xunit"" Version=""2.8.1"" />
-    <PackageReference Include=""xunit.runner.visualstudio"" Version=""2.8.1"">
+    <PackageReference Include=""Microsoft.AspNetCore.Mvc.Testing"" Version=""10.0.0"" />
+    <PackageReference Include=""Microsoft.NET.Test.Sdk"" Version=""17.12.0"" />
+    <PackageReference Include=""xunit"" Version=""2.9.3"" />
+    <PackageReference Include=""xunit.runner.visualstudio"" Version=""2.9.3"">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include=""FluentAssertions"" Version=""6.12.0"" />
-    <PackageReference Include=""coverlet.collector"" Version=""6.0.2"">
+    <PackageReference Include=""FluentAssertions"" Version=""7.0.0"" />
+    <PackageReference Include=""coverlet.collector"" Version=""6.0.4"">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -523,7 +523,7 @@ appsettings.*.json
 
 ### Prerequisites
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 
 ### Running the Application
 
@@ -608,12 +608,12 @@ trim_trailing_whitespace = false
 
     private static string GenerateDockerfile(string projectName)
     {
-        return $@"FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+        return $@"FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY [""src/{projectName}/{projectName}.csproj"", ""src/{projectName}/""]

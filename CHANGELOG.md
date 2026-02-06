@@ -5,6 +5,35 @@ All notable changes to CRISP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-02-06
+
+### Breaking Changes
+- **Upgraded to .NET 10**: The entire backend is now built on .NET 10 (from .NET 8)
+- Scaffolded ASP.NET Core projects now target .NET 10 by default
+- Docker images now use .NET 10 runtime
+
+### Changed
+- Updated all Microsoft.Extensions.* packages to version 10.0.0
+- Updated ASP.NET Core packages to version 10.0.0
+- Updated Serilog packages to latest .NET 10 compatible versions
+- Updated test packages (xUnit 2.9.3, FluentAssertions 7.0.0)
+- Updated third-party packages to latest versions:
+  - Swashbuckle.AspNetCore 7.2.0
+  - LibGit2Sharp 0.31.0
+  - YamlDotNet 16.3.0
+  - Octokit 14.0.0
+  - Anthropic.SDK 3.5.0
+- Node.js version bumped to 22 in Docker builds
+- CI workflows updated to use .NET 10.x
+- Pipeline generators (GitHub Actions, Azure Pipelines) now generate .NET 10 configurations
+
+### Technical Details
+- Updated `global.json` to require .NET 10 SDK
+- Updated `Directory.Build.props` to target `net10.0`
+- Updated `Directory.Packages.props` with all new package versions
+- Updated `Dockerfile` to use `mcr.microsoft.com/dotnet/sdk:10.0` and `aspnet:10.0`
+- Updated all template generators to produce .NET 10 compatible code
+
 ## [1.1.0] - 2026-02-06
 
 ### Added
@@ -37,7 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Features
 - AI-powered chat interface for describing project requirements
 - Automatic project scaffolding with templates:
-  - ASP.NET Core 8 Web API
+  - ASP.NET Core Web API
   - Python FastAPI
 - GitHub and Azure DevOps integration
 - CI/CD pipeline generation (GitHub Actions, Azure Pipelines)

@@ -123,11 +123,11 @@ public sealed class AzurePipelinesGenerator : IPipelineGenerator
             new Dictionary<string, object>
             {
                 ["task"] = "UseDotNet@2",
-                ["displayName"] = "Use .NET 8",
+                ["displayName"] = "Use .NET 10",
                 ["inputs"] = new Dictionary<string, object>
                 {
                     ["packageType"] = "sdk",
-                    ["version"] = "8.0.x"
+                    ["version"] = "10.0.x"
                 }
             },
             new Dictionary<string, object>
@@ -436,7 +436,7 @@ public sealed class AzurePipelinesGenerator : IPipelineGenerator
         switch (requirements.Language)
         {
             case ProjectLanguage.CSharp:
-                steps.AddRange(["Setup .NET 8", "Restore", "Build", "Test", "Publish coverage", "Publish artifacts"]);
+                steps.AddRange(["Setup .NET 10", "Restore", "Build", "Test", "Publish coverage", "Publish artifacts"]);
                 break;
             case ProjectLanguage.Python:
                 steps.AddRange(["Setup Python", "Install dependencies"]);

@@ -96,7 +96,7 @@ public sealed class GitHubActionsGenerator : IPipelineGenerator
                 ["uses"] = "actions/setup-dotnet@v4",
                 ["with"] = new Dictionary<string, object>
                 {
-                    ["dotnet-version"] = "8.0.x"
+                    ["dotnet-version"] = "10.0.x"
                 }
             },
             new()
@@ -296,7 +296,7 @@ public sealed class GitHubActionsGenerator : IPipelineGenerator
         switch (requirements.Language)
         {
             case ProjectLanguage.CSharp:
-                steps.AddRange(["Setup .NET 8", "Restore dependencies", "Build", "Run tests"]);
+                steps.AddRange(["Setup .NET 10", "Restore dependencies", "Build", "Run tests"]);
                 break;
             case ProjectLanguage.Python:
                 steps.AddRange(["Setup Python", "Install dependencies"]);

@@ -16,7 +16,7 @@ CRISP accepts developer requirements via a chat interface, validates the input, 
 ## Architecture
 
 CRISP is built with:
-- **.NET 8** backend (API and agent orchestration)
+- **.NET 10** backend (API and agent orchestration)
 - **React** frontend (TypeScript, Vite)
 - **Model Context Protocol (MCP)** for tool communication
 - **Claude AI** for natural language understanding
@@ -26,7 +26,7 @@ CRISP is built with:
 │                           crisp-web (React)                              │
 │                    Chat UI / Plan Approval / Delivery                    │
 ├─────────────────────────────────────────────────────────────────────────┤
-│                           CRISP.Api (REST)                               │
+│                        CRISP.Api (REST .NET 10)                          │
 │              Sessions / Messages / SSE Events / Claude                   │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                          CRISP.Agent                                     │
@@ -57,7 +57,7 @@ CRISP is built with:
 ```
 crisp/
 ├── src/
-│   ├── CRISP.Api/               # REST API (ASP.NET Core 8)
+│   ├── CRISP.Api/               # REST API (ASP.NET Core 10)
 │   ├── CRISP.Core/              # Domain models, interfaces, configuration
 │   ├── CRISP.Audit/             # Structured audit logging with Serilog
 │   ├── CRISP.Git/               # Local Git operations via LibGit2Sharp
@@ -132,8 +132,8 @@ Claude: ✅ Repository Created Successfully!
 
 - [Docker](https://docs.docker.com/get-docker/) (recommended for deployment)
 - Or for local development:
-  - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-  - [Node.js 18+](https://nodejs.org/) (for the React frontend)
+  - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+  - [Node.js 22+](https://nodejs.org/) (for the React frontend)
   - Git
 
 ### Quick Start
@@ -228,7 +228,7 @@ CRISP can be run using Docker for easy deployment.
 
 | Service | Port | Description |
 |---------|------|-------------|
-| `api` | 5000 | CRISP REST API (.NET 8) |
+| `api` | 5000 | CRISP REST API (.NET 10) |
 | `web` | 3000 | React frontend (nginx) |
 
 ### Docker Commands
@@ -461,7 +461,7 @@ All MCP servers implement the Model Context Protocol and expose tools via stdio 
 
 | Language | Frameworks | Template |
 |----------|-----------|----------|
-| C# / .NET 8 | ASP.NET Core Web API | `aspnetcore-webapi` |
+| C# / .NET 10 | ASP.NET Core Web API | `aspnetcore-webapi` |
 | Python 3.12 | FastAPI | `python-fastapi` |
 
 ### Additional Tooling (configurable)

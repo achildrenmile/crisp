@@ -1,8 +1,8 @@
 # CRISP API Dockerfile
-# Multi-stage build for .NET 8 API + React Frontend
+# Multi-stage build for .NET 10 API + React Frontend
 
 # Build stage for React frontend
-FROM node:20-alpine AS frontend-build
+FROM node:22-alpine AS frontend-build
 WORKDIR /web
 COPY src/crisp-web/package*.json ./
 RUN npm install
@@ -10,7 +10,7 @@ COPY src/crisp-web/ ./
 RUN npm run build
 
 # Build stage for .NET API
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS api-build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS api-build
 WORKDIR /src
 
 # Copy solution and project files first for better layer caching
@@ -39,7 +39,7 @@ COPY src/ src/
 RUN dotnet publish src/CRISP.Api/CRISP.Api.csproj -c Release -o /app/publish --no-restore
 
 # Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
 # Install git for LibGit2Sharp operations and curl for health checks
