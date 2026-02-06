@@ -226,6 +226,20 @@ public sealed class SessionPersistence
                     message.Content = message.Content.Replace(oldPattern1.Value, newText);
                 }
             }
+
+            // Fix excessive whitespace from previous buggy migration
+            if (message.Content.Contains("                       - [Open in Browser]") ||
+                message.Content.Contains("                       - [Clone to Desktop]"))
+            {
+                message.Content = System.Text.RegularExpressions.Regex.Replace(
+                    message.Content,
+                    @"\s+- \[Open in Browser\]",
+                    "\n   - [Open in Browser]");
+                message.Content = System.Text.RegularExpressions.Regex.Replace(
+                    message.Content,
+                    @"\s+- \[Clone to Desktop\]",
+                    "\n   - [Clone to Desktop]");
+            }
         }
     }
 
