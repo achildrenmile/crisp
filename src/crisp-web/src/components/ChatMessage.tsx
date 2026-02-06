@@ -59,6 +59,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
         ) : (
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
+            urlTransform={(url) => url}
             components={{
               a: ({ href, children }) => {
                 // Check if this is a VS Code web link (vscode.dev or github.dev)
