@@ -56,7 +56,7 @@ function Layout({ children }: { children: React.ReactNode }) {
         <p>
           CRISP - Code Repo Initialization & Scaffolding Platform
           <span className="footer-separator">|</span>
-          <span className="footer-version">v{VERSION}</span>
+          <a href={`https://github.com/achildrenmile/crisp/releases/tag/v${VERSION}`} target="_blank" rel="noopener noreferrer" className="footer-version-link">v{VERSION}</a>
           {llmInfo && (
             <>
               <span className="footer-separator">|</span>
