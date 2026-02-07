@@ -5,6 +5,40 @@ All notable changes to CRISP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] - 2026-02-07
+
+### Added
+- **Architecture Decision Records (ADR) Module**: Automatically generates ADRs for scaffolded projects
+  - Documents all architectural decisions made during scaffolding in MADR format
+  - Generates `docs/adr/` directory with decision records
+  - Creates meta-ADR (0000) explaining the use of ADRs
+  - Generates index README.md with table of all decisions
+  - Includes blank template for future manual ADRs
+  - Records decisions for: language, framework, testing, CI/CD, containerization, SCM, code style
+
+### New Files Generated
+- `docs/adr/README.md` - Index with table of all ADRs
+- `docs/adr/template.md` - Blank template for future ADRs
+- `docs/adr/0000-record-architecture-decisions.md` - Meta ADR
+- `docs/adr/XXXX-decision-title.md` - Individual decision records
+
+### Configuration
+New `Adr` section in appsettings.json:
+- `OutputDirectory` - Output path (default: `docs/adr`)
+- `GenerateIndex` - Generate README.md (default: `true`)
+- `IncludeTemplate` - Include blank template (default: `true`)
+- `GenerateMetaAdr` - Generate ADR-0000 (default: `true`)
+- `OrganizationName` - Custom organization name for deciders
+
+### Technical Details
+- New `CRISP.Adr` project with full test coverage
+- `AdrGenerator` orchestrates ADR file generation
+- `AdrTemplateEngine` renders MADR markdown (full and short forms)
+- `AdrIndexGenerator` creates the index/README
+- `DecisionCollector` gathers decisions during scaffolding
+- `DecisionRecorder` records standard decisions from execution plan
+- Integrated into `CrispAgent` orchestration pipeline
+
 ## [2.3.0] - 2026-02-07
 
 ### Added

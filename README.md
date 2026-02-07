@@ -553,6 +553,23 @@ AZURE_DEVOPS_PAT=your-pat-token
 - Docker image building (optional)
 - YAML validation
 
+### CRISP.Adr
+
+**Purpose:** Architecture Decision Records generation.
+
+**Features:**
+- Automatically generates ADRs during scaffolding
+- MADR (Markdown Architectural Decision Records) format
+- Full and short-form templates
+- Index generation with decision table
+- Configurable output directory and options
+
+**Generated Files:**
+- `docs/adr/README.md` - Index with table of all ADRs
+- `docs/adr/template.md` - Blank template for future ADRs
+- `docs/adr/0000-record-architecture-decisions.md` - Meta ADR
+- `docs/adr/XXXX-decision-title.md` - Individual decisions
+
 ### CRISP.Agent
 
 **Purpose:** Main orchestrator that coordinates all components.
