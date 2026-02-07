@@ -421,7 +421,7 @@ public sealed class ObservabilityModule : IEnterpriseModule
         Directory.CreateDirectory(routesDir);
 
         var healthPath = Path.Combine(routesDir, "health.py");
-        var healthContent = $$"""
+        var healthContent = """"
             """Health check endpoints for Kubernetes probes."""
             from fastapi import APIRouter, Response
 
@@ -445,7 +445,7 @@ public sealed class ObservabilityModule : IEnterpriseModule
                 #     return Response(status_code=503, content='{"status": "not ready"}')
 
                 return {"status": "ready"}
-            """;
+            """";
 
         await File.WriteAllTextAsync(healthPath, healthContent, cancellationToken);
         files.Add("app/routes/health.py");
