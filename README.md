@@ -530,8 +530,9 @@ AZURE_DEVOPS_PAT=your-pat-token
 **Purpose:** Project scaffolding using Scriban templates.
 
 **Built-in Generators:**
-- **AspNetCoreWebApiGenerator** - ASP.NET Core 8 Web API with Swagger, xUnit tests
+- **AspNetCoreWebApiGenerator** - ASP.NET Core 10 Web API with Swagger, xUnit tests
 - **FastApiGenerator** - Python FastAPI with pytest, Ruff linting support
+- **DartShelfGenerator** - Dart Shelf REST API with CRUD endpoints, health checks, Docker support
 
 **Features:**
 - Deterministic output (same inputs = same files)
@@ -600,6 +601,7 @@ All MCP servers implement the Model Context Protocol and expose tools via stdio 
 |----------|-----------|----------|
 | C# / .NET 10 | ASP.NET Core Web API | `aspnetcore-webapi` |
 | Python 3.12 | FastAPI | `python-fastapi` |
+| Dart 3.0 | Shelf | `dart-shelf` |
 
 ### Additional Tooling (configurable)
 

@@ -5,6 +5,29 @@ All notable changes to CRISP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-02-07
+
+### Added
+- **Dart Shelf Template**: New project generator for Dart Shelf REST API framework
+  - Full CRUD API scaffold with items endpoint
+  - Health check endpoint
+  - CORS middleware configuration
+  - Proper Dart project structure (bin/, lib/src/, test/)
+  - Docker support with multi-stage builds
+  - Makefile for common development tasks
+  - Unit testing with `dart test`
+- **API Retry Logic**: Added automatic retry with exponential backoff for Claude API calls
+  - 3 retries with 2s, 5s, 10s delays
+  - Handles transient errors: timeouts, rate limits, API overload
+
+### Changed
+- Extended `ProjectLanguage` enum with `Dart`
+- Extended `ProjectFramework` enum with `DartShelf` and `DartFrog`
+- Updated ChatAgent system prompt to include Dart Shelf as a supported framework
+
+### Fixed
+- Dart generator C# string escaping issues using raw string literals
+
 ## [2.2.0] - 2026-02-06
 
 ### Added
