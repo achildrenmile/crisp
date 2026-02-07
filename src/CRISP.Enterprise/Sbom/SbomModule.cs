@@ -199,7 +199,7 @@ public sealed class SbomModule : IEnterpriseModule
             if (nextStepIndex < 0)
             {
                 // Last step, append after it
-                var endOfSteps = content.LastIndexOf("\n", StringComparison.Ordinal);
+                var endOfSteps = content.LastIndexOf('\n');
                 if (endOfSteps > 0)
                 {
                     content = content.Insert(endOfSteps, sbomStep);
