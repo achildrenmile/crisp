@@ -403,21 +403,21 @@ public sealed class EnvironmentConfigModule : IEnterpriseModule
         var configPath = Path.Combine(appDir, "config.py");
         if (!File.Exists(configPath))
         {
-            var dbConfig = context.HasDatabase ? $"""
+            var dbConfig = context.HasDatabase ? $$""""
 
                 # Database
                 db_host: str = "localhost"
-                db_port: int = {GetDefaultDbPort(context.DatabaseType)}
-                db_name: str = "{context.ProjectName.Replace("-", "_")}"
+                db_port: int = {{GetDefaultDbPort(context.DatabaseType)}}
+                db_name: str = "{{context.ProjectName.Replace("-", "_")}}"
                 db_user: str = ""
                 db_password: str = ""
 
                 @property
                 def database_url(self) -> str:
-                    return f"postgresql://{{self.db_user}}:{{self.db_password}}@{{self.db_host}}:{{self.db_port}}/{{self.db_name}}"
-                """ : "";
+                    return f"postgresql://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
+                """" : "";
 
-            var content = $$"""
+            var content = $$$$""""
                 """Application configuration using Pydantic settings."""
                 from functools import lru_cache
                 from pydantic_settings import BaseSettings
@@ -427,11 +427,11 @@ public sealed class EnvironmentConfigModule : IEnterpriseModule
                     """Application settings loaded from environment variables."""
 
                     # Application
-                    app_name: str = "{{context.ProjectName}}"
+                    app_name: str = "{{{{context.ProjectName}}}}"
                     app_env: str = "development"
-                    app_port: int = {{context.Port}}
+                    app_port: int = {{{{context.Port}}}}
                     debug: bool = False
-                {{dbConfig}}
+                {{{{dbConfig}}}}
                     class Config:
                         env_file = ".env"
                         env_file_encoding = "utf-8"
@@ -442,7 +442,7 @@ public sealed class EnvironmentConfigModule : IEnterpriseModule
                 def get_settings() -> Settings:
                     """Get cached settings instance."""
                     return Settings()
-                """;
+                """";
 
             await File.WriteAllTextAsync(configPath, content, cancellationToken);
             files.Add("app/config.py");

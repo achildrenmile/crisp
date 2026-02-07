@@ -174,7 +174,7 @@ public sealed class ObservabilityModule : IEnterpriseModule
             ### Instrumented Operations
 
             - HTTP requests (incoming and outgoing)
-            - Database queries{(context.HasDatabase ? $" ({context.DatabaseType})" : "")}
+            - Database queries{(context.HasDatabase ? " (" + context.DatabaseType + ")" : "")}
             - External API calls
             - Background jobs
 
@@ -340,7 +340,7 @@ public sealed class ObservabilityModule : IEnterpriseModule
         Directory.CreateDirectory(appDir);
 
         var observabilityPath = Path.Combine(appDir, "observability.py");
-        var content = $$"""
+        var content = """"
             """Observability configuration: structured logging, tracing, health checks."""
             import logging
             import sys
@@ -411,7 +411,7 @@ public sealed class ObservabilityModule : IEnterpriseModule
                 if HAS_STRUCTLOG:
                     return structlog.get_logger(name)
                 return logging.getLogger(name)
-            """;
+            """";
 
         await File.WriteAllTextAsync(observabilityPath, content, cancellationToken);
         files.Add("app/observability.py");
