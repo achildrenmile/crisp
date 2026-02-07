@@ -4,6 +4,7 @@ using CRISP.Core.Configuration;
 using CRISP.Core.Enums;
 using CRISP.Core.Interfaces;
 using CRISP.Core.Models;
+using CRISP.Enterprise;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -26,6 +27,8 @@ public sealed class CrispAgent : ICrispAgent
     private readonly IAdrGenerator? _adrGenerator;
     private readonly DecisionCollector? _decisionCollector;
     private readonly AdrConfiguration? _adrConfig;
+    private readonly EnterpriseModuleOrchestrator? _enterpriseOrchestrator;
+    private readonly EnterpriseConfiguration? _enterpriseConfig;
 
     private const int MaxRemediationAttempts = 3;
 
@@ -41,7 +44,9 @@ public sealed class CrispAgent : ICrispAgent
         IPolicyEngine policyEngine,
         IAdrGenerator? adrGenerator = null,
         DecisionCollector? decisionCollector = null,
-        IOptions<AdrConfiguration>? adrConfig = null)
+        IOptions<AdrConfiguration>? adrConfig = null,
+        EnterpriseModuleOrchestrator? enterpriseOrchestrator = null,
+        IOptions<EnterpriseConfiguration>? enterpriseConfig = null)
     {
         _logger = logger;
         _config = config.Value;
@@ -55,6 +60,8 @@ public sealed class CrispAgent : ICrispAgent
         _adrGenerator = adrGenerator;
         _decisionCollector = decisionCollector;
         _adrConfig = adrConfig?.Value;
+        _enterpriseOrchestrator = enterpriseOrchestrator;
+        _enterpriseConfig = enterpriseConfig?.Value;
     }
 
     public Guid SessionId => _auditLogger.SessionId;
@@ -234,10 +241,10 @@ public sealed class CrispAgent : ICrispAgent
                 await _filesystemOperations.WriteFileAsync(pipelineFilePath, pipelineResult.Content, cancellationToken);
             }
 
-            // Generate ADR files if configured
-            if (_adrGenerator != null && _decisionCollector != null)
+            // Run enterprise modules if configured
+            if (_enterpriseOrchestrator != null && _decisionCollector != null)
             {
-                _logger.LogInformation("Generating Architecture Decision Records");
+                _logger.LogInformation("Running enterprise modules");
 
                 // Set deciders from config
                 if (_adrConfig != null)
@@ -245,9 +252,36 @@ public sealed class CrispAgent : ICrispAgent
                     _decisionCollector.SetDeciders(_adrConfig.GetDecidersString());
                 }
 
-                // Record decisions based on the execution plan
+                // Record core decisions based on the execution plan
                 var decisionRecorder = new DecisionRecorder(_decisionCollector);
                 decisionRecorder.RecordDecisions(plan, _config);
+
+                // Build enterprise project context
+                var projectContext = BuildProjectContext(plan, workspacePath);
+
+                // Execute all enterprise modules
+                var moduleResults = await _enterpriseOrchestrator.ExecuteAllAsync(
+                    projectContext,
+                    (moduleId, status) => _logger.LogDebug("Enterprise module {ModuleId}: {Status}", moduleId, status),
+                    cancellationToken);
+
+                var successCount = moduleResults.Count(r => r.Success);
+                _logger.LogInformation(
+                    "Enterprise modules completed: {SuccessCount}/{TotalCount} succeeded",
+                    successCount,
+                    moduleResults.Count);
+
+                await _auditLogger.LogActionAsync(
+                    "enterprise.modules",
+                    ExecutionPhase.Execution,
+                    ActionResult.Success,
+                    $"Executed {moduleResults.Count} enterprise modules ({successCount} succeeded)");
+            }
+
+            // Generate ADR files if configured (after enterprise modules so they can record decisions)
+            if (_adrGenerator != null && _decisionCollector != null)
+            {
+                _logger.LogInformation("Generating Architecture Decision Records");
 
                 // Generate ADR files
                 var decisions = _decisionCollector.GetDecisions();
@@ -646,5 +680,50 @@ public sealed class CrispAgent : ICrispAgent
     private static string GenerateVsCodeCloneUrl(string cloneUrl)
     {
         return $"vscode://vscode.git/clone?url={Uri.EscapeDataString(cloneUrl)}";
+    }
+
+    /// <summary>
+    /// Builds a ProjectContext for enterprise modules from the execution plan.
+    /// </summary>
+    private ProjectContext BuildProjectContext(ExecutionPlan plan, string workspacePath)
+    {
+        var requirements = plan.Requirements;
+        var isGitHub = requirements.ScmPlatform == ScmPlatform.GitHub;
+
+        return new ProjectContext
+        {
+            ProjectName = requirements.ProjectName,
+            ProjectDescription = requirements.Description,
+            Language = requirements.Language.ToString().ToLowerInvariant(),
+            Runtime = requirements.RuntimeVersion,
+            Framework = requirements.Framework.ToString(),
+            IsApiProject = requirements.Framework is ProjectFramework.AspNetCoreWebApi
+                or ProjectFramework.FastApi
+                or ProjectFramework.DartShelf
+                or ProjectFramework.DartFrog,
+            TestFramework = requirements.TestingFramework,
+            Linter = requirements.LintingTools.FirstOrDefault(),
+            HasDocker = requirements.IncludeContainerSupport,
+            ScmPlatform = isGitHub ? "github" : "azure-devops",
+            RepositoryUrl = plan.Repository.Url ?? "",
+            DefaultBranch = _config.Common.DefaultBranch,
+            CiPipelineFile = plan.Pipeline?.FilePath,
+            GitHubOwner = isGitHub ? _config.GitHub.Owner : null,
+            GitHubVisibility = isGitHub ? requirements.Visibility.ToString().ToLowerInvariant() : null,
+            AzdoServerUrl = !isGitHub ? _config.AzureDevOps.ServerUrl : null,
+            AzdoCollection = !isGitHub ? _config.AzureDevOps.Collection : null,
+            AzdoProject = !isGitHub ? _config.AzureDevOps.Project : null,
+            OrganizationName = _enterpriseConfig?.OrganizationName,
+            WorkspacePath = workspacePath,
+            DecisionCollector = _decisionCollector!,
+            LicenseSpdx = _enterpriseConfig?.DefaultLicenseSpdx ?? "UNLICENSED",
+            BranchingStrategy = _enterpriseConfig?.DefaultBranchingStrategy ?? "trunk-based",
+            SecurityContactEmail = _enterpriseConfig?.SecurityContactEmail,
+            AddLicenseHeaders = _enterpriseConfig?.AddLicenseHeaders ?? false,
+            SbomFormat = _enterpriseConfig?.SbomFormat ?? "cyclonedx",
+            SecretsManager = _enterpriseConfig?.SecretsManager ?? "none",
+            ObservabilityProvider = _enterpriseConfig?.ObservabilityProvider ?? "opentelemetry",
+            Port = 8080 // Default, could be made configurable
+        };
     }
 }

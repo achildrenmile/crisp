@@ -17,6 +17,12 @@ public static class AdrCategory
     public const string Monitoring = "monitoring";
     public const string Documentation = "documentation";
     public const string Process = "process";
+    public const string Security = "security";
+    public const string Compliance = "compliance";
+    public const string CodeOwnership = "code-ownership";
+    public const string Interfaces = "interfaces";
+    public const string Operations = "operations";
+    public const string Development = "development";
     public const string Other = "other";
 
     /// <summary>
@@ -36,6 +42,12 @@ public static class AdrCategory
         Monitoring,
         Documentation,
         Process,
+        Security,
+        Compliance,
+        CodeOwnership,
+        Interfaces,
+        Operations,
+        Development,
         Other
     ];
 

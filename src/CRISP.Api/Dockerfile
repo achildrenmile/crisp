@@ -17,6 +17,7 @@ WORKDIR /src
 COPY CRISP.sln Directory.Build.props Directory.Packages.props global.json ./
 COPY src/CRISP.Core/CRISP.Core.csproj src/CRISP.Core/
 COPY src/CRISP.Adr/CRISP.Adr.csproj src/CRISP.Adr/
+COPY src/CRISP.Enterprise/CRISP.Enterprise.csproj src/CRISP.Enterprise/
 COPY src/CRISP.Audit/CRISP.Audit.csproj src/CRISP.Audit/
 COPY src/CRISP.Git/CRISP.Git.csproj src/CRISP.Git/
 COPY src/CRISP.Templates/CRISP.Templates.csproj src/CRISP.Templates/

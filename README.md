@@ -13,6 +13,17 @@ CRISP accepts developer requirements via a chat interface, validates the input, 
 | **GitHub** | Primary | Default platform with full GitHub Actions support |
 | **Azure DevOps Server** | Alternative | On-premises Azure DevOps with YAML/XAML pipelines |
 
+### Highlights
+
+- **AI Chat Interface** - Describe your project in plain English
+- **Multiple Templates** - ASP.NET Core, FastAPI, Dart Shelf (more coming)
+- **Auto CI/CD** - GitHub Actions or Azure Pipelines generated automatically
+- **Docker Ready** - Every project includes Dockerfile and docker-compose
+- **ADR Generation** - Architecture Decision Records created automatically
+- **Theme Support** - Light, dark, and auto modes
+- **Session History** - Resume previous conversations
+- **Enterprise Auth** - OIDC/SSO support for corporate identity providers
+
 ## Architecture
 
 CRISP is built with:
@@ -492,8 +503,10 @@ AZURE_DEVOPS_PAT=your-pat-token
 **Features:**
 - Session management with in-memory storage
 - Server-Sent Events (SSE) for real-time updates
-- Claude API integration for LLM-powered conversations
+- Multi-provider LLM integration (Claude, OpenAI, OpenAI-compatible)
+- Automatic retry with exponential backoff for transient API failures
 - Swagger/OpenAPI documentation
+- JWT and OIDC authentication support
 
 ### CRISP.Core
 
@@ -592,10 +605,19 @@ AZURE_DEVOPS_PAT=your-pat-token
 - Server-Sent Events for real-time updates
 
 **Components:**
-- `ChatMessage` - Renders user/assistant messages
+- `ChatMessage` - Renders user/assistant messages with markdown support
 - `ChatInput` - Input form for sending messages
-- `PlanView` - Displays execution plan with approve/reject
-- `DeliveryCard` - Shows repository delivery result
+- `PlanView` - Displays execution plan with approve/reject workflow
+- `DeliveryCard` - Shows repository delivery result with VS Code links
+- `ProjectHistory` - Sidebar showing previous sessions with quick access
+- `ThemeToggle` - Auto/light/dark mode toggle
+
+**Features:**
+- **Theme Support** - Auto/light/dark mode with OS preference detection and localStorage persistence
+- **Session Persistence** - Conversations are saved and restored across browser sessions
+- **Project History** - Access previous scaffolded projects from the sidebar
+- **Dual VS Code Links** - "Open in Browser" (vscode.dev) and "Clone to Desktop" (vscode:// protocol)
+- **Real-time Updates** - Server-Sent Events for live status updates during scaffolding
 
 ### MCP Servers
 
@@ -626,6 +648,40 @@ All MCP servers implement the Model Context Protocol and expose tools via stdio 
 - **Testing:** xUnit, pytest, Jest
 - **Containers:** Dockerfile, docker-compose
 - **CI/CD:** GitHub Actions, Azure Pipelines
+
+## Key Features
+
+### AI-Powered Scaffolding
+- Natural language conversation to gather project requirements
+- Intelligent clarifying questions for complete specifications
+- Automatic technology selection based on requirements
+
+### Multi-Platform Support
+- **GitHub** - Full integration with GitHub Actions CI/CD
+- **Azure DevOps** - On-premises support with YAML/XAML pipelines
+- **Multiple LLM Providers** - Claude (default) or OpenAI-compatible APIs
+
+### Project Templates
+- **ASP.NET Core Web API** (.NET 10) - Full REST API with Swagger, xUnit tests
+- **Python FastAPI** - Modern async API with pytest, Ruff linting
+- **Dart Shelf** - REST API with CRUD endpoints, health checks, Docker
+
+### Developer Experience
+- **Theme Support** - Auto/light/dark mode with OS preference detection
+- **Session Persistence** - Conversations saved across browser sessions
+- **Project History** - Quick access to previously scaffolded projects
+- **Dual VS Code Links** - Open in browser (vscode.dev) or clone to desktop
+
+### Enterprise Features
+- **Architecture Decision Records** - Automatic ADR generation in MADR format
+- **OIDC Authentication** - SSO with Azure AD, Okta, Auth0, Keycloak
+- **Audit Logging** - Full trail of all agent actions
+- **Policy Engine** - Organizational policy enforcement
+
+### Reliability
+- **Automatic Retry** - Exponential backoff for transient API failures
+- **Real-time Updates** - SSE streaming for live scaffolding progress
+- **Health Checks** - Built-in health endpoints for monitoring
 
 ## Design Principles
 
