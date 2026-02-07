@@ -423,7 +423,7 @@ public sealed class LicenseComplianceModule : IEnterpriseModule
         foreach (var file in sourceFiles)
         {
             var content = await File.ReadAllTextAsync(file, cancellationToken);
-            if (!content.StartsWith("//") && !content.StartsWith("#") && !content.StartsWith("/*"))
+            if (!content.StartsWith('/') && !content.StartsWith('#'))
             {
                 var headerForFile = GetHeaderForExtension(header, Path.GetExtension(file));
                 await File.WriteAllTextAsync(file, headerForFile + "\n\n" + content, cancellationToken);
