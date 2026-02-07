@@ -73,7 +73,9 @@ public sealed class ClaudeClient : ILlmClient, IDisposable
             Messages = messages
         };
 
-        var response = await _client.Messages.GetClaudeMessageAsync(parameters);
+        var response = await ExecuteWithRetryAsync(
+            () => _client.Messages.GetClaudeMessageAsync(parameters),
+            cancellationToken);
 
         var responseText = response.Content
             .OfType<TextContent>()
@@ -83,6 +85,48 @@ public sealed class ClaudeClient : ILlmClient, IDisposable
         _logger.LogInformation("Received response from Claude ({Tokens} tokens)", response.Usage?.OutputTokens);
 
         return responseText;
+    }
+
+    private async Task<T> ExecuteWithRetryAsync<T>(
+        Func<Task<T>> operation,
+        CancellationToken cancellationToken,
+        int maxRetries = 3)
+    {
+        var delays = new[] { TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(10) };
+        Exception? lastException = null;
+
+        for (int attempt = 0; attempt <= maxRetries; attempt++)
+        {
+            try
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                return await operation();
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex) when (attempt < maxRetries && IsTransientError(ex))
+            {
+                lastException = ex;
+                var delay = delays[Math.Min(attempt, delays.Length - 1)];
+                _logger.LogWarning(ex, "Claude API call failed (attempt {Attempt}/{MaxRetries}), retrying in {Delay}s...",
+                    attempt + 1, maxRetries + 1, delay.TotalSeconds);
+                await Task.Delay(delay, cancellationToken);
+            }
+        }
+
+        throw lastException ?? new InvalidOperationException("Operation failed after retries");
+    }
+
+    private static bool IsTransientError(Exception ex)
+    {
+        return ex is HttpRequestException ||
+               ex is TaskCanceledException ||
+               ex is TimeoutException ||
+               ex.Message.Contains("timeout", StringComparison.OrdinalIgnoreCase) ||
+               ex.Message.Contains("rate limit", StringComparison.OrdinalIgnoreCase) ||
+               ex.Message.Contains("overloaded", StringComparison.OrdinalIgnoreCase);
     }
 
     public async Task<string> SendMessageStreamingAsync(
