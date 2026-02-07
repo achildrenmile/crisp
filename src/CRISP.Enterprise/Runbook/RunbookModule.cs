@@ -368,32 +368,33 @@ public sealed class RunbookModule : IEnterpriseModule
     {
         if (context.HasDocker)
         {
-            return $"""
+            // Using $$ for interpolation so that Docker's Go template {.Tag} syntax is literal
+            return $$"""
                 ### Docker Rollback
 
                 1. **Identify the last known good version:**
                    ```bash
-                   docker images {context.ProjectName} --format "{{{{.Tag}}}}\t{{{{.CreatedAt}}}}"
+                   docker images {{context.ProjectName}} --format "{.Tag}\t{.CreatedAt}"
                    ```
 
                 2. **Stop the current container:**
                    ```bash
-                   docker stop {context.ProjectName}
-                   docker rm {context.ProjectName}
+                   docker stop {{context.ProjectName}}
+                   docker rm {{context.ProjectName}}
                    ```
 
                 3. **Run the previous version:**
                    ```bash
                    docker run -d \
-                     --name {context.ProjectName} \
-                     -p {context.Port}:{context.Port} \
+                     --name {{context.ProjectName}} \
+                     -p {{context.Port}}:{{context.Port}} \
                      --env-file .env \
-                     {context.ProjectName}:<previous-tag>
+                     {{context.ProjectName}}:<previous-tag>
                    ```
 
                 4. **Verify health check passes:**
                    ```bash
-                   curl http://localhost:{context.Port}/healthz
+                   curl http://localhost:{{context.Port}}/healthz
                    ```
 
                 5. **Investigate root cause** before re-deploying the failed version.
