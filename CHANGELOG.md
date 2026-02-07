@@ -5,6 +5,67 @@ All notable changes to CRISP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] - 2026-02-07
+
+### Added
+- **Enterprise Modules**: 10 production-ready modules that run during scaffolding to generate enterprise-grade documentation, configuration, and compliance artifacts
+
+#### Enterprise Modules
+| Module | Description |
+|--------|-------------|
+| **Security Baseline** | Generates `SECURITY.md`, `.env.example`, updates `.gitignore` with secrets patterns |
+| **SBOM Configuration** | Software Bill of Materials with CI pipeline integration for supply chain security |
+| **License & Compliance** | Generates `LICENSE` and `CONTRIBUTING.md` files |
+| **Code Ownership** | Creates `CODEOWNERS` (GitHub) or code ownership config (Azure DevOps) |
+| **Branching Strategy** | Documents branching strategy in `docs/BRANCHING.md` |
+| **Observability** | Scaffolds health checks, structured logging, and tracing for each language |
+| **README Generator** | Generates comprehensive project README with badges, setup instructions, API docs |
+| **Environment Config** | Creates environment documentation and language-specific config files |
+| **API Contract** | Generates OpenAPI/AsyncAPI specs and Bruno API client collections |
+| **Runbook/Operations** | Creates operational runbooks and troubleshooting guides |
+
+#### Module Features
+- **ADR Integration** - Each module records its decisions in the ADR system
+- **Language-Aware** - Generates language-specific code (C#, Python, TypeScript, Dart)
+- **Platform-Aware** - Adapts to GitHub vs Azure DevOps patterns
+- **Secrets Manager Support** - Azure Key Vault, AWS Secrets Manager, HashiCorp Vault integration
+- **Configurable** - Skip modules, customize templates via configuration
+
+### New Files Generated
+- `SECURITY.md` - Security policy and vulnerability reporting
+- `.env.example` - Environment variable template
+- `LICENSE` - Project license file
+- `CONTRIBUTING.md` - Contribution guidelines
+- `CODEOWNERS` - Code ownership for GitHub
+- `docs/BRANCHING.md` - Branching strategy documentation
+- `docs/environments.md` - Environment configuration guide
+- `docs/runbook.md` - Operational runbook
+- `docs/troubleshooting.md` - Troubleshooting guide
+- `openapi.yaml` - OpenAPI specification (for API projects)
+- `bruno/` - Bruno API client collection
+
+### Configuration
+New `Enterprise` section in appsettings.json:
+```json
+{
+  "Enterprise": {
+    "Enabled": true,
+    "SkipModules": [],
+    "Security": { "ContactEmail": "security@company.com" },
+    "License": { "DefaultLicense": "MIT", "CopyrightHolder": "Your Company" },
+    "Ownership": { "DefaultOwners": ["@team-lead"] }
+  }
+}
+```
+
+### Technical Details
+- New `CRISP.Enterprise` project with modular architecture
+- `IEnterpriseModule` interface for consistent module implementation
+- `EnterpriseModuleOrchestrator` runs modules in priority order
+- `ProjectContext` carries all scaffolding information to modules
+- Full test coverage in `CRISP.Enterprise.Tests`
+- Integrated into `CrispAgent` orchestration pipeline
+
 ## [2.4.0] - 2026-02-07
 
 ### Added

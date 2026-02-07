@@ -20,6 +20,7 @@ CRISP accepts developer requirements via a chat interface, validates the input, 
 - **Auto CI/CD** - GitHub Actions or Azure Pipelines generated automatically
 - **Docker Ready** - Every project includes Dockerfile and docker-compose
 - **ADR Generation** - Architecture Decision Records created automatically
+- **Enterprise Modules** - 10 production-ready modules (security, SBOM, compliance, observability, runbooks)
 - **Theme Support** - Light, dark, and auto modes
 - **Session History** - Resume previous conversations
 - **Enterprise Auth** - OIDC/SSO support for corporate identity providers
@@ -52,6 +53,10 @@ CRISP is built with:
 │  │  Templates  │  │  (GitHub Actions / Azure)    │                     │
 │  │ (Scriban)   │  └──────────────────────────────┘                     │
 │  └─────────────┘                                                        │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │                      CRISP.Enterprise                            │  │
+│  │  Security | SBOM | License | Ownership | Observability | Runbook │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                          MCP Servers                                     │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                 │
@@ -81,12 +86,16 @@ crisp/
 │   ├── CRISP.Mcp.Git/           # Local Git MCP server
 │   ├── CRISP.Mcp.AuditLog/      # Audit logging MCP server
 │   ├── CRISP.Mcp.PolicyEngine/  # Policy enforcement MCP server
+│   ├── CRISP.Adr/               # Architecture Decision Records generation
+│   ├── CRISP.Enterprise/        # Enterprise modules (security, compliance, docs)
 │   └── crisp-web/               # React frontend (Vite + TypeScript)
 ├── tests/
 │   ├── CRISP.Core.Tests/
 │   ├── CRISP.Git.Tests/
 │   ├── CRISP.Templates.Tests/
 │   ├── CRISP.Pipelines.Tests/
+│   ├── CRISP.Enterprise.Tests/
+│   ├── CRISP.Adr.Tests/
 │   └── CRISP.Agent.Tests/
 ├── .github/workflows/ci.yml     # GitHub Actions CI
 ├── docker-compose.yml           # Docker orchestration
@@ -583,6 +592,53 @@ AZURE_DEVOPS_PAT=your-pat-token
 - `docs/adr/0000-record-architecture-decisions.md` - Meta ADR
 - `docs/adr/XXXX-decision-title.md` - Individual decisions
 
+### CRISP.Enterprise
+
+**Purpose:** Enterprise-grade modules that run during scaffolding to generate production-ready documentation, configuration, and compliance artifacts.
+
+**Modules (10 total):**
+
+| Module | Order | Description | Generated Files |
+|--------|-------|-------------|-----------------|
+| **Security Baseline** | 100 | Security policy, secrets management, gitignore | `SECURITY.md`, `.env.example`, `.gitignore` updates |
+| **SBOM Configuration** | 200 | Software Bill of Materials CI integration | `sbom.json`, CI workflow updates |
+| **License & Compliance** | 300 | License files and contribution guidelines | `LICENSE`, `CONTRIBUTING.md` |
+| **Code Ownership** | 400 | GitHub/Azure DevOps code owners | `CODEOWNERS` or `azure-devops-codeowners.json` |
+| **Branching Strategy** | 500 | Git branching documentation | `docs/BRANCHING.md` |
+| **Observability** | 600 | Health checks, logging, tracing setup | Language-specific observability code |
+| **README Generator** | 700 | Comprehensive project README | `README.md` with badges, setup, API docs |
+| **Environment Config** | 800 | Environment-specific configuration | `docs/environments.md`, config files |
+| **API Contract** | 900 | OpenAPI/AsyncAPI specs and API client | `openapi.yaml`, Bruno collection |
+| **Runbook/Operations** | 1000 | Operational runbooks and troubleshooting | `docs/runbook.md`, `docs/troubleshooting.md` |
+
+**Features:**
+- **ADR Integration** - Each module records its decisions in the ADR system
+- **Language-Aware** - Generates language-specific code (C#, Python, TypeScript, Dart)
+- **Platform-Aware** - Adapts to GitHub vs Azure DevOps patterns
+- **Secrets Manager Support** - Azure Key Vault, AWS Secrets Manager, HashiCorp Vault
+- **Customizable** - Skip modules via configuration, customize templates
+
+**Configuration (appsettings.json):**
+
+```json
+{
+  "Enterprise": {
+    "Enabled": true,
+    "SkipModules": [],
+    "Security": {
+      "ContactEmail": "security@company.com"
+    },
+    "License": {
+      "DefaultLicense": "MIT",
+      "CopyrightHolder": "Your Company"
+    },
+    "Ownership": {
+      "DefaultOwners": ["@team-lead", "@platform-team"]
+    }
+  }
+}
+```
+
 ### CRISP.Agent
 
 **Purpose:** Main orchestrator that coordinates all components.
@@ -673,7 +729,13 @@ All MCP servers implement the Model Context Protocol and expose tools via stdio 
 - **Dual VS Code Links** - Open in browser (vscode.dev) or clone to desktop
 
 ### Enterprise Features
+- **10 Enterprise Modules** - Production-ready scaffolding with security, compliance, and ops
 - **Architecture Decision Records** - Automatic ADR generation in MADR format
+- **Security Baseline** - SECURITY.md, secrets patterns, environment templates
+- **SBOM Generation** - Software Bill of Materials for supply chain security
+- **License & Compliance** - LICENSE, CONTRIBUTING.md, code ownership
+- **Observability Bootstrap** - Health checks, logging, tracing setup
+- **Runbooks & Documentation** - Operations guides and troubleshooting docs
 - **OIDC Authentication** - SSO with Azure AD, Okta, Auth0, Keycloak
 - **Audit Logging** - Full trail of all agent actions
 - **Policy Engine** - Organizational policy enforcement
