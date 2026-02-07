@@ -463,14 +463,14 @@ public sealed class EnvironmentConfigModule : IEnterpriseModule
         {
             var dbConfig = context.HasDatabase ? $$"""
 
-              // Database
-              db: {
-                host: process.env.DB_HOST || 'localhost',
-                port: parseInt(process.env.DB_PORT || '{{GetDefaultDbPort(context.DatabaseType)}}', 10),
-                name: process.env.DB_NAME || '{{context.ProjectName.Replace("-", "_")}}',
-                user: process.env.DB_USER || '',
-                password: process.env.DB_PASSWORD || '',
-              },
+                  // Database
+                  db: {
+                    host: process.env.DB_HOST || 'localhost',
+                    port: parseInt(process.env.DB_PORT || '{{GetDefaultDbPort(context.DatabaseType)}}', 10),
+                    name: process.env.DB_NAME || '{{context.ProjectName.Replace("-", "_")}}',
+                    user: process.env.DB_USER || '',
+                    password: process.env.DB_PASSWORD || '',
+                  },
                 """ : "";
 
             var content = $$"""
