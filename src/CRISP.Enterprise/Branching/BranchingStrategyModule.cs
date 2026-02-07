@@ -97,13 +97,13 @@ public sealed class BranchingStrategyModule : IEnterpriseModule
         };
     }
 
-    private static string GenerateTrunkBasedDoc(ProjectContext context) => $"""
+    private static string GenerateTrunkBasedDoc(ProjectContext context) => $$"""
         # Branching Strategy: Trunk-Based Development
 
         ## Overview
 
         This project follows **Trunk-Based Development**, where all developers commit to a single
-        branch (`{context.DefaultBranch}`) either directly or via short-lived feature branches.
+        branch (`{{context.DefaultBranch}}`) either directly or via short-lived feature branches.
 
         Trunk-based development enables continuous integration and continuous delivery by keeping
         the main branch always deployable. Feature flags are used to hide incomplete work.
@@ -112,17 +112,17 @@ public sealed class BranchingStrategyModule : IEnterpriseModule
 
         | Branch Type | Pattern | Example | Lifetime |
         |-------------|---------|---------|----------|
-        | Main | `{context.DefaultBranch}` | `{context.DefaultBranch}` | Permanent |
-        | Feature | `feature/{{description}}` | `feature/add-auth` | Hours to days |
-        | Bugfix | `fix/{{description}}` | `fix/null-check` | Hours |
-        | Release | `release/{{version}}` | `release/1.2.0` | Days (if needed) |
+        | Main | `{{context.DefaultBranch}}` | `{{context.DefaultBranch}}` | Permanent |
+        | Feature | `feature/{description}` | `feature/add-auth` | Hours to days |
+        | Bugfix | `fix/{description}` | `fix/null-check` | Hours |
+        | Release | `release/{version}` | `release/1.2.0` | Days (if needed) |
 
         ## Workflow
 
-        1. **Start work**: Create a feature branch from `{context.DefaultBranch}`
+        1. **Start work**: Create a feature branch from `{{context.DefaultBranch}}`
            ```bash
-           git checkout {context.DefaultBranch}
-           git pull origin {context.DefaultBranch}
+           git checkout {{context.DefaultBranch}}
+           git pull origin {{context.DefaultBranch}}
            git checkout -b feature/my-feature
            ```
 
@@ -135,7 +135,7 @@ public sealed class BranchingStrategyModule : IEnterpriseModule
         3. **Stay current**: Rebase frequently to avoid divergence
            ```bash
            git fetch origin
-           git rebase origin/{context.DefaultBranch}
+           git rebase origin/{{context.DefaultBranch}}
            ```
 
         4. **Open PR**: Push and create pull request
@@ -143,13 +143,13 @@ public sealed class BranchingStrategyModule : IEnterpriseModule
            git push -u origin feature/my-feature
            ```
 
-        5. **Review & merge**: After approval and CI passes, squash merge to `{context.DefaultBranch}`
+        5. **Review & merge**: After approval and CI passes, squash merge to `{{context.DefaultBranch}}`
 
         6. **Delete branch**: Clean up after merge
 
         ## Branch Protection Rules
 
-        The following rules are enforced on `{context.DefaultBranch}`:
+        The following rules are enforced on `{{context.DefaultBranch}}`:
 
         - ✅ Require pull request before merging
         - ✅ Require at least 1 approval
@@ -162,7 +162,7 @@ public sealed class BranchingStrategyModule : IEnterpriseModule
         For incomplete features that need to be merged:
 
         1. Wrap new code in feature flags
-        2. Merge to `{context.DefaultBranch}` with flag disabled
+        2. Merge to `{{context.DefaultBranch}}` with flag disabled
         3. Enable flag when feature is complete
         4. Remove flag after feature is stable
 
@@ -171,27 +171,27 @@ public sealed class BranchingStrategyModule : IEnterpriseModule
         *This branching strategy was configured by [CRISP](https://github.com/strali/crisp).*
         """;
 
-    private static string GenerateGitHubFlowDoc(ProjectContext context) => $"""
+    private static string GenerateGitHubFlowDoc(ProjectContext context) => $$"""
         # Branching Strategy: GitHub Flow
 
         ## Overview
 
         This project follows **GitHub Flow**, a lightweight, branch-based workflow that supports
-        continuous delivery. There's only one long-lived branch (`{context.DefaultBranch}`), and
+        continuous delivery. There's only one long-lived branch (`{{context.DefaultBranch}}`), and
         all work is done in feature branches.
 
         ## Branch Naming
 
         | Branch Type | Pattern | Example | Lifetime |
         |-------------|---------|---------|----------|
-        | Main | `{context.DefaultBranch}` | `{context.DefaultBranch}` | Permanent |
-        | Feature | `feature/{{description}}` | `feature/user-profile` | Days |
-        | Bugfix | `fix/{{description}}` | `fix/login-error` | Hours to days |
-        | Hotfix | `hotfix/{{description}}` | `hotfix/security-patch` | Hours |
+        | Main | `{{context.DefaultBranch}}` | `{{context.DefaultBranch}}` | Permanent |
+        | Feature | `feature/{description}` | `feature/user-profile` | Days |
+        | Bugfix | `fix/{description}` | `fix/login-error` | Hours to days |
+        | Hotfix | `hotfix/{description}` | `hotfix/security-patch` | Hours |
 
         ## Workflow
 
-        1. **Create a branch** from `{context.DefaultBranch}` with a descriptive name
+        1. **Create a branch** from `{{context.DefaultBranch}}` with a descriptive name
            ```bash
            git checkout -b feature/add-notifications
            ```
@@ -204,13 +204,13 @@ public sealed class BranchingStrategyModule : IEnterpriseModule
 
         5. **Deploy** from the branch to staging for testing (optional)
 
-        6. **Merge** to `{context.DefaultBranch}` after approval
+        6. **Merge** to `{{context.DefaultBranch}}` after approval
 
-        7. **Deploy** from `{context.DefaultBranch}` to production
+        7. **Deploy** from `{{context.DefaultBranch}}` to production
 
         ## Branch Protection Rules
 
-        The following rules are enforced on `{context.DefaultBranch}`:
+        The following rules are enforced on `{{context.DefaultBranch}}`:
 
         - ✅ Require pull request before merging
         - ✅ Require at least 1 approval
@@ -230,7 +230,7 @@ public sealed class BranchingStrategyModule : IEnterpriseModule
         *This branching strategy was configured by [CRISP](https://github.com/strali/crisp).*
         """;
 
-    private static string GenerateGitFlowDoc(ProjectContext context) => $"""
+    private static string GenerateGitFlowDoc(ProjectContext context) => """
         # Branching Strategy: GitFlow
 
         ## Overview
@@ -244,9 +244,9 @@ public sealed class BranchingStrategyModule : IEnterpriseModule
         |-------------|---------|---------|----------|
         | Main | `main` | `main` | Permanent |
         | Develop | `develop` | `develop` | Permanent |
-        | Feature | `feature/{{description}}` | `feature/user-auth` | Days to weeks |
-        | Release | `release/{{version}}` | `release/1.2.0` | Days |
-        | Hotfix | `hotfix/{{version}}` | `hotfix/1.2.1` | Hours to days |
+        | Feature | `feature/{description}` | `feature/user-auth` | Days to weeks |
+        | Release | `release/{version}` | `release/1.2.0` | Days |
+        | Hotfix | `hotfix/{version}` | `hotfix/1.2.1` | Hours to days |
 
         ## Branch Structure
 

@@ -81,14 +81,15 @@ public sealed class ApiContractModule : IEnterpriseModule
     {
         var teamName = context.TeamName ?? "API Team";
         var teamEmail = context.TeamEmail ?? "api@example.com";
+        var projectDescription = context.ProjectDescription ?? $"API for {context.ProjectName}.";
 
-        return $"""
+        return $$"""
             openapi: 3.1.0
             info:
-              title: {context.ProjectName} API
+              title: {{context.ProjectName}} API
               version: 0.1.0
               description: |
-                {context.ProjectDescription ?? $"API for {context.ProjectName}."}
+                {{projectDescription}}
 
                 ## Authentication
 
@@ -99,11 +100,11 @@ public sealed class ApiContractModule : IEnterpriseModule
                 TODO: Document rate limiting if applicable.
 
               contact:
-                name: {teamName}
-                email: {teamEmail}
+                name: {{teamName}}
+                email: {{teamEmail}}
 
             servers:
-              - url: http://localhost:{context.Port}
+              - url: http://localhost:{{context.Port}}
                 description: Local development
               - url: https://staging.example.com
                 description: Staging environment
@@ -198,7 +199,7 @@ public sealed class ApiContractModule : IEnterpriseModule
                     '400':
                       description: Invalid request
 
-              /api/items/{{id}}:
+              /api/items/{id}:
                 get:
                   summary: Get item
                   description: Returns a single item by ID.
@@ -298,10 +299,10 @@ public sealed class ApiContractModule : IEnterpriseModule
 
         // Development environment
         var devEnvPath = Path.Combine(envsDir, "development.bru");
-        var devEnv = $"""
-            vars {{
-              baseUrl: http://localhost:{context.Port}
-            }}
+        var devEnv = $$"""
+            vars {
+              baseUrl: http://localhost:{{context.Port}}
+            }
             """;
         await File.WriteAllTextAsync(devEnvPath, devEnv, cancellationToken);
         files.Add("docs/api/bruno/environments/development.bru");

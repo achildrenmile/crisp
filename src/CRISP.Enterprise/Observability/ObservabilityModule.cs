@@ -93,7 +93,9 @@ public sealed class ObservabilityModule : IEnterpriseModule
             _ => "OpenTelemetry"
         };
 
-        return $"""
+        var dbInfo = context.HasDatabase ? $" ({context.DatabaseType})" : "";
+
+        return $$"""
             # Observability
 
             This service is configured for production observability with structured logging,
@@ -112,14 +114,14 @@ public sealed class ObservabilityModule : IEnterpriseModule
             livenessProbe:
               httpGet:
                 path: /healthz
-                port: {context.Port}
+                port: {{context.Port}}
               initialDelaySeconds: 5
               periodSeconds: 10
 
             readinessProbe:
               httpGet:
                 path: /ready
-                port: {context.Port}
+                port: {{context.Port}}
               initialDelaySeconds: 5
               periodSeconds: 5
             ```
@@ -135,27 +137,27 @@ public sealed class ObservabilityModule : IEnterpriseModule
             | `message` | Human-readable description |
             | `traceId` | Distributed trace correlation ID |
             | `spanId` | Current span ID |
-            | `service` | Service name: `{context.ProjectName}` |
+            | `service` | Service name: `{{context.ProjectName}}` |
 
             ### Example Log Entry
 
             ```json
-            {{
+            {
               "timestamp": "2024-01-15T10:30:00.000Z",
               "level": "info",
               "message": "Request completed",
               "traceId": "abc123",
               "spanId": "def456",
-              "service": "{context.ProjectName}",
+              "service": "{{context.ProjectName}}",
               "path": "/api/orders",
               "statusCode": 200,
               "durationMs": 45
-            }}
+            }
             ```
 
             ## Tracing & Metrics
 
-            - **Provider:** {provider}
+            - **Provider:** {{provider}}
             - **Exporter:** Console (dev), OTLP (prod)
 
             ### Configuration
@@ -167,14 +169,14 @@ public sealed class ObservabilityModule : IEnterpriseModule
             OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
 
             # Service identification
-            OTEL_SERVICE_NAME={context.ProjectName}
+            OTEL_SERVICE_NAME={{context.ProjectName}}
             OTEL_RESOURCE_ATTRIBUTES=deployment.environment=production
             ```
 
             ### Instrumented Operations
 
             - HTTP requests (incoming and outgoing)
-            - Database queries{(context.HasDatabase ? " (" + context.DatabaseType + ")" : "")}
+            - Database queries{{dbInfo}}
             - External API calls
             - Background jobs
 
