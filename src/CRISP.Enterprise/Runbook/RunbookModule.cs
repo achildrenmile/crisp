@@ -252,14 +252,14 @@ public sealed class RunbookModule : IEnterpriseModule
         return string.Join("\n", items);
     }
 
-    private static string GetDockerDeploymentSteps(ProjectContext context) => $"""
+    private static string GetDockerDeploymentSteps(ProjectContext context) => $$"""
         1. **Pull or build the Docker image:**
            ```bash
            # Option A: Pull from registry
-           docker pull registry.example.com/{context.ProjectName}:latest
+           docker pull registry.example.com/{{context.ProjectName}}:latest
 
            # Option B: Build locally
-           docker build -t {context.ProjectName}:latest .
+           docker build -t {{context.ProjectName}}:latest .
            ```
 
         2. **Prepare environment:**
@@ -272,11 +272,11 @@ public sealed class RunbookModule : IEnterpriseModule
         3. **Run the container:**
            ```bash
            docker run -d \
-             --name {context.ProjectName} \
-             -p {context.Port}:{context.Port} \
+             --name {{context.ProjectName}} \
+             -p {{context.Port}}:{{context.Port}} \
              --env-file .env \
              --restart unless-stopped \
-             {context.ProjectName}:latest
+             {{context.ProjectName}}:latest
            ```
 
         4. **Using Docker Compose (recommended):**
@@ -286,8 +286,8 @@ public sealed class RunbookModule : IEnterpriseModule
 
         5. **Verify health check:**
            ```bash
-           curl http://localhost:{context.Port}/healthz
-           # Expected: {{"status": "healthy"}}
+           curl http://localhost:{{context.Port}}/healthz
+           # Expected: {"status": "healthy"}
            ```
         """;
 
@@ -368,32 +368,32 @@ public sealed class RunbookModule : IEnterpriseModule
     {
         if (context.HasDocker)
         {
-            return $"""
+            return $$"""
                 ### Docker Rollback
 
                 1. **Identify the last known good version:**
                    ```bash
-                   docker images {context.ProjectName} --format "{{{{.Tag}}}}\t{{{{.CreatedAt}}}}"
+                   docker images {{context.ProjectName}} --format "{{.Tag}}\t{{.CreatedAt}}"
                    ```
 
                 2. **Stop the current container:**
                    ```bash
-                   docker stop {context.ProjectName}
-                   docker rm {context.ProjectName}
+                   docker stop {{context.ProjectName}}
+                   docker rm {{context.ProjectName}}
                    ```
 
                 3. **Run the previous version:**
                    ```bash
                    docker run -d \
-                     --name {context.ProjectName} \
-                     -p {context.Port}:{context.Port} \
+                     --name {{context.ProjectName}} \
+                     -p {{context.Port}}:{{context.Port}} \
                      --env-file .env \
-                     {context.ProjectName}:<previous-tag>
+                     {{context.ProjectName}}:<previous-tag>
                    ```
 
                 4. **Verify health check passes:**
                    ```bash
-                   curl http://localhost:{context.Port}/healthz
+                   curl http://localhost:{{context.Port}}/healthz
                    ```
 
                 5. **Investigate root cause** before re-deploying the failed version.
