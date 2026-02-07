@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CRISP.Core\CRISP.Core.csproj" />
+    <ProjectReference Include="..\CRISP.Adr\CRISP.Adr.csproj" />
     <ProjectReference Include="..\CRISP.Agent\CRISP.Agent.csproj" />
     <ProjectReference Include="..\CRISP.Audit\CRISP.Audit.csproj" />
     <ProjectReference Include="..\CRISP.Git\CRISP.Git.csproj" />

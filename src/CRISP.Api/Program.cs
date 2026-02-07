@@ -1,4 +1,5 @@
 using System.Text;
+using CRISP.Adr;
 using CRISP.Agent;
 using CRISP.Api.Auth;
 using CRISP.Api.Endpoints;
@@ -208,6 +209,7 @@ try
     builder.Services.AddCrispGit();
     builder.Services.AddCrispTemplates();
     builder.Services.AddCrispPipelines();
+    builder.Services.AddCrispAdr(builder.Configuration);
 
     // Register source control provider based on configuration
     builder.Services.AddSingleton<ISourceControlProvider>(sp =>

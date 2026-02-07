@@ -1,3 +1,5 @@
+using CRISP.Adr;
+using CRISP.Adr.Interfaces;
 using CRISP.Core.Configuration;
 using CRISP.Core.Enums;
 using CRISP.Core.Interfaces;
@@ -21,6 +23,9 @@ public sealed class CrispAgent : ICrispAgent
     private readonly IFilesystemOperations _filesystemOperations;
     private readonly IAuditLogger _auditLogger;
     private readonly IPolicyEngine _policyEngine;
+    private readonly IAdrGenerator? _adrGenerator;
+    private readonly DecisionCollector? _decisionCollector;
+    private readonly AdrConfiguration? _adrConfig;
 
     private const int MaxRemediationAttempts = 3;
 
@@ -33,7 +38,10 @@ public sealed class CrispAgent : ICrispAgent
         IGitOperations gitOperations,
         IFilesystemOperations filesystemOperations,
         IAuditLogger auditLogger,
-        IPolicyEngine policyEngine)
+        IPolicyEngine policyEngine,
+        IAdrGenerator? adrGenerator = null,
+        DecisionCollector? decisionCollector = null,
+        IOptions<AdrConfiguration>? adrConfig = null)
     {
         _logger = logger;
         _config = config.Value;
@@ -44,6 +52,9 @@ public sealed class CrispAgent : ICrispAgent
         _filesystemOperations = filesystemOperations;
         _auditLogger = auditLogger;
         _policyEngine = policyEngine;
+        _adrGenerator = adrGenerator;
+        _decisionCollector = decisionCollector;
+        _adrConfig = adrConfig?.Value;
     }
 
     public Guid SessionId => _auditLogger.SessionId;
@@ -221,6 +232,39 @@ public sealed class CrispAgent : ICrispAgent
                 }
 
                 await _filesystemOperations.WriteFileAsync(pipelineFilePath, pipelineResult.Content, cancellationToken);
+            }
+
+            // Generate ADR files if configured
+            if (_adrGenerator != null && _decisionCollector != null)
+            {
+                _logger.LogInformation("Generating Architecture Decision Records");
+
+                // Set deciders from config
+                if (_adrConfig != null)
+                {
+                    _decisionCollector.SetDeciders(_adrConfig.GetDecidersString());
+                }
+
+                // Record decisions based on the execution plan
+                var decisionRecorder = new DecisionRecorder(_decisionCollector);
+                decisionRecorder.RecordDecisions(plan, _config);
+
+                // Generate ADR files
+                var decisions = _decisionCollector.GetDecisions();
+                if (decisions.Count > 0)
+                {
+                    var adrFiles = await _adrGenerator.GenerateAsync(decisions, workspacePath, cancellationToken);
+                    _logger.LogInformation("Generated {Count} ADR files", adrFiles.Count);
+
+                    await _auditLogger.LogActionAsync(
+                        "adr.generate",
+                        ExecutionPhase.Execution,
+                        ActionResult.Success,
+                        $"Generated {adrFiles.Count} ADR files");
+                }
+
+                // Clear for next run
+                _decisionCollector.Clear();
             }
 
             // Step 2: Create remote repository
