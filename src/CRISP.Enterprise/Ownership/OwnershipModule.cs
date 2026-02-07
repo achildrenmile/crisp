@@ -181,7 +181,7 @@ public sealed class OwnershipModule : IEnterpriseModule
         if (context.Owners.Count > 0)
         {
             // Ensure GitHub usernames have @ prefix
-            var owners = context.Owners.Select(o => o.StartsWith("@") ? o : $"@{o}");
+            var owners = context.Owners.Select(o => o.StartsWith('@') ? o : $"@{o}");
             return string.Join(" ", owners);
         }
 
