@@ -6,6 +6,7 @@
   <ItemGroup>
     <!-- Core Microsoft Extensions (.NET 10) - Using 10.0.0-preview.* or latest stable -->
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.2" />
