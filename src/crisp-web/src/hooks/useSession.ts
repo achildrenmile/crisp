@@ -208,6 +208,12 @@ export function useSession(sessionId?: string): UseSessionReturn {
   useEffect(() => {
     if (!sessionId) return;
 
+    // Reset state when session changes
+    setDeliveryResult(null);
+    setCurrentPlan(null);
+    setCurrentAction(null);
+    setError(null);
+
     const loadSessionData = async () => {
       try {
         // Load messages
