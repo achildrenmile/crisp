@@ -8,6 +8,7 @@ using CRISP.Audit;
 using CRISP.Core.Configuration;
 using CRISP.Core.Enums;
 using CRISP.Core.Interfaces;
+using CRISP.Enterprise;
 using CRISP.Git;
 using CRISP.Mcp.AzureDevOps;
 using CRISP.Mcp.GitHub;
@@ -210,6 +211,7 @@ try
     builder.Services.AddCrispTemplates();
     builder.Services.AddCrispPipelines();
     builder.Services.AddCrispAdr(builder.Configuration);
+    builder.Services.AddCrispEnterprise(builder.Configuration);
 
     // Register source control provider based on configuration
     builder.Services.AddSingleton<ISourceControlProvider>(sp =>
