@@ -5,6 +5,39 @@ All notable changes to CRISP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] - 2026-02-08
+
+### Added
+- **Enterprise Features Opt-In**: Users are now asked during project creation whether they want enterprise features included
+  - Lists all 9 enterprise modules with descriptions when asking
+  - Default is `false` (opt-in rather than opt-out)
+  - Progress message shows enterprise features status
+
+### Changed
+- Enterprise modules now only run when explicitly requested by the user
+- Updated system prompt to ask about enterprise features after gathering basic requirements
+- Added `IncludeEnterpriseFeatures` property to `ProjectRequirements` model
+
+### Fixed
+- **Node.js Version Parsing**: Fixed CI pipeline generators incorrectly outputting `Node.js 20` instead of `20` for the node-version field
+  - GitHub Actions workflows now correctly set `node-version: 20`
+  - Azure Pipelines now correctly set `versionSpec: 20`
+  - Issue affected all JavaScript/TypeScript projects
+
+### Enterprise Features (when enabled)
+When users choose to include enterprise features, the following are generated:
+| Feature | Description |
+|---------|-------------|
+| **Security Baseline** | SECURITY.md, .env.example, secrets gitignore |
+| **SBOM** | Software Bill of Materials for supply chain compliance |
+| **License & Compliance** | LICENSE file, CONTRIBUTING.md guidelines |
+| **Code Ownership** | CODEOWNERS file for automatic PR reviewers |
+| **Branching Strategy** | Documentation for trunk-based/GitHub flow |
+| **Observability** | Health checks, structured logging, tracing stubs |
+| **Environment Config** | Environment documentation and config files |
+| **API Contract** | OpenAPI spec stub (for API projects) |
+| **Runbook** | Deployment and operations documentation |
+
 ## [2.5.0] - 2026-02-07
 
 ### Added

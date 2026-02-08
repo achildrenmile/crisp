@@ -728,8 +728,9 @@ All MCP servers implement the Model Context Protocol and expose tools via stdio 
 - **Project History** - Quick access to previously scaffolded projects
 - **Dual VS Code Links** - Open in browser (vscode.dev) or clone to desktop
 
-### Enterprise Features
+### Enterprise Features (Opt-In)
 - **10 Enterprise Modules** - Production-ready scaffolding with security, compliance, and ops
+- **User Choice** - CRISP asks during project creation if you want enterprise features included
 - **Architecture Decision Records** - Automatic ADR generation in MADR format
 - **Security Baseline** - SECURITY.md, secrets patterns, environment templates
 - **SBOM Generation** - Software Bill of Materials for supply chain security
