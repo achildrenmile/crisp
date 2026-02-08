@@ -238,68 +238,69 @@ __all__ = ['items_bp']
 
     private static string GenerateItemsRoute()
     {
-        return @"""""""Items routes.""""""
-from flask import Blueprint, jsonify, request, abort
+        return """
+            \"\"\"Items routes.\"\"\"
+            from flask import Blueprint, jsonify, request, abort
 
-from app.models.item import Item, items_db, get_next_id
+            from app.models.item import Item, items_db, get_next_id
 
-bp = Blueprint('items', __name__)
-
-
-@bp.route('', methods=['GET'])
-def get_items():
-    """"""Get all items.""""""
-    return jsonify(list(items_db.values()))
+            bp = Blueprint('items', __name__)
 
 
-@bp.route('/<int:item_id>', methods=['GET'])
-def get_item(item_id: int):
-    """"""Get a specific item.""""""
-    item = items_db.get(item_id)
-    if item is None:
-        abort(404, description='Item not found')
-    return jsonify(item)
+            @bp.route('', methods=['GET'])
+            def get_items():
+                \"\"\"Get all items.\"\"\"
+                return jsonify(list(items_db.values()))
 
 
-@bp.route('', methods=['POST'])
-def create_item():
-    """"""Create a new item.""""""
-    data = request.get_json()
-
-    if not data or 'name' not in data or 'price' not in data:
-        abort(400, description='Name and price are required')
-
-    item_id = get_next_id()
-    item: Item = {{
-        'id': item_id,
-        'name': data['name'],
-        'description': data.get('description', ''),
-        'price': float(data['price'])
-    }}
-
-    items_db[item_id] = item
-    return jsonify(item), 201
+            @bp.route('/<int:item_id>', methods=['GET'])
+            def get_item(item_id: int):
+                \"\"\"Get a specific item.\"\"\"
+                item = items_db.get(item_id)
+                if item is None:
+                    abort(404, description='Item not found')
+                return jsonify(item)
 
 
-@bp.route('/<int:item_id>', methods=['DELETE'])
-def delete_item(item_id: int):
-    """"""Delete an item.""""""
-    if item_id not in items_db:
-        abort(404, description='Item not found')
+            @bp.route('', methods=['POST'])
+            def create_item():
+                \"\"\"Create a new item.\"\"\"
+                data = request.get_json()
 
-    del items_db[item_id]
-    return '', 204
+                if not data or 'name' not in data or 'price' not in data:
+                    abort(400, description='Name and price are required')
+
+                item_id = get_next_id()
+                item: Item = {
+                    'id': item_id,
+                    'name': data['name'],
+                    'description': data.get('description', ''),
+                    'price': float(data['price'])
+                }
+
+                items_db[item_id] = item
+                return jsonify(item), 201
 
 
-@bp.errorhandler(400)
-def bad_request(error):
-    return jsonify({{'error': str(error.description)}}), 400
+            @bp.route('/<int:item_id>', methods=['DELETE'])
+            def delete_item(item_id: int):
+                \"\"\"Delete an item.\"\"\"
+                if item_id not in items_db:
+                    abort(404, description='Item not found')
+
+                del items_db[item_id]
+                return '', 204
 
 
-@bp.errorhandler(404)
-def not_found(error):
-    return jsonify({{'error': str(error.description)}}), 404
-";
+            @bp.errorhandler(400)
+            def bad_request(error):
+                return jsonify({'error': str(error.description)}), 400
+
+
+            @bp.errorhandler(404)
+            def not_found(error):
+                return jsonify({'error': str(error.description)}), 404
+            """.TrimStart().Replace("\n            ", "\n");
     }
 
     private static string GenerateItemModel()
@@ -567,59 +568,60 @@ def client(app):
 
     private static string GenerateTestApp()
     {
-        return @"""""""Application tests.""""""
+        return """
+            \"\"\"Application tests.\"\"\"
 
 
-def test_index(client):
-    """"""Test index endpoint.""""""
-    response = client.get('/')
-    assert response.status_code == 200
-    assert 'message' in response.json
+            def test_index(client):
+                \"\"\"Test index endpoint.\"\"\"
+                response = client.get('/')
+                assert response.status_code == 200
+                assert 'message' in response.json
 
 
-def test_health(client):
-    """"""Test health endpoint.""""""
-    response = client.get('/health')
-    assert response.status_code == 200
-    assert response.json == {{'status': 'healthy'}}
+            def test_health(client):
+                \"\"\"Test health endpoint.\"\"\"
+                response = client.get('/health')
+                assert response.status_code == 200
+                assert response.json == {'status': 'healthy'}
 
 
-def test_create_and_get_item(client):
-    """"""Test creating and retrieving an item.""""""
-    # Create item
-    item_data = {{'name': 'Test Item', 'price': 9.99}}
-    response = client.post('/items', json=item_data)
-    assert response.status_code == 201
-    created_item = response.json
-    assert created_item['name'] == item_data['name']
+            def test_create_and_get_item(client):
+                \"\"\"Test creating and retrieving an item.\"\"\"
+                # Create item
+                item_data = {'name': 'Test Item', 'price': 9.99}
+                response = client.post('/items', json=item_data)
+                assert response.status_code == 201
+                created_item = response.json
+                assert created_item['name'] == item_data['name']
 
-    # Get item
-    item_id = created_item['id']
-    response = client.get(f'/items/{{item_id}}')
-    assert response.status_code == 200
-    assert response.json['id'] == item_id
-
-
-def test_get_nonexistent_item(client):
-    """"""Test getting a nonexistent item.""""""
-    response = client.get('/items/99999')
-    assert response.status_code == 404
+                # Get item
+                item_id = created_item['id']
+                response = client.get(f'/items/{item_id}')
+                assert response.status_code == 200
+                assert response.json['id'] == item_id
 
 
-def test_delete_item(client):
-    """"""Test deleting an item.""""""
-    # Create item first
-    response = client.post('/items', json={{'name': 'To Delete', 'price': 5.00}})
-    item_id = response.json['id']
+            def test_get_nonexistent_item(client):
+                \"\"\"Test getting a nonexistent item.\"\"\"
+                response = client.get('/items/99999')
+                assert response.status_code == 404
 
-    # Delete it
-    response = client.delete(f'/items/{{item_id}}')
-    assert response.status_code == 204
 
-    # Verify it's gone
-    response = client.get(f'/items/{{item_id}}')
-    assert response.status_code == 404
-";
+            def test_delete_item(client):
+                \"\"\"Test deleting an item.\"\"\"
+                # Create item first
+                response = client.post('/items', json={'name': 'To Delete', 'price': 5.00})
+                item_id = response.json['id']
+
+                # Delete it
+                response = client.delete(f'/items/{item_id}')
+                assert response.status_code == 204
+
+                # Verify it's gone
+                response = client.get(f'/items/{item_id}')
+                assert response.status_code == 404
+            """.TrimStart().Replace("\n            ", "\n");
     }
 
     private static string GenerateDockerfile()
