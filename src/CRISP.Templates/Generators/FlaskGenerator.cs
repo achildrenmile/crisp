@@ -238,8 +238,8 @@ __all__ = ['items_bp']
 
     private static string GenerateItemsRoute()
     {
-        return """
-            \"\"\"Items routes.\"\"\"
+        return """"
+            """Items routes."""
             from flask import Blueprint, jsonify, request, abort
 
             from app.models.item import Item, items_db, get_next_id
@@ -249,13 +249,13 @@ __all__ = ['items_bp']
 
             @bp.route('', methods=['GET'])
             def get_items():
-                \"\"\"Get all items.\"\"\"
+                """Get all items."""
                 return jsonify(list(items_db.values()))
 
 
             @bp.route('/<int:item_id>', methods=['GET'])
             def get_item(item_id: int):
-                \"\"\"Get a specific item.\"\"\"
+                """Get a specific item."""
                 item = items_db.get(item_id)
                 if item is None:
                     abort(404, description='Item not found')
@@ -264,7 +264,7 @@ __all__ = ['items_bp']
 
             @bp.route('', methods=['POST'])
             def create_item():
-                \"\"\"Create a new item.\"\"\"
+                """Create a new item."""
                 data = request.get_json()
 
                 if not data or 'name' not in data or 'price' not in data:
@@ -284,7 +284,7 @@ __all__ = ['items_bp']
 
             @bp.route('/<int:item_id>', methods=['DELETE'])
             def delete_item(item_id: int):
-                \"\"\"Delete an item.\"\"\"
+                """Delete an item."""
                 if item_id not in items_db:
                     abort(404, description='Item not found')
 
@@ -300,7 +300,7 @@ __all__ = ['items_bp']
             @bp.errorhandler(404)
             def not_found(error):
                 return jsonify({'error': str(error.description)}), 404
-            """.TrimStart().Replace("\n            ", "\n");
+            """".TrimStart().Replace("\n            ", "\n");
     }
 
     private static string GenerateItemModel()
@@ -545,49 +545,50 @@ PORT=5000
 
     private static string GenerateConftest()
     {
-        return @"""""""Pytest fixtures.""""""
-import pytest
+        return """"
+            """Pytest fixtures."""
+            import pytest
 
-from app import create_app
-from app.config import TestingConfig
-
-
-@pytest.fixture
-def app():
-    """"""Create application for testing.""""""
-    app = create_app(TestingConfig)
-    yield app
+            from app import create_app
+            from app.config import TestingConfig
 
 
-@pytest.fixture
-def client(app):
-    """"""Create test client.""""""
-    return app.test_client()
-";
+            @pytest.fixture
+            def app():
+                """Create application for testing."""
+                app = create_app(TestingConfig)
+                yield app
+
+
+            @pytest.fixture
+            def client(app):
+                """Create test client."""
+                return app.test_client()
+            """".TrimStart().Replace("\n            ", "\n");
     }
 
     private static string GenerateTestApp()
     {
-        return """
-            \"\"\"Application tests.\"\"\"
+        return """"
+            """Application tests."""
 
 
             def test_index(client):
-                \"\"\"Test index endpoint.\"\"\"
+                """Test index endpoint."""
                 response = client.get('/')
                 assert response.status_code == 200
                 assert 'message' in response.json
 
 
             def test_health(client):
-                \"\"\"Test health endpoint.\"\"\"
+                """Test health endpoint."""
                 response = client.get('/health')
                 assert response.status_code == 200
                 assert response.json == {'status': 'healthy'}
 
 
             def test_create_and_get_item(client):
-                \"\"\"Test creating and retrieving an item.\"\"\"
+                """Test creating and retrieving an item."""
                 # Create item
                 item_data = {'name': 'Test Item', 'price': 9.99}
                 response = client.post('/items', json=item_data)
@@ -603,13 +604,13 @@ def client(app):
 
 
             def test_get_nonexistent_item(client):
-                \"\"\"Test getting a nonexistent item.\"\"\"
+                """Test getting a nonexistent item."""
                 response = client.get('/items/99999')
                 assert response.status_code == 404
 
 
             def test_delete_item(client):
-                \"\"\"Test deleting an item.\"\"\"
+                """Test deleting an item."""
                 # Create item first
                 response = client.post('/items', json={'name': 'To Delete', 'price': 5.00})
                 item_id = response.json['id']
@@ -621,7 +622,7 @@ def client(app):
                 # Verify it's gone
                 response = client.get(f'/items/{item_id}')
                 assert response.status_code == 404
-            """.TrimStart().Replace("\n            ", "\n");
+            """".TrimStart().Replace("\n            ", "\n");
     }
 
     private static string GenerateDockerfile()
