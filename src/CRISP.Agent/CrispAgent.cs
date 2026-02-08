@@ -241,8 +241,8 @@ public sealed class CrispAgent : ICrispAgent
                 await _filesystemOperations.WriteFileAsync(pipelineFilePath, pipelineResult.Content, cancellationToken);
             }
 
-            // Run enterprise modules if configured
-            if (_enterpriseOrchestrator != null && _decisionCollector != null)
+            // Run enterprise modules if configured and requested
+            if (_enterpriseOrchestrator != null && _decisionCollector != null && plan.Requirements.IncludeEnterpriseFeatures)
             {
                 _logger.LogInformation("Running enterprise modules");
 

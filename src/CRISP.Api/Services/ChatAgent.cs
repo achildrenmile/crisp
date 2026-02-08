@@ -80,9 +80,29 @@ public sealed class ChatAgent : IChatAgent
         - Description (default: empty)
         - Repository visibility: Private, Internal, or Public (default: Private)
         - Include Docker support (container): true/false (default: true)
+        - Include Enterprise Features: true/false (default: false)
+
+        ## Enterprise Features (ask the user if they want these):
+        When the user confirms the basic project setup, ASK if they want enterprise-grade features included.
+        Present it like this:
+
+        "Would you also like to include **Enterprise Features**? These add production-ready documentation and configuration:
+        - **Security Baseline** - SECURITY.md, .env.example, secrets gitignore
+        - **SBOM** - Software Bill of Materials for supply chain compliance
+        - **License & Compliance** - LICENSE file, CONTRIBUTING.md guidelines
+        - **Code Ownership** - CODEOWNERS file for automatic PR reviewers
+        - **Branching Strategy** - Documentation for trunk-based/GitHub flow
+        - **Observability** - Health checks, structured logging, tracing stubs
+        - **Environment Config** - Environment documentation and config files
+        - **API Contract** - OpenAPI spec stub (for API projects)
+        - **Runbook** - Deployment and operations documentation
+
+        These are recommended for production projects. Include enterprise features? (yes/no)"
+
+        If user says yes, set includeEnterpriseFeatures to true in the JSON.
 
         ## When Ready to Create:
-        When you have gathered enough information, output EXACTLY this JSON block (no other text):
+        When you have gathered enough information (including the enterprise features question), output EXACTLY this JSON block (no other text):
 
         ```json
         {
@@ -93,7 +113,8 @@ public sealed class ChatAgent : IChatAgent
                 "language": "CSharp",
                 "framework": "AspNetCoreWebApi",
                 "visibility": "Private",
-                "includeDocker": true
+                "includeDocker": true,
+                "includeEnterpriseFeatures": false
             }
         }
         ```
@@ -201,7 +222,8 @@ public sealed class ChatAgent : IChatAgent
                     ? vis
                     : RepositoryVisibility.Private,
                 IncludeContainerSupport = requirementsDto.IncludeDocker,
-                TestingFramework = testingFramework
+                TestingFramework = testingFramework,
+                IncludeEnterpriseFeatures = requirementsDto.IncludeEnterpriseFeatures
             };
 
             // Send progress message
@@ -214,6 +236,7 @@ public sealed class ChatAgent : IChatAgent
                 - Platform: {_config.ScmPlatform}
                 - Visibility: {requirements.Visibility}
                 - Docker: {(requirements.IncludeContainerSupport ? "Yes" : "No")}
+                - Enterprise Features: {(requirements.IncludeEnterpriseFeatures ? "Yes" : "No")}
 
                 Please wait while I create your repository...
                 """;
@@ -522,5 +545,6 @@ public sealed class ChatAgent : IChatAgent
         public string Framework { get; set; } = "AspNetCoreWebApi";
         public string Visibility { get; set; } = "Private";
         public bool IncludeDocker { get; set; } = true;
+        public bool IncludeEnterpriseFeatures { get; set; }
     }
 }

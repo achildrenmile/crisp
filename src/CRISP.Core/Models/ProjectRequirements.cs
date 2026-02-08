@@ -67,4 +67,10 @@ public sealed class ProjectRequirements
     /// </summary>
     public IReadOnlyDictionary<string, string> CustomConfiguration { get; init; } =
         new Dictionary<string, string>();
+
+    /// <summary>
+    /// Whether to include enterprise features (SECURITY.md, LICENSE, CONTRIBUTING,
+    /// CODEOWNERS, SBOM, observability, runbooks, etc.).
+    /// </summary>
+    public bool IncludeEnterpriseFeatures { get; init; }
 }
