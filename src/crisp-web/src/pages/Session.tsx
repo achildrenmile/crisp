@@ -5,7 +5,6 @@ import {
   ChatMessage,
   ChatInput,
   PlanView,
-  DeliveryCard,
   ActionIndicator,
 } from '../components';
 import { ChatSidebar } from '../components/ChatSidebar';
@@ -117,8 +116,6 @@ export function Session() {
               onReject={handleReject}
             />
           )}
-
-          {deliveryResult && <DeliveryCard card={deliveryResult} />}
 
           {(isLoading || currentAction) && (
             <ActionIndicator
