@@ -21,6 +21,7 @@ CRISP accepts developer requirements via a chat interface, validates the input, 
 - **Docker Ready** - Every project includes Dockerfile and docker-compose
 - **ADR Generation** - Architecture Decision Records created automatically
 - **Enterprise Modules** - 10 production-ready modules (security, SBOM, compliance, observability, runbooks)
+- **Responsive Design** - Works seamlessly on desktop, tablet, and mobile
 - **Theme Support** - Light, dark, and auto modes
 - **Session History** - Resume previous conversations
 - **Enterprise Auth** - OIDC/SSO support for corporate identity providers

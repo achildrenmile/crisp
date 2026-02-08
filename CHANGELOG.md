@@ -5,6 +5,38 @@ All notable changes to CRISP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0] - 2026-02-08
+
+### Added
+- **Responsive Design**: Fully responsive UI that works seamlessly across desktop, tablet (iPad), and mobile devices
+  - Tablet breakpoint (1024px) with adjusted spacing and narrower sidebar
+  - Mobile breakpoint (768px) with stacked layouts and full-width buttons
+  - Extra small device support (380px) for compact screens
+
+### Changed
+- Message boxes now use 90% width (up from 80%) for better content display
+- Delivery card buttons wrap properly on smaller screens
+- Sidebar is hidden on mobile to maximize chat space
+- Header hides tagline and username on mobile for cleaner layout
+
+### Fixed
+- **Flask Template Syntax**: Fixed Python files generating with invalid syntax
+  - Dict literals `{}` now render correctly (was outputting `{{}}`)
+  - Docstrings `"""` now render correctly (was outputting escaped quotes)
+  - Uses C# raw string literals with 4-quote delimiters for proper embedding
+- **Delivery Card Overflow**: Fixed horizontal scrolling issues on delivery cards
+  - URLs now break properly with `overflow-wrap: anywhere`
+  - Buttons flex and wrap instead of causing overflow
+  - Added `overflow-x: hidden` to chat messages container
+- **Message Content Overflow**: Fixed long content causing horizontal scrollbars
+  - Added proper word-break rules to message content
+  - Links break at any character to prevent overflow
+
+### Technical Details
+- New CSS breakpoints: 1024px (tablet), 768px (mobile), 380px (small)
+- Delivery actions use `flex-wrap: wrap` with `flex: 1 1 auto`
+- Message content uses `overflow: hidden` with `word-break: break-word`
+
 ## [2.6.0] - 2026-02-08
 
 ### Added
