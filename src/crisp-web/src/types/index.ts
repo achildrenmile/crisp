@@ -58,6 +58,7 @@ export interface Session {
 // SSE Event Types
 export type AgentEventType =
   | 'message'
+  | 'agent_message'
   | 'plan_ready'
   | 'step_started'
   | 'step_completed'
