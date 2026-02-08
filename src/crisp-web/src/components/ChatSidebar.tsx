@@ -7,16 +7,17 @@ import './ChatSidebar.css';
 interface ChatSidebarProps {
   currentSessionId?: string;
   onNewSession: () => void;
+  refreshTrigger?: number;
 }
 
-export function ChatSidebar({ currentSessionId, onNewSession }: ChatSidebarProps) {
+export function ChatSidebar({ currentSessionId, onNewSession, refreshTrigger }: ChatSidebarProps) {
   const navigate = useNavigate();
   const [sessions, setSessions] = useState<SessionHistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     loadHistory();
-  }, []);
+  }, [refreshTrigger]);
 
   const loadHistory = async () => {
     try {

@@ -1,5 +1,5 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useSession } from '../hooks/useSession';
 import {
   ChatMessage,
@@ -27,11 +27,19 @@ export function Session() {
   } = useSession(sessionId);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [sidebarRefresh, setSidebarRefresh] = useState(0);
 
   // Auto-scroll to bottom on new messages or action updates
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading, currentAction]);
+
+  // Refresh sidebar when delivery result changes
+  useEffect(() => {
+    if (deliveryResult) {
+      setSidebarRefresh((prev) => prev + 1);
+    }
+  }, [deliveryResult]);
 
   const handleApprove = () => {
     approvePlan(true);
@@ -69,7 +77,7 @@ export function Session() {
 
   return (
     <div className="chat-layout">
-      <ChatSidebar currentSessionId={sessionId} onNewSession={handleNewSession} />
+      <ChatSidebar currentSessionId={sessionId} onNewSession={handleNewSession} refreshTrigger={sidebarRefresh} />
 
       <div className="chat-container">
         <div className="chat-header">
