@@ -29,6 +29,18 @@ public interface ICrispAgent
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Executes an approved plan with progress reporting.
+    /// </summary>
+    /// <param name="plan">Approved execution plan.</param>
+    /// <param name="progressCallback">Callback for progress updates (actionKey, description).</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Delivery result.</returns>
+    Task<DeliveryResult> ExecutePlanAsync(
+        ExecutionPlan plan,
+        Func<string, string, Task> progressCallback,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Full orchestration: creates a plan, waits for approval, and executes.
     /// </summary>
     /// <param name="requirements">Project requirements.</param>

@@ -6,7 +6,7 @@ import {
   ChatInput,
   PlanView,
   DeliveryCard,
-  TypingIndicator,
+  ActionIndicator,
 } from '../components';
 import { ChatSidebar } from '../components/ChatSidebar';
 
@@ -20,6 +20,7 @@ export function Session() {
     error,
     currentPlan,
     deliveryResult,
+    currentAction,
     sendMessage,
     approvePlan,
     createSession,
@@ -27,10 +28,10 @@ export function Session() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom on new messages
+  // Auto-scroll to bottom on new messages or action updates
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isLoading]);
+  }, [messages, isLoading, currentAction]);
 
   const handleApprove = () => {
     approvePlan(true);
@@ -111,7 +112,12 @@ export function Session() {
 
           {deliveryResult && <DeliveryCard card={deliveryResult} />}
 
-          {isLoading && <TypingIndicator />}
+          {(isLoading || currentAction) && (
+            <ActionIndicator
+              actionKey={currentAction?.actionKey}
+              description={currentAction?.description}
+            />
+          )}
 
           {error && (
             <div className="message message-assistant error">

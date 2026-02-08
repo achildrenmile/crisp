@@ -186,8 +186,16 @@ public sealed class CrispAgent : ICrispAgent
         return plan;
     }
 
+    public Task<DeliveryResult> ExecutePlanAsync(
+        ExecutionPlan plan,
+        CancellationToken cancellationToken = default)
+    {
+        return ExecutePlanAsync(plan, (_, _) => Task.CompletedTask, cancellationToken);
+    }
+
     public async Task<DeliveryResult> ExecutePlanAsync(
         ExecutionPlan plan,
+        Func<string, string, Task> progressCallback,
         CancellationToken cancellationToken = default)
     {
         if (!plan.IsApproved)
@@ -208,6 +216,7 @@ public sealed class CrispAgent : ICrispAgent
         try
         {
             // Step 1: Create workspace and scaffold
+            await progressCallback("scaffolding", "Generating project files...");
             workspacePath = await _filesystemOperations.CreateWorkspaceAsync(plan.Requirements.ProjectName, cancellationToken);
             await ExecuteStepAsync(plan.Steps[1], async () =>
             {
@@ -244,6 +253,7 @@ public sealed class CrispAgent : ICrispAgent
             // Run enterprise modules if configured and requested
             if (_enterpriseOrchestrator != null && _decisionCollector != null && plan.Requirements.IncludeEnterpriseFeatures)
             {
+                await progressCallback("enterprise", "Running enterprise modules...");
                 _logger.LogInformation("Running enterprise modules");
 
                 // Set deciders from config
@@ -302,6 +312,7 @@ public sealed class CrispAgent : ICrispAgent
             }
 
             // Step 2: Create remote repository
+            await progressCallback("creating_repo", "Creating remote repository...");
             RepositoryDetails? createdRepo = null;
             await ExecuteStepAsync(plan.Steps[2], async () =>
             {
@@ -316,6 +327,7 @@ public sealed class CrispAgent : ICrispAgent
             }, cancellationToken);
 
             // Step 3: Initialize Git and commit
+            await progressCallback("git_init", "Initializing Git repository...");
             await ExecuteStepAsync(plan.Steps[3], async () =>
             {
                 await _gitOperations.InitializeRepositoryAsync(workspacePath, _config.Common.DefaultBranch, cancellationToken);
@@ -329,6 +341,7 @@ public sealed class CrispAgent : ICrispAgent
             }, cancellationToken);
 
             // Step 4: Push to remote
+            await progressCallback("pushing", "Pushing to remote repository...");
             await ExecuteStepAsync(plan.Steps[4], async () =>
             {
                 await _gitOperations.AddRemoteAsync(
@@ -352,6 +365,7 @@ public sealed class CrispAgent : ICrispAgent
 
             if (plan.Pipeline != null && plan.Steps.Count > 5)
             {
+                await progressCallback("pipeline", "Setting up CI/CD pipeline...");
                 await ExecuteStepAsync(plan.Steps[5], async () =>
                 {
                     var (runUrl, runId) = await _sourceControlProvider.TriggerPipelineAsync(
@@ -362,6 +376,7 @@ public sealed class CrispAgent : ICrispAgent
                     pipelineUrl = runUrl;
 
                     // Wait and verify
+                    await progressCallback("build_wait", "Waiting for initial build...");
                     for (var attempt = 0; attempt < MaxRemediationAttempts; attempt++)
                     {
                         await Task.Delay(10000, cancellationToken); // Wait 10 seconds
@@ -384,6 +399,7 @@ public sealed class CrispAgent : ICrispAgent
             }
 
             // Generate delivery result
+            await progressCallback("finalizing", "Finalizing delivery...");
             var vsCodeWebUrl = GenerateVsCodeWebUrl(plan.Repository.Url!, plan.Requirements.ScmPlatform);
             var vsCodeCloneUrl = GenerateVsCodeCloneUrl(plan.Repository.CloneUrl!);
 

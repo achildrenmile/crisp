@@ -158,6 +158,12 @@ public sealed class ChatAgent : IChatAgent
         session.AddUserMessage(userMessage);
         _sessionManager.MarkDirty(session.SessionId);
 
+        // Publish "thinking" status
+        await session.PublishEventAsync(new ActionStatusEvent(
+            "thinking",
+            "Thinking...",
+            DateTime.UtcNow));
+
         // Build system prompt with current context
         var systemPrompt = BuildSystemPrompt(session);
 
@@ -178,6 +184,12 @@ public sealed class ChatAgent : IChatAgent
         if (actionResult != null && actionResult.Action == "create_project")
         {
             _logger.LogInformation("Detected create_project action, executing scaffolding...");
+
+            // Publish "preparing" status
+            await session.PublishEventAsync(new ActionStatusEvent(
+                "preparing",
+                "Preparing to scaffold your project...",
+                DateTime.UtcNow));
 
             // Set the project name on the session for history tracking
             session.SetProjectName(actionResult.Requirements!.ProjectName);
@@ -247,6 +259,12 @@ public sealed class ChatAgent : IChatAgent
                 startMessage,
                 DateTime.UtcNow));
 
+            // Publish "creating plan" status
+            await session.PublishEventAsync(new ActionStatusEvent(
+                "creating_plan",
+                "Creating execution plan...",
+                DateTime.UtcNow));
+
             // Create the plan
             _logger.LogInformation("Creating execution plan for {ProjectName}", requirements.ProjectName);
             var plan = await _crispAgent.CreatePlanAsync(requirements, cancellationToken);
@@ -256,9 +274,18 @@ public sealed class ChatAgent : IChatAgent
             session.SetPlan(plan);
             session.SetStatus(SessionStatus.Executing);
 
-            // Execute the plan
+            // Execute the plan with progress callbacks
             _logger.LogInformation("Executing plan for {ProjectName}", requirements.ProjectName);
-            var result = await _crispAgent.ExecutePlanAsync(plan, cancellationToken);
+            var result = await _crispAgent.ExecutePlanAsync(
+                plan,
+                async (actionKey, description) =>
+                {
+                    await session.PublishEventAsync(new ActionStatusEvent(
+                        actionKey,
+                        description,
+                        DateTime.UtcNow));
+                },
+                cancellationToken);
 
             session.SetDeliveryResult(result);
 

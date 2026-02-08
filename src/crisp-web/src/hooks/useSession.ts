@@ -6,6 +6,7 @@ import type {
   ExecutionPlan,
   DeliveryCard,
   AgentEvent,
+  ActionStatus,
 } from '../types';
 import * as api from '../services/api';
 
@@ -16,9 +17,28 @@ interface UseSessionReturn {
   error: string | null;
   currentPlan: ExecutionPlan | null;
   deliveryResult: DeliveryCard | null;
+  currentAction: ActionStatus | null;
   sendMessage: (content: string) => Promise<void>;
   approvePlan: (approved: boolean, feedback?: string) => Promise<void>;
   createSession: () => Promise<string>;
+}
+
+// Map numeric enum values to string status
+const statusMap: Record<number, SessionStatus> = {
+  0: 'intake',
+  1: 'planning',
+  2: 'awaiting_approval',
+  3: 'executing',
+  4: 'delivering',
+  5: 'completed',
+  6: 'failed',
+};
+
+function parseStatus(status: string | number): SessionStatus {
+  if (typeof status === 'number') {
+    return statusMap[status] || 'intake';
+  }
+  return status.toLowerCase() as SessionStatus;
 }
 
 export function useSession(sessionId?: string): UseSessionReturn {
@@ -28,24 +48,36 @@ export function useSession(sessionId?: string): UseSessionReturn {
   const [error, setError] = useState<string | null>(null);
   const [currentPlan, setCurrentPlan] = useState<ExecutionPlan | null>(null);
   const [deliveryResult, setDeliveryResult] = useState<DeliveryCard | null>(null);
+  const [currentAction, setCurrentAction] = useState<ActionStatus | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
 
   // Handle SSE events
   const handleEvent = useCallback((event: AgentEvent) => {
     switch (event.type) {
-      case 'message': {
-        const data = event.data as { content: string; isPartial: boolean };
-        if (!data.isPartial) {
+      case 'message':
+      case 'agent_message': {
+        // Handle both legacy 'message' and new 'agent_message' event types
+        const eventData = event as unknown as {
+          messageId?: string;
+          content: string;
+          data?: { content: string; isPartial: boolean };
+        };
+        const content = eventData.content || eventData.data?.content;
+        const isPartial = eventData.data?.isPartial ?? false;
+
+        if (content && !isPartial) {
           // Full message - add to messages list
           setMessages((prev) => [
             ...prev,
             {
-              id: crypto.randomUUID(),
+              id: eventData.messageId || crypto.randomUUID(),
               role: 'assistant',
-              content: data.content,
+              content: content,
               timestamp: event.timestamp,
             },
           ]);
+          // Clear the action when we get a message
+          setCurrentAction(null);
         }
         break;
       }
@@ -86,6 +118,7 @@ export function useSession(sessionId?: string): UseSessionReturn {
         const eventData = event as unknown as { deliveryCard: DeliveryCard };
         const delivery = eventData.deliveryCard;
         setDeliveryResult(delivery);
+        setCurrentAction(null);
         setSession((prev) =>
           prev ? { ...prev, status: 'completed' as SessionStatus } : prev
         );
@@ -102,6 +135,18 @@ export function useSession(sessionId?: string): UseSessionReturn {
         const errorData = event.data as { message: string };
         setError(errorData.message);
         setIsLoading(false);
+        setCurrentAction(null);
+        break;
+      }
+      case 'action_status': {
+        const actionData = event as unknown as {
+          actionKey: string;
+          description: string;
+        };
+        setCurrentAction({
+          actionKey: actionData.actionKey,
+          description: actionData.description,
+        });
         break;
       }
     }
@@ -114,7 +159,8 @@ export function useSession(sessionId?: string): UseSessionReturn {
     const eventSource = api.createEventSource(sessionId);
     eventSourceRef.current = eventSource;
 
-    eventSource.onmessage = (e) => {
+    // Handler for parsing and processing SSE events
+    const processEvent = (e: MessageEvent) => {
       try {
         const event = JSON.parse(e.data) as AgentEvent;
         handleEvent(event);
@@ -123,12 +169,36 @@ export function useSession(sessionId?: string): UseSessionReturn {
       }
     };
 
+    // Listen for named events from the server
+    const eventTypes = [
+      'agent_message',
+      'plan_ready',
+      'step_started',
+      'step_completed',
+      'step_failed',
+      'build_status',
+      'delivery_ready',
+      'error',
+      'approval_required',
+      'action_status',
+    ];
+
+    eventTypes.forEach((eventType) => {
+      eventSource.addEventListener(eventType, processEvent);
+    });
+
+    // Also handle unnamed events (fallback)
+    eventSource.onmessage = processEvent;
+
     eventSource.onerror = () => {
       console.error('SSE connection error');
       // EventSource will automatically reconnect
     };
 
     return () => {
+      eventTypes.forEach((eventType) => {
+        eventSource.removeEventListener(eventType, processEvent);
+      });
       eventSource.close();
       eventSourceRef.current = null;
     };
@@ -146,7 +216,7 @@ export function useSession(sessionId?: string): UseSessionReturn {
 
         // Load session status
         const statusData = await api.getSessionStatus(sessionId);
-        const status = statusData.status.toLowerCase() as SessionStatus;
+        const status = parseStatus(statusData.status);
         setSession({
           id: sessionId,
           status,
@@ -261,6 +331,7 @@ export function useSession(sessionId?: string): UseSessionReturn {
     error,
     currentPlan,
     deliveryResult,
+    currentAction,
     sendMessage,
     approvePlan,
     createSession,

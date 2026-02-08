@@ -63,6 +63,7 @@ export type AgentEventType =
   | 'step_completed'
   | 'delivery_ready'
   | 'status_changed'
+  | 'action_status'
   | 'error';
 
 export interface AgentEvent {
@@ -111,4 +112,18 @@ export interface ErrorEvent extends AgentEvent {
     message: string;
     code?: string;
   };
+}
+
+export interface ActionStatusEvent extends AgentEvent {
+  type: 'action_status';
+  data: {
+    actionKey: string;
+    description: string;
+  };
+}
+
+// Action status for display
+export interface ActionStatus {
+  actionKey: string;
+  description: string;
 }

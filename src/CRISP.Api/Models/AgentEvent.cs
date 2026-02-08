@@ -73,3 +73,11 @@ public sealed record DeliveryReadyEvent(
 public sealed record ErrorEvent(
     string Message,
     DateTime Timestamp) : AgentEvent("error", Timestamp);
+
+/// <summary>
+/// Current action status update - shows what the agent is doing.
+/// </summary>
+public sealed record ActionStatusEvent(
+    string ActionKey,
+    string Description,
+    DateTime Timestamp) : AgentEvent("action_status", Timestamp);
