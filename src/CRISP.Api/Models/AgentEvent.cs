@@ -1,8 +1,20 @@
+using System.Text.Json.Serialization;
+
 namespace CRISP.Api.Models;
 
 /// <summary>
 /// Base class for agent events sent via SSE.
 /// </summary>
+[JsonDerivedType(typeof(AgentMessageEvent))]
+[JsonDerivedType(typeof(PlanReadyEvent))]
+[JsonDerivedType(typeof(ApprovalRequiredEvent))]
+[JsonDerivedType(typeof(StepStartedEvent))]
+[JsonDerivedType(typeof(StepCompletedEvent))]
+[JsonDerivedType(typeof(StepFailedEvent))]
+[JsonDerivedType(typeof(BuildStatusEvent))]
+[JsonDerivedType(typeof(DeliveryReadyEvent))]
+[JsonDerivedType(typeof(ErrorEvent))]
+[JsonDerivedType(typeof(ActionStatusEvent))]
 public abstract record AgentEvent(string Type, DateTime Timestamp);
 
 /// <summary>
