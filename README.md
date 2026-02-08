@@ -16,6 +16,7 @@ CRISP accepts developer requirements via a chat interface, validates the input, 
 ### Highlights
 
 - **AI Chat Interface** - Describe your project in plain English
+- **Real-time Status** - Live action indicators showing exactly what's happening
 - **Multiple Templates** - ASP.NET Core, FastAPI, Dart Shelf (more coming)
 - **Auto CI/CD** - GitHub Actions or Azure Pipelines generated automatically
 - **Docker Ready** - Every project includes Dockerfile and docker-compose

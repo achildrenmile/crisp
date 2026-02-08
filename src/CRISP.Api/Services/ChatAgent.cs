@@ -319,6 +319,13 @@ public sealed class ChatAgent : IChatAgent
                 var assistantMessage = session.AddAssistantMessage(successMessage);
                 _sessionManager.MarkDirty(session.SessionId);
 
+                // Publish success message first
+                await session.PublishEventAsync(new AgentMessageEvent(
+                    assistantMessage.MessageId,
+                    assistantMessage.Content,
+                    assistantMessage.Timestamp));
+
+                // Then publish delivery card
                 var deliveryCard = new DeliveryCardDto(
                     result.Platform,
                     result.RepositoryUrl,

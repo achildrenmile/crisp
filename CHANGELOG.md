@@ -5,6 +5,42 @@ All notable changes to CRISP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.0] - 2026-02-08
+
+### Added
+- **Real-time Action Status Indicators**: Dynamic status messages showing exactly what CRISP is doing during project creation
+  - Replaces generic loading dots with descriptive action states
+  - Shows contextual icons for each action phase:
+    - 🤔 Thinking... (LLM processing)
+    - 🔧 Preparing to scaffold...
+    - 📋 Creating execution plan...
+    - 📁 Generating project files...
+    - 🏢 Running enterprise modules...
+    - 🚀 Creating remote repository...
+    - 📦 Initializing Git repository...
+    - ⬆️ Pushing to remote repository...
+    - ⚙️ Setting up CI/CD pipeline...
+    - ⏳ Waiting for initial build...
+    - ✨ Finalizing delivery...
+  - Spinning loader animation alongside status text
+
+### Changed
+- Removed redundant DeliveryCard component - success message now contains all repository information
+- SSE events now use polymorphic JSON serialization for proper derived type handling
+- Sidebar automatically refreshes when project creation completes
+
+### Fixed
+- **SSE Event Serialization**: Fixed polymorphic event serialization so derived type properties (actionKey, description) are included in JSON
+- **Session State Reset**: Fixed delivery result persisting when switching between sessions
+- **SSE Parse Errors**: Improved error handling for undefined/empty SSE data
+
+### Technical Details
+- New `ActionStatusEvent` SSE event type with `actionKey` and `description` properties
+- Added `[JsonDerivedType]` attributes to `AgentEvent` base class for polymorphic serialization
+- New `ActionIndicator` React component replaces `TypingIndicator`
+- Progress callback pattern in `ICrispAgent.ExecutePlanAsync` for real-time status updates
+- Frontend SSE handling now listens for named events via `addEventListener`
+
 ## [2.7.0] - 2026-02-08
 
 ### Added
