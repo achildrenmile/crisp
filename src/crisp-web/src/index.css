@@ -455,6 +455,7 @@ body {
 .chat-messages {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -810,6 +811,7 @@ body {
   padding: 1.25rem;
   margin: 1rem 0;
   overflow: hidden;
+  max-width: 100%;
 }
 
 .delivery-header {
@@ -835,6 +837,7 @@ body {
   padding: 0.75rem;
   margin-bottom: 1rem;
   overflow: hidden;
+  max-width: 100%;
 }
 
 .delivery-item {
@@ -865,6 +868,9 @@ body {
   color: white;
   text-decoration: underline;
   word-break: break-all;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+  display: inline-block;
 }
 
 .build-status {
@@ -880,11 +886,13 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
+  max-width: 100%;
 }
 
 .btn-vscode {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   padding: 0.625rem 1rem;
   background: white;
@@ -897,7 +905,8 @@ body {
   border: none;
   cursor: pointer;
   transition: transform 0.2s;
-  white-space: nowrap;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .btn-vscode:hover {
@@ -907,6 +916,7 @@ body {
 .btn-vscode-clone {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   padding: 0.625rem 1rem;
   background: rgba(255, 255, 255, 0.2);
@@ -919,7 +929,8 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.3);
   cursor: pointer;
   transition: transform 0.2s, background 0.2s;
-  white-space: nowrap;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .btn-vscode-clone:hover {
@@ -928,9 +939,14 @@ body {
 }
 
 .delivery-card .btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
   border: 1px solid white;
   color: white;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .delivery-card .btn-secondary:hover {
