@@ -110,6 +110,32 @@
   color: var(--text-muted);
 }
 
+/* Responsive: tablet - narrower sidebar */
+@media (max-width: 1024px) {
+  .chat-sidebar {
+    width: 200px;
+  }
+
+  .sidebar-header {
+    padding: 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .new-session-btn {
+    margin: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .session-name {
+    font-size: 0.75rem;
+  }
+
+  .session-meta {
+    font-size: 0.65rem;
+  }
+}
+
 /* Responsive: hide sidebar on small screens */
 @media (max-width: 768px) {
   .chat-sidebar {
