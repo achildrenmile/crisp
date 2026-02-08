@@ -163,9 +163,10 @@ export function useSession(sessionId?: string): UseSessionReturn {
     const processEvent = (e: MessageEvent) => {
       try {
         const event = JSON.parse(e.data) as AgentEvent;
+        console.log('SSE event received:', event.type, event);
         handleEvent(event);
       } catch (err) {
-        console.error('Failed to parse SSE event:', err);
+        console.error('Failed to parse SSE event:', err, e.data);
       }
     };
 
