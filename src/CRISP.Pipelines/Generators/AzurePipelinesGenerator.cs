@@ -313,7 +313,7 @@ public sealed class AzurePipelinesGenerator : IPipelineGenerator
                 ["displayName"] = "Use Node.js",
                 ["inputs"] = new Dictionary<string, object>
                 {
-                    ["versionSpec"] = requirements.RuntimeVersion.Replace("Node ", "")
+                    ["versionSpec"] = requirements.RuntimeVersion.Replace("Node.js ", "").Replace("Node ", "")
                 }
             },
             new Dictionary<string, object>

@@ -193,7 +193,7 @@ public sealed class GitHubActionsGenerator : IPipelineGenerator
                 ["uses"] = "actions/setup-node@v4",
                 ["with"] = new Dictionary<string, object>
                 {
-                    ["node-version"] = requirements.RuntimeVersion.Replace("Node ", ""),
+                    ["node-version"] = requirements.RuntimeVersion.Replace("Node.js ", "").Replace("Node ", ""),
                     ["cache"] = "npm"
                 }
             },
